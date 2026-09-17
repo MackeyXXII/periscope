@@ -1,0 +1,5 @@
+/* Placeholder. Design system is authored at Level 4 (M10), after Gate G2.
+   Constraints: no external fonts, system font stack only, responsive on phone and laptop. */
+:root { color-scheme: light dark; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 2rem; line-height: 1.5; }
+main { max-width: 42rem; margin: 0 auto; }
