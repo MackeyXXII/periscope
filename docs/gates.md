@@ -6,8 +6,8 @@ propose; the Red-team Reviewer may block; Miguel approves. Record every outcome 
 | Gate | Covers | Date | Outcome |
 |---|---|---|---|
 | G1 | Level 1 user requirements R1–R8 and the four working assumptions | 16 Sept 2026 | **Approved** |
-| G2 | Level 2 system requirements, Level 3 architecture, Level 4 module design, test plan | 17 Sept 2026 | Open |
-| G3 | Content freeze: runtime pipeline output verified and frozen | 18 Sept 2026 | Not started |
+| G2 | Level 2 system requirements, Level 3 architecture, Level 4 module design, test plan | 19 Sept 2026 | Open |
+| G3 | Content freeze: runtime pipeline output verified and frozen | 20 Sept 2026 | Not started |
 | G4 | System test pass | — | Not started |
 | G5 | Acceptance by real viewers | — | Not started |
 

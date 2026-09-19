@@ -24,16 +24,16 @@ flowchart LR
 
 | Agent | Layer | Surface | Model | Role |
 |---|---|---|---|---|
-| Orchestrator | Build | Claude Code main session | Fable 5.1, then Opus 5 | Holds V-Model state, dispatches subagents, enforces gates; writes no code itself |
-| Requirements Engineer | Build | Subagent | Fable 5.1 | R-level into F-level specification and the traceability matrix |
-| Architect | Build | Subagent | Fable 5.1 | Architecture, JSON data contracts, module specifications |
+| Orchestrator | Build | Claude Code main session | Opus 5 | Holds V-Model state, dispatches subagents, enforces gates; writes no code itself |
+| Requirements Engineer | Build | Subagent | Opus 5 | R-level into F-level specification and the traceability matrix |
+| Architect | Build | Subagent | Opus 5 | Architecture, JSON data contracts, module specifications |
 | Test Engineer | Build | Subagent | Sonnet 5 | Writes each paired test from its specification before implementation, then runs it |
 | Implementer | Build | Subagent | Sonnet 5 (Opus 5 for complex modules) | Builds modules against their specifications |
-| Red-team Reviewer | Build | Subagent | Fable 5.1, then Opus 5 | Enforces R3 and R4 invariants and honesty labels; can block a gate |
+| Red-team Reviewer | Build | Subagent | Opus 5 | Enforces R3 and R4 invariants and honesty labels; can block a gate |
 | Scout | Runtime | Subagent with web tools | Sonnet 5 | Horizon scanning against the scanning brief; signal cards with provenance |
 | Trend Analyst | Runtime | Subagent | Opus 5 | Clusters signals into candidate trends with momentum notes |
-| Rival Readers (three lenses) | Runtime | Subagents | Fable 5.1 | Opportunity, threat and noise readings, each with evidence, counter-evidence and a disconfirming condition |
-| Interrogator | Runtime | Subagent | Fable 5.1 | Provenance checks, assumption probes, pre-mortem, intuition prompts |
+| Rival Readers (three lenses) | Runtime | Subagents | Opus 5 | Opportunity, threat and noise readings, each with evidence, counter-evidence and a disconfirming condition |
+| Interrogator | Runtime | Subagent | Opus 5 | Provenance checks, assumption probes, pre-mortem, intuition prompts |
 | Verifier | Runtime | Subagent | Opus 5 | Checks every claim against its source, strikes the unverifiable, rejects any ranking |
 | Brief Editor | Runtime | Subagent | Sonnet 5 | Compresses output to fit R1's attention budget |
 | Persona and Brief Researcher | Support | Claude Cowork | Opus 5 | Persona dossier, scanning brief, replay candidates |
@@ -57,10 +57,11 @@ verified, then frozen into `data/`. Nothing in that layer ever runs for a viewer
 | When | Work | Gate |
 |---|---|---|
 | 16 Sept | Requirements and assumptions approved | G1 (done) |
-| 17 Sept | Repository and CLAUDE.md; Cowork builds persona and scanning brief in parallel; Requirements Engineer and Architect produce levels 2 to 4 and the test plan | G2 |
-| 18 Sept | Runtime pipeline runs once: Scout and Trend Analyst on included models, Rival Readers and Interrogator on Fable, then Verifier | G3 content freeze |
-| 19 Sept | Red-team review of frozen content and the core-loop specification; remaining credits on Fable review of the traceability matrix | — |
-| From 20 Sept | Module-by-module build, tests first, then integration, system test and acceptance | G4, G5 |
+| 17 Sept | Repository, CLAUDE.md and the V-Model document skeleton | — |
+| 19 Sept | Repository published; Requirements Engineer and Architect produce levels 2 to 4 and the test plan; Cowork builds the persona dossier and scanning brief in parallel | G2 |
+| 20 Sept | Runtime pipeline runs once: Scout and Trend Analyst, then the Rival Readers and the Interrogator on Opus 5, then the Verifier | G3 content freeze |
+| 21 Sept | Red-team review of the frozen content, the core-loop specification and the traceability matrix | — |
+| From 22 Sept | Module-by-module build, tests first, then integration, system test and acceptance | G4, G5 |
 | After thesis interviews | Anonymised insights, under the consent clause, feed a second pass starting again at Level 1 | New G1 |
 
 ## Risks held open
@@ -69,8 +70,8 @@ verified, then frozen into `data/`. Nothing in that layer ever runs for a viewer
 |---|---|
 | Drift into ranked recommendations | Invariants in `CLAUDE.md`; Red-team Reviewer can block any gate |
 | Fabricated or stale signals | Verifier checks every claim; NF2 provenance; dated real outcome sources in the replay |
-| Credits exhausted mid-run | Opus 5 fallback; Fable output re-checked after 19 Sept |
+| Usage limit reached mid-run | Stop at an artefact boundary, commit, resume in the next usage window; no credit purchases and no mid-artefact switch to a weaker model |
 | Demo reads as a thesis summary, not a product | Packager's walkthrough script; acceptance by real viewers |
 | Unfair or inaccurate portrayal of Dynatrace | Persona brief limited to verifiable public facts; neutral framing reviewed at G3 |
 | Copyright in sourced material | Short quotes only, paraphrase by default, links to originals |
-| Build competes with Chapter 3 writing | From 20 Sept, work in scheduled five-hour blocks around thesis time |
+| Build competes with Chapter 3 writing | From 22 Sept, work in scheduled five-hour blocks around thesis time |

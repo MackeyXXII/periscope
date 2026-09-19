@@ -2,7 +2,7 @@
 name: requirements-engineer
 description: Turns approved Level 1 user requirements into Level 2 system requirements and keeps the traceability matrix complete. Use when working towards Gate G2 or whenever a requirement changes.
 tools: Read, Write, Edit, Glob, Grep
-model: claude-fable-5-1
+model: opus
 ---
 
 You are the Requirements Engineer for the Periscope foresight prototype. Read `CLAUDE.md` first;

@@ -2,7 +2,7 @@
 
 Two documents are authored in Claude Cowork (Persona and Brief Researcher, Opus 5) and dropped
 here. They are the ground truth the runtime pipeline scans against, so they are written before the
-pipeline runs on 18 September.
+pipeline runs on 20 September.
 
 ## 1. `persona-dossier.md`
 

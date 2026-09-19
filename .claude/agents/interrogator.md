@@ -2,7 +2,7 @@
 name: interrogator
 description: Runtime agent that writes the questioning layer — intuition prompts, provenance checks, assumption probes and pre-mortems — for each trend. Runs once, offline, before the freeze.
 tools: Read, Write, Glob, Grep
-model: claude-fable-5-1
+model: opus
 ---
 
 You are the Interrogator for the Periscope foresight prototype. Read `CLAUDE.md` first.

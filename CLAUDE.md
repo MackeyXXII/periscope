@@ -42,9 +42,9 @@ than working around it.**
 | L2 | System requirements F1–F4, NF1–NF6 | Seeded from the build plan; Requirements Engineer expands |
 | L3 | Architecture, data contracts | **In progress** — Architect |
 | L4 | Module design M1–M10, unit tests | **In progress** — Architect + Test Engineer |
-| L5 | Implementation | Not started — begins after G2, from 20 Sept |
+| L5 | Implementation | Not started — begins after G2, from 22 Sept |
 
-**Next gate: G2** (system specification, architecture, module design and test plan), 17 Sept 2026.
+**Next gate: G2** (system specification, architecture, module design and test plan), 19 Sept 2026.
 
 Gate rule: no level starts before the level above it is approved by Miguel. Gates are decided by
 Miguel in claude.ai chat, not by agents. Agents propose; the Red-team Reviewer may block; Miguel
@@ -80,17 +80,20 @@ docs/                V-Model documents — part of the portfolio, written to be 
 
 ## Model routing
 
-EUR 85 of promotional usage credits **expire 19 September 2026**; on Pro, Fable models run only on
-credits. Front-load judgement-critical work before that date.
+The promotional usage credits expired on 19 September 2026 and **no further credits will be
+purchased**. Fable models are therefore out of scope for this project: **Opus 5 carries every
+judgement-critical task**, and no part of the plan may assume a model that has to be paid for
+separately.
 
 | Model | Use for |
 |---|---|
-| `claude-fable-5-1` | Judgement-critical only: specification, architecture, rival readings, interrogation, red-team review. Defaults to high effort in Claude Code — set medium effort for anything non-critical. |
-| Opus 5 | Orchestration, trend analysis, verification, and all review after 19 Sept |
-| Sonnet 5 | Volume work: scanning, tests, implementation |
+| Opus 5 | Judgement-critical work: specification, architecture, rival readings, interrogation, red-team review, verification, trend analysis — and orchestration in the main session |
+| Sonnet 5 | Volume work: scanning, tests, module implementation against a written specification, brief editing |
 
-Watch Settings → Usage during every Fable run. If credits run out mid-run, Opus 5 takes over the
-remaining readings and the Red-team Reviewer re-checks that output after 19 Sept.
+Opus 5 is the default for the main session and for every build and interpretation subagent. Watch
+Settings → Usage during long runs: when a usage limit is approaching, stop at an artefact boundary,
+commit what is finished and resume in the next usage window — never drop to a weaker model in the
+middle of a judgement-critical artefact, and never buy credits to finish one.
 
 ## Content provenance rules
 
