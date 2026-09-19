@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/readiness-profile.schema.json",
+  "title": "ReadinessProfile",
+  "description": "Tracewell's position across the five readiness categories of Jöhnk et al. (2021) and on the OECD/WEF maturity view. The whole profile describes a fictional team and is labelled fictional; the framework citation is real and labelled so. There is no numeric field anywhere: a category holds answers and a prose finding, never a score, bar value or level of strength (A-10). The maturity level is held as a name only, with no level number, and is pinned to the literal LEVEL_NAME_UNVERIFIED until the report is verified (D-1). The next complement is pinned to null until K-2 is decided. Shipped in data/readiness.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "subject", "framework", "categories", "maturity", "label", "provenance"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^readiness-[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$"
+    },
+    "subject": {
+      "description": "The fictional team the profile describes (Tracewell).",
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "framework": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "citation", "label"],
+      "properties": {
+        "name": { "$ref": "common.schema.json#/$defs/text" },
+        "citation": { "$ref": "common.schema.json#/$defs/sourceRef" },
+        "label": { "const": "real" }
+      }
+    },
+    "categories": {
+      "description": "Exactly five categories, each key exactly once, in the order the paper presents them. Here, unlike elsewhere, array order is meaningful: it is the source's order, not an order of importance, and the UI never re-sorts it by finding.",
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/category" },
+      "allOf": [
+        { "contains": { "required": ["key"], "properties": { "key": { "const": "strategic-alignment" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["key"], "properties": { "key": { "const": "resources" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["key"], "properties": { "key": { "const": "knowledge" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["key"], "properties": { "key": { "const": "culture" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["key"], "properties": { "key": { "const": "data" } } }, "minContains": 1, "maxContains": 1 }
+      ]
+    },
+    "maturity": { "$ref": "#/$defs/maturity" },
+    "label": { "const": "fictional" },
+    "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }
+  },
+  "$defs": {
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "answers", "finding"],
+      "properties": {
+        "key": {
+          "description": "Machine key. The five keys follow the category names as L2 records them from the paper; the Verifier confirms the names before freeze (Decision DM-8).",
+          "enum": ["strategic-alignment", "resources", "knowledge", "culture", "data"]
+        },
+        "name": {
+          "description": "The category name exactly as confirmed against the paper, for display.",
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        "answers": {
+          "description": "Tracewell's answers from the persona dossier, as question and answer pairs, in dossier order.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["question", "answer"],
+            "properties": {
+              "question": { "$ref": "common.schema.json#/$defs/text" },
+              "answer": { "$ref": "common.schema.json#/$defs/text" }
+            }
+          }
+        },
+        "finding": {
+          "description": "Prose only: what the answers show about this category. No level, grade or strength word is carried in a separate field, and C-6 applies to the prose.",
+          "$ref": "common.schema.json#/$defs/text"
+        }
+      }
+    },
+    "maturity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "levelName", "explanation", "nextComplement", "report"],
+      "properties": {
+        "status": {
+          "description": "Whether the level names and criteria have been confirmed by Miguel against the OECD/WEF report itself.",
+          "enum": ["unverified", "verified"]
+        },
+        "levelName": { "$ref": "common.schema.json#/$defs/text" },
+        "explanation": {
+          "oneOf": [{ "$ref": "common.schema.json#/$defs/text" }, { "type": "null" }]
+        },
+        "nextComplement": {
+          "description": "Pinned to null until K-2 decides whether a single next complement is compatible with the no-recommendation invariant, and in what form. The shape is re-specified then.",
+          "type": "null"
+        },
+        "report": {
+          "oneOf": [{ "$ref": "common.schema.json#/$defs/sourceRef" }, { "type": "null" }]
+        }
+      },
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "const": "unverified" } }
+      },
+      "then": {
+        "properties": {
+          "levelName": { "const": "LEVEL_NAME_UNVERIFIED" },
+          "explanation": { "type": "null" },
+          "report": { "type": "null" }
+        }
+      },
+      "else": {
+        "properties": {
+          "levelName": { "not": { "const": "LEVEL_NAME_UNVERIFIED" } },
+          "explanation": { "type": "string" },
+          "report": { "type": "object" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/trend.schema.json",
+  "title": "Trend",
+  "description": "A cluster of signals that share an underlying movement, written by the Trend Analyst, with the intuition prompt written by the Interrogator. Everything in a Trend is shown before the viewer's gut reading is recorded, so everything in it must be lens-neutral. A Trend holds its three Readings by reference, one per lens: the Reading content ships in a separate module (data/reveal/<trendId>.js) that is imported only after the intuition record exists. Shipped in data/trends.js as an array.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "summary", "intuitionPrompt", "signalIds", "readings", "label", "provenance"],
+  "properties": {
+    "id": { "$ref": "common.schema.json#/$defs/trendId" },
+    "title": { "$ref": "common.schema.json#/$defs/text" },
+    "summary": {
+      "description": "What is moving and over what period, in prose, with no opportunity, threat or noise direction and no statement of strength or urgency.",
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "intuitionPrompt": {
+      "description": "The single Interrogation question shown before the readings. Held on the Trend, not on the Interrogation, so that the whole Interrogation can be loaded after the intuition record (A-4).",
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "signalIds": {
+      "description": "The signals this trend rests on. Array order carries no meaning; the UI orders signals by publication date (C-4). A trend resting on one signal says so by having one entry.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "common.schema.json#/$defs/signalId" }
+    },
+    "readings": {
+      "description": "Exactly three references, one per lens. They are unordered peers: array order carries no meaning and the UI ignores it. Only the lens and the reading identifier appear here, never reading content.",
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lens", "readingId"],
+        "properties": {
+          "lens": { "$ref": "common.schema.json#/$defs/lens" },
+          "readingId": { "$ref": "common.schema.json#/$defs/readingId" }
+        }
+      },
+      "allOf": [
+        {
+          "contains": { "required": ["lens"], "properties": { "lens": { "const": "noise" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["lens"], "properties": { "lens": { "const": "opportunity" } } },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": { "required": ["lens"], "properties": { "lens": { "const": "threat" } } },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    },
+    "label": { "$ref": "common.schema.json#/$defs/generatedLabel" },
+    "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/governance.schema.json",
+  "title": "Governance",
+  "description": "Container for the governance screen (R8, F3 step 4, A-2). Two lists and a sourced argument. The statements required by L2 are pinned by identifier, so the screen cannot ship without them. Every 'implemented' statement names the test that verifies it, which turns a claim about the demo into a checkable one. Every argument paragraph carries at least one dated source, because it makes regulatory claims (NF2). Shipped in data/governance.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "implemented", "notImplemented", "argument", "label", "provenance"],
+  "properties": {
+    "id": { "const": "governance" },
+    "implemented": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text", "verifiedBy"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/slug" },
+          "text": { "$ref": "common.schema.json#/$defs/text" },
+          "verifiedBy": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "common.schema.json#/$defs/testId" }
+          }
+        }
+      },
+      "allOf": [
+        { "contains": { "required": ["id"], "properties": { "id": { "const": "open-web-sources-frozen" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["id"], "properties": { "id": { "const": "no-viewer-data-stored-or-sent" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["id"], "properties": { "id": { "const": "no-live-ai" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["id"], "properties": { "id": { "const": "no-accounts-cookies-analytics" } } }, "minContains": 1, "maxContains": 1 }
+      ]
+    },
+    "notImplemented": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/slug" },
+          "text": { "$ref": "common.schema.json#/$defs/text" }
+        }
+      },
+      "allOf": [
+        { "contains": { "required": ["id"], "properties": { "id": { "const": "own-data-ingestion" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["id"], "properties": { "id": { "const": "cross-session-persistence" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["id"], "properties": { "id": { "const": "role-aware-model" } } }, "minContains": 1, "maxContains": 1 }
+      ]
+    },
+    "argument": {
+      "description": "What own-data ingestion would require before it could be built, as paragraphs in reading order. Each paragraph cites at least one dated source.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text", "sources"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/slug" },
+          "text": { "$ref": "common.schema.json#/$defs/text" },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "common.schema.json#/$defs/sourceRef" }
+          }
+        }
+      }
+    },
+    "label": {
+      "description": "Undecided (K-3, Decision DM-2): statements about the demo itself fit no origin label cleanly. The schema admits the vocabulary unchanged.",
+      "$ref": "common.schema.json#/$defs/label"
+    },
+    "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }
+  }
+}

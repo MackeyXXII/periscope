@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/reveal-bundle.schema.json",
+  "title": "RevealBundle",
+  "description": "Shipping container, not an entity and never rendered as an element: everything about one trend that may exist in the page only after the viewer's intuition record. One file per trend, data/reveal/<trendId>.js, loaded by dynamic import() at the gut-reading step and not before (A-6). Holds the three Readings and the Interrogation. Cross-document rules that JSON Schema cannot express are checked by the M1 referential-integrity test: every Reading's and the Interrogation's trendId equals the bundle's trendId, and each Reading's id equals the readingId the Trend holds for that lens.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["trendId", "readings", "interrogation"],
+  "properties": {
+    "trendId": { "$ref": "common.schema.json#/$defs/trendId" },
+    "readings": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "reading.schema.json" },
+      "allOf": [
+        { "contains": { "required": ["lens"], "properties": { "lens": { "const": "noise" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["lens"], "properties": { "lens": { "const": "opportunity" } } }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "required": ["lens"], "properties": { "lens": { "const": "threat" } } }, "minContains": 1, "maxContains": 1 }
+      ]
+    },
+    "interrogation": { "$ref": "interrogation.schema.json" }
+  }
+}

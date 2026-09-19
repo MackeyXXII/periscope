@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/common.schema.json",
+  "title": "Shared definitions",
+  "description": "Definitions shared by every Periscope data contract. Not an entity: nothing validates against this file directly. Design rules that hold across all schemas: every object is closed (additionalProperties false); no schema declares a number, integer or boolean anywhere, so no field can carry a score, weight, likelihood, rank or flag; identifiers are built from dates and word slugs, never from sequence numbers, so no identifier can encode an order of importance. The .invalid host in every $id is reserved by RFC 2606 and can never be fetched.",
+  "$defs": {
+    "label": {
+      "description": "The honesty vocabulary from CLAUDE.md invariant 5. Not extended here; see 'Decisions for Miguel' in docs/03-architecture.md for the gaps (K-3).",
+      "enum": ["real", "ai-generated", "frozen", "fictional", "replay"]
+    },
+    "generatedLabel": {
+      "description": "Labels an AI-generated fixture entity may carry while K-3 is open: its origin (ai-generated) or its time status (frozen). Never real, fictional or replay.",
+      "enum": ["ai-generated", "frozen"]
+    },
+    "lens": {
+      "description": "The three rival lenses. Peers: the enumeration order here is alphabetical and carries no meaning.",
+      "enum": ["noise", "opportunity", "threat"]
+    },
+    "producer": {
+      "description": "Who produced an entity. Pipeline agents by their agent name; persona-researcher is the Cowork Persona and Brief Researcher; project-author is a human author of the project; viewer is the person using the demo, in-session only.",
+      "enum": [
+        "scout",
+        "trend-analyst",
+        "rival-reader",
+        "interrogator",
+        "verifier",
+        "brief-editor",
+        "persona-researcher",
+        "project-author",
+        "viewer"
+      ]
+    },
+    "date": {
+      "description": "Calendar date, ISO 8601, YYYY-MM-DD.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "dateTime": {
+      "description": "Instant in UTC as produced by Date.prototype.toISOString(). Used only for in-session records, to make the order of intuition, reveal and commit checkable.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "httpsUrl": {
+      "description": "An absolute https URL to a public source. Rendered only as an <a href> the viewer chooses to follow; never loaded by the demo.",
+      "type": "string",
+      "maxLength": 2000,
+      "pattern": "^https://\\S+$"
+    },
+    "text": {
+      "description": "Non-empty prose containing at least one non-whitespace character.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "oneLine": {
+      "description": "A single line of prose, at most 200 characters, with at least one non-whitespace character.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[^\\r\\n]*\\S[^\\r\\n]*$"
+    },
+    "slug": {
+      "description": "Lower-case word segments joined by hyphens. Each segment starts with a letter, so a slug cannot be a bare sequence number.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$"
+    },
+    "signalId": {
+      "description": "sig-<publication date>-<slug>. The date part must equal provenance.publishedOn (checked by the M3 unit test).",
+      "type": "string",
+      "pattern": "^sig-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$"
+    },
+    "trendId": {
+      "type": "string",
+      "pattern": "^trend-[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$"
+    },
+    "readingId": {
+      "description": "reading-<trend slug>-<lens>. The M1 unit test checks that the suffix equals the reading's lens and the middle equals its trend's slug.",
+      "type": "string",
+      "pattern": "^reading-[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*-(noise|opportunity|threat)$"
+    },
+    "interrogationId": {
+      "type": "string",
+      "pattern": "^interrogation-[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$"
+    },
+    "questionId": {
+      "type": "string",
+      "pattern": "^q-[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$"
+    },
+    "entryId": {
+      "description": "replay-<publication date of the earliest original signal>-<slug>.",
+      "type": "string",
+      "pattern": "^replay-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$"
+    },
+    "testId": {
+      "description": "Identifier of a unit test in docs/04-module-design.md (for example M10-U1) or of an invariant audit in docs/test-plan.md (AUDIT-1 to AUDIT-6).",
+      "type": "string",
+      "pattern": "^(M([1-9]|10)-U[1-9][0-9]?|AUDIT-[1-6])$"
+    },
+    "role": {
+      "description": "R7, designed for and not built. The role of the team member a judgement belongs to, as a slug (for example ceo, cto). Absent means the sole founder: a single-founder team is the same model with the field omitted. No fixture in this build populates it and no UI code reads it.",
+      "type": "string",
+      "maxLength": 40,
+      "pattern": "^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$"
+    },
+    "labelledText": {
+      "description": "A part of a composite entity whose origin differs from the entity as a whole, carrying its own honesty label.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "label"],
+      "properties": {
+        "text": { "$ref": "#/$defs/text" },
+        "label": { "$ref": "#/$defs/label" }
+      }
+    },
+    "sourceRef": {
+      "description": "A dated citation for one factual claim (NF2). All four core fields are required.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "publisher", "publishedOn", "retrievedOn"],
+      "properties": {
+        "url": { "$ref": "#/$defs/httpsUrl" },
+        "publisher": { "$ref": "#/$defs/text" },
+        "title": { "$ref": "#/$defs/text" },
+        "publishedOn": { "$ref": "#/$defs/date" },
+        "retrievedOn": { "$ref": "#/$defs/date" }
+      }
+    },
+    "provenance": {
+      "description": "Where an entity came from. The four external-source fields travel together: all four are set when the entity as a whole is a real, published item, and all four are null when it was generated or authored, in which case the claims inside it carry their own sourceRef. Null here is a statement ('there is no external source for this entity as a whole'), not an omission. producedBy, producedOn and frozenOn record who made it, when, and when it was frozen at G3.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceUrl", "publisher", "publishedOn", "retrievedOn", "producedBy", "producedOn", "frozenOn"],
+      "properties": {
+        "sourceUrl": { "oneOf": [{ "$ref": "#/$defs/httpsUrl" }, { "type": "null" }] },
+        "publisher": { "oneOf": [{ "$ref": "#/$defs/text" }, { "type": "null" }] },
+        "publishedOn": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "retrievedOn": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "producedBy": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/producer" }
+        },
+        "producedOn": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "frozenOn": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }
+      },
+      "if": {
+        "required": ["sourceUrl"],
+        "properties": { "sourceUrl": { "type": "null" } }
+      },
+      "then": {
+        "properties": {
+          "publisher": { "type": "null" },
+          "publishedOn": { "type": "null" },
+          "retrievedOn": { "type": "null" }
+        }
+      },
+      "else": {
+        "properties": {
+          "publisher": { "type": "string" },
+          "publishedOn": { "type": "string" },
+          "retrievedOn": { "type": "string" }
+        }
+      }
+    },
+    "frozenProvenance": {
+      "description": "Provenance of a fixture: produced by the offline pipeline or a project author on a known date, and frozen at G3. Never produced by the viewer.",
+      "allOf": [{ "$ref": "#/$defs/provenance" }],
+      "properties": {
+        "producedBy": { "items": { "not": { "const": "viewer" } } },
+        "producedOn": { "type": "string" },
+        "frozenOn": { "type": "string" }
+      }
+    },
+    "publishedProvenance": {
+      "description": "Provenance of a fixture that is itself a real, published item: the external-source fields must be set.",
+      "allOf": [{ "$ref": "#/$defs/frozenProvenance" }],
+      "properties": {
+        "sourceUrl": { "type": "string" }
+      }
+    },
+    "sessionProvenance": {
+      "description": "Provenance of a record the viewer creates in the browser tab. No external source, produced by the viewer alone, never frozen, never stored.",
+      "allOf": [{ "$ref": "#/$defs/provenance" }],
+      "properties": {
+        "sourceUrl": { "type": "null" },
+        "producedBy": { "maxItems": 1, "items": { "const": "viewer" } },
+        "producedOn": { "type": "null" },
+        "frozenOn": { "type": "null" }
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/reading.schema.json",
+  "title": "Reading",
+  "description": "One rival reading of one trend through one lens, written by a Rival Reader. A Reading has no field that could place it above its peers: no strength, likelihood, confidence or position. It is identified only by its trend and its lens. Shipped inside the trend's reveal bundle (data/reveal/<trendId>.js), never in a module that loads before the intuition record.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "trendId", "lens", "text", "evidence", "counterEvidence", "disconfirmingCondition", "label", "provenance"],
+  "properties": {
+    "id": { "$ref": "common.schema.json#/$defs/readingId" },
+    "trendId": { "$ref": "common.schema.json#/$defs/trendId" },
+    "lens": { "$ref": "common.schema.json#/$defs/lens" },
+    "text": {
+      "description": "The reading in plain language.",
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "evidence": {
+      "description": "Claims that support this reading, each with its own dated source. Displayed oldest source first (C-4); array order carries no meaning.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/claim" }
+    },
+    "counterEvidence": {
+      "description": "The strongest honest case against this reading, each claim with its own dated source. Same shape as evidence, deliberately: the case against is not a lesser kind of content.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/claim" }
+    },
+    "disconfirmingCondition": {
+      "description": "The specific, observable event that would show this reading to be wrong.",
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "label": { "$ref": "common.schema.json#/$defs/generatedLabel" },
+    "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }
+  },
+  "$defs": {
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "source"],
+      "properties": {
+        "claim": {
+          "description": "Paraphrase of what the source supports.",
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        "source": { "$ref": "common.schema.json#/$defs/sourceRef" },
+        "signalId": {
+          "description": "Optional link to the Signal the claim draws on, so the Verifier can cross-check.",
+          "$ref": "common.schema.json#/$defs/signalId"
+        }
+      }
+    }
+  }
+}

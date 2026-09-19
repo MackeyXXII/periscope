@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/log-entry.schema.json",
+  "title": "LogEntry",
+  "description": "One entry in the decision log's retrospective replay: real signals from about early 2026, a judgement attributed to the fictional Tracewell team, the real outcome by September 2026 with a dated source, and a qualitative calibration note. A composite: the entry as a whole is replay, and each part carries its own label. There is no verdict field (held / did not hold) and no field that could be tallied across entries; the calibration note is prose only. Shipped in data/log.js as an array.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "originalSignals", "pastJudgement", "outcome", "calibrationNote", "label", "provenance"],
+  "properties": {
+    "id": { "$ref": "common.schema.json#/$defs/entryId" },
+    "originalSignals": {
+      "description": "The real signal or signals the past judgement was made on. Embedded rather than referenced to data/signals.js, because replay signals come from a different window and carry no relevance note.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/replaySignal" }
+    },
+    "pastJudgement": { "$ref": "#/$defs/pastJudgement" },
+    "outcome": { "$ref": "#/$defs/outcome" },
+    "calibrationNote": {
+      "description": "Qualitative prose such as 'threat reading held; timing was early'. Its label depends on who writes it (K-3, K-7).",
+      "$ref": "common.schema.json#/$defs/labelledText"
+    },
+    "role": {
+      "description": "R7, designed for and not built: the role of the team member the replayed judgement is attributed to. Absent in every fixture of this build.",
+      "$ref": "common.schema.json#/$defs/role"
+    },
+    "label": { "const": "replay" },
+    "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }
+  },
+  "$defs": {
+    "replaySignal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "summary", "source", "label"],
+      "properties": {
+        "title": { "$ref": "common.schema.json#/$defs/text" },
+        "summary": { "$ref": "common.schema.json#/$defs/labelledText" },
+        "source": { "$ref": "common.schema.json#/$defs/sourceRef" },
+        "label": { "const": "real" }
+      }
+    },
+    "pastJudgement": {
+      "description": "A judgement attributed to the fictional team as of asOfDate, but actually written on authoredOn, after the outcome was known. Both dates are carried so the after-the-fact authorship is visible in the data, not only in the replay statement (K-7). There is deliberately no intuition record: inventing one would be a fabrication.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lens", "rationale", "asOfDate", "authoredOn", "label"],
+      "properties": {
+        "lens": { "$ref": "common.schema.json#/$defs/lens" },
+        "rationale": { "$ref": "common.schema.json#/$defs/text" },
+        "asOfDate": {
+          "description": "The date whose knowledge the judgement represents. On or after the latest original signal, before the outcome (checked in the M8 unit test).",
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        "authoredOn": {
+          "description": "The date the judgement text was actually written.",
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        "label": { "const": "replay" }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "source", "label"],
+      "properties": {
+        "summary": {
+          "description": "Paraphrase of what actually happened.",
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        "source": {
+          "description": "Real, dated source. Its publishedOn must be later than every original signal's (checked in the M8 unit test). An invented outcome is a project-ending defect.",
+          "$ref": "common.schema.json#/$defs/sourceRef"
+        },
+        "label": { "const": "real" }
+      }
+    }
+  }
+}

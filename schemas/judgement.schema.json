@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/judgement.schema.json",
+  "title": "Judgement",
+  "description": "The viewer's committed judgement on one trend. Created in the browser tab at the moment of commit and held in memory only; never a fixture, never stored, never sent. A Judgement cannot exist without its intuition record: the intuition is a required, embedded object written at the gut-reading step and carried unchanged into the Judgement. The timestamps make 'preceding' checkable: intuition.recordedAt <= readingsRevealedAt <= committedAt. JSON Schema cannot compare two values, so that order is checked by the M1 runtime validator (checkJudgement) and the M1 and M6 unit tests. The replayed judgements in the decision log are not Judgements: they have no genuine intuition record and are modelled inside LogEntry instead.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["trendId", "intuition", "readingsRevealedAt", "promptAnswers", "committedLens", "rationale", "committedAt", "label", "provenance"],
+  "properties": {
+    "trendId": { "$ref": "common.schema.json#/$defs/trendId" },
+    "intuition": { "$ref": "#/$defs/intuitionRecord" },
+    "readingsRevealedAt": {
+      "description": "When the three readings were created in the page, after the intuition record.",
+      "$ref": "common.schema.json#/$defs/dateTime"
+    },
+    "promptAnswers": {
+      "description": "Optional free-text answers to interrogation questions, possibly none. Answers gate nothing (Q-1).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["questionId", "answer"],
+        "properties": {
+          "questionId": { "$ref": "common.schema.json#/$defs/questionId" },
+          "answer": { "$ref": "common.schema.json#/$defs/text" }
+        }
+      }
+    },
+    "committedLens": {
+      "description": "The lens the viewer commits to. Independent of intuition.gutCall; the demo never compares them.",
+      "$ref": "common.schema.json#/$defs/lens"
+    },
+    "rationale": {
+      "description": "Required, with at least one non-whitespace character. No upper or lower word count: the demo does not grade the rationale.",
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "committedAt": { "$ref": "common.schema.json#/$defs/dateTime" },
+    "role": { "$ref": "common.schema.json#/$defs/role" },
+    "label": {
+      "description": "Which vocabulary value applies to text the viewer types is undecided (K-3, Decision DM-1 in docs/03-architecture.md). The schema admits the vocabulary unchanged and does not choose.",
+      "$ref": "common.schema.json#/$defs/label"
+    },
+    "provenance": { "$ref": "common.schema.json#/$defs/sessionProvenance" }
+  },
+  "$defs": {
+    "intuitionRecord": {
+      "description": "The founder's gut reading, recorded before any reading exists in the page, then locked for the session. Session state holds this record on its own between the gut-reading step and the commit; the Judgement embeds it unchanged.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gutCall", "reason", "recordedAt"],
+      "properties": {
+        "gutCall": { "$ref": "common.schema.json#/$defs/lens" },
+        "reason": {
+          "description": "Optional one-line reason; null when the viewer gave none.",
+          "oneOf": [
+            { "$ref": "common.schema.json#/$defs/oneLine" },
+            { "type": "null" }
+          ]
+        },
+        "recordedAt": { "$ref": "common.schema.json#/$defs/dateTime" }
+      }
+    }
+  }
+}
