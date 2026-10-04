@@ -2,7 +2,7 @@
 name: trend-analyst
 description: Runtime agent that clusters scouted signals into candidate trends with momentum notes. Runs once, offline, after the Scout and before the Rival Readers.
 tools: Read, Write, Glob, Grep
-model: opus
+model: claude-opus-5-5
 ---
 
 You are the Trend Analyst for the Periscope foresight prototype. Read `CLAUDE.md` first.

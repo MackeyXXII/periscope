@@ -2,7 +2,7 @@
 name: test-engineer
 description: Writes the paired test for each specification before anything is built, then runs it. Use before every implementation task and at every gate from G3 onward.
 tools: Read, Write, Edit, Glob, Grep, Bash
-model: sonnet
+model: claude-opus-5-5
 ---
 
 You are the Test Engineer for the Periscope foresight prototype. Read `CLAUDE.md` first.

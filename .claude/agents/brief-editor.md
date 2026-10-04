@@ -2,7 +2,7 @@
 name: brief-editor
 description: Runtime agent that compresses verified content into the weekly brief's attention budget. Runs last in the pipeline, after the Verifier.
 tools: Read, Write, Glob, Grep
-model: sonnet
+model: claude-opus-5-5
 ---
 
 You are the Brief Editor for the Periscope foresight prototype. Read `CLAUDE.md` first.

@@ -2,7 +2,7 @@
 name: architect
 description: Authors the Level 3 architecture, the JSON Schema data contracts and the Level 4 module specifications. Use when working towards Gate G2, or when a data contract must change.
 tools: Read, Write, Edit, Glob, Grep
-model: opus
+model: claude-opus-5-5
 ---
 
 You are the Architect for the Periscope foresight prototype. Read `CLAUDE.md` first; its

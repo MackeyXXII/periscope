@@ -24,20 +24,20 @@ flowchart LR
 
 | Agent | Layer | Surface | Model | Role |
 |---|---|---|---|---|
-| Orchestrator | Build | Claude Code main session | Opus 5 | Holds V-Model state, dispatches subagents, enforces gates; writes no code itself |
-| Requirements Engineer | Build | Subagent | Opus 5 | R-level into F-level specification and the traceability matrix |
-| Architect | Build | Subagent | Opus 5 | Architecture, JSON data contracts, module specifications |
-| Test Engineer | Build | Subagent | Sonnet 5 | Writes each paired test from its specification before implementation, then runs it |
-| Implementer | Build | Subagent | Sonnet 5 (Opus 5 for complex modules) | Builds modules against their specifications |
-| Red-team Reviewer | Build | Subagent | Opus 5 | Enforces R3 and R4 invariants and honesty labels; can block a gate |
-| Scout | Runtime | Subagent with web tools | Sonnet 5 | Horizon scanning against the scanning brief; signal cards with provenance |
-| Trend Analyst | Runtime | Subagent | Opus 5 | Clusters signals into candidate trends with momentum notes |
-| Rival Readers (three lenses) | Runtime | Subagents | Opus 5 | Opportunity, threat and noise readings, each with evidence, counter-evidence and a disconfirming condition |
-| Interrogator | Runtime | Subagent | Opus 5 | Provenance checks, assumption probes, pre-mortem, intuition prompts |
-| Verifier | Runtime | Subagent | Opus 5 | Checks every claim against its source, strikes the unverifiable, rejects any ranking |
-| Brief Editor | Runtime | Subagent | Sonnet 5 | Compresses output to fit R1's attention budget |
-| Persona and Brief Researcher | Support | Claude Cowork | Opus 5 | Persona dossier, scanning brief, replay candidates |
-| Packager | Support | Claude Cowork | Opus 5 | Walkthrough script and a one-page outreach note |
+| Orchestrator | Build | Claude Code main session | Opus 5.5 | Holds V-Model state, dispatches subagents, enforces gates; writes no code itself |
+| Requirements Engineer | Build | Subagent | Opus 5.5 | R-level into F-level specification and the traceability matrix |
+| Architect | Build | Subagent | Opus 5.5 | Architecture, JSON data contracts, module specifications |
+| Test Engineer | Build | Subagent | Opus 5.5 | Writes each paired test from its specification before implementation, then runs it |
+| Implementer | Build | Subagent | Opus 5.5 | Builds modules against their specifications |
+| Red-team Reviewer | Build | Subagent | Opus 5.5 | Enforces R3 and R4 invariants and honesty labels; can block a gate |
+| Scout | Runtime | Subagent with web tools | Opus 5.5 | Horizon scanning against the scanning brief; signal cards with provenance |
+| Trend Analyst | Runtime | Subagent | Opus 5.5 | Clusters signals into candidate trends with momentum notes |
+| Rival Readers (three lenses) | Runtime | Subagents | Opus 5.5 | Opportunity, threat and noise readings, each with evidence, counter-evidence and a disconfirming condition |
+| Interrogator | Runtime | Subagent | Opus 5.5 | Provenance checks, assumption probes, pre-mortem, intuition prompts |
+| Verifier | Runtime | Subagent | Opus 5.5 | Checks every claim against its source, strikes the unverifiable, rejects any ranking |
+| Brief Editor | Runtime | Subagent | Opus 5.5 | Compresses output to fit R1's attention budget |
+| Persona and Brief Researcher | Support | Claude Cowork | Opus 5.5 | Persona dossier, scanning brief, replay candidates |
+| Packager | Support | Claude Cowork | Opus 5.5 | Walkthrough script and a one-page outreach note |
 
 Runtime agents run **once, offline**, before G3. Their output lands in `pipeline/output/`, is
 verified, then frozen into `data/`. Nothing in that layer ever runs for a viewer.
@@ -54,15 +54,21 @@ verified, then frozen into `data/`. Nothing in that layer ever runs for a viewer
 
 ## Schedule
 
+Re-planned on 4 October 2026 for a hard deadline of 7 October, on Opus 5.5 only. The original
+schedule (G2 on 19 Sept, build from 22 Sept) slipped while G2 waited for decisions.
+
 | When | Work | Gate |
 |---|---|---|
 | 16 Sept | Requirements and assumptions approved | G1 (done) |
-| 17 Sept | Repository, CLAUDE.md and the V-Model document skeleton | — |
-| 19 Sept | Repository published; Requirements Engineer and Architect produce levels 2 to 4 and the test plan; Cowork builds the persona dossier and scanning brief in parallel | G2 |
-| 20 Sept | Runtime pipeline runs once: Scout and Trend Analyst, then the Rival Readers and the Interrogator on Opus 5, then the Verifier | G3 content freeze |
-| 21 Sept | Red-team review of the frozen content, the core-loop specification and the traceability matrix | — |
-| From 22 Sept | Module-by-module build, tests first, then integration, system test and acceptance | G4, G5 |
+| 19 Sept | Levels 2 to 4 drafted; Architect and Requirements Engineer raise DM, K and Q items | — |
+| 4 Oct | Miguel decides the G2 items. Requirements Engineer and Architect apply them (F5 added, level names in). Test Engineer finishes the test plan and writes every unit test. Governance-author debate (Q-5). Red-team review | G2 |
+| 5 Oct | Persona dossier, scanning brief and replay candidates written in Claude Code. Runtime pipeline runs once: Scout, Trend Analyst, Rival Readers, Interrogator, Verifier, Brief Editor. Red-team review of the content. In parallel, M1, M9 and the M10 shell are built | G3 content freeze |
+| 6 Oct | Remaining modules built, tests first: M5, M6, M7, M8 and F5. Integration test, then system test at the four Q-7 viewports. Red-team audit. Deploy to GitHub Pages | G4 |
+| 7 Oct, morning | Rehearsal review as a hiring manager; fixes; final deploy. Demo shown at the Wels career fair on 7 and 8 Oct | G5 starts |
 | After thesis interviews | Anonymised insights, under the consent clause, feed a second pass starting again at Level 1 | New G1 |
+
+If the build is behind at midday on 6 Oct, F3, F4 and F5 ship as static screens and F1 and F2
+stay fully interactive.
 
 ## Risks held open
 

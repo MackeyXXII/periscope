@@ -39,12 +39,14 @@ than working around it.**
 | Level | Artefact | Status |
 |---|---|---|
 | L1 | User requirements R1–R8 | **Approved at G1, 16 Sept 2026** — frozen, do not edit |
-| L2 | System requirements F1–F4, NF1–NF6 | Seeded from the build plan; Requirements Engineer expands |
-| L3 | Architecture, data contracts | **In progress** — Architect |
-| L4 | Module design M1–M10, unit tests | **In progress** — Architect + Test Engineer |
-| L5 | Implementation | Not started — begins after G2, from 22 Sept |
+| L2 | System requirements F1–F4, NF1–NF6 | Drafted 19 Sept; Miguel's G2 decisions of 4 Oct to be applied (adds F5) |
+| L3 | Architecture, data contracts | Drafted 19 Sept; DM-1 to DM-10 to be applied |
+| L4 | Module design M1–M10, unit tests | Drafted 19 Sept; unit tests not yet written |
+| L5 | Implementation | Not started — begins after G2 |
 
-**Next gate: G2** (system specification, architecture, module design and test plan), 19 Sept 2026.
+**Re-planned 4 Oct 2026. Hard deadline: demo live on GitHub Pages by the morning of 7 Oct 2026.**
+**Next gate: G2**, 4 Oct; G3 content freeze 5 Oct; G4 system pass 6 Oct. Decisions and the
+proposed defaults are in `docs/gates.md`; the day-by-day plan is in `docs/00-operating-manual.md`.
 
 Gate rule: no level starts before the level above it is approved by Miguel. Gates are decided by
 Miguel in claude.ai chat, not by agents. Agents propose; the Red-team Reviewer may block; Miguel
@@ -81,19 +83,16 @@ docs/                V-Model documents — part of the portfolio, written to be 
 ## Model routing
 
 The promotional usage credits expired on 19 September 2026 and **no further credits will be
-purchased**. Fable models are therefore out of scope for this project: **Opus 5 carries every
-judgement-critical task**, and no part of the plan may assume a model that has to be paid for
-separately.
+purchased**. From 4 October 2026 **every session and every subagent runs on Opus 5.5
+(`claude-opus-5-5`) only**: the main session, all build agents and all runtime agents. No Fable,
+no Sonnet, no Haiku, and no model that has to be paid for separately.
 
-| Model | Use for |
-|---|---|
-| Opus 5 | Judgement-critical work: specification, architecture, rival readings, interrogation, red-team review, verification, trend analysis — and orchestration in the main session |
-| Sonnet 5 | Volume work: scanning, tests, module implementation against a written specification, brief editing |
-
-Opus 5 is the default for the main session and for every build and interpretation subagent. Watch
+Use high effort for judgement-critical work (specification, architecture, rival readings,
+interrogation, red-team review, verification) and medium effort for volume work (scanning, tests,
+implementation against a written specification, brief editing) to save usage. Watch
 Settings → Usage during long runs: when a usage limit is approaching, stop at an artefact boundary,
-commit what is finished and resume in the next usage window — never drop to a weaker model in the
-middle of a judgement-critical artefact, and never buy credits to finish one.
+commit what is finished and resume in the next usage window. Never switch model and never buy
+credits to finish an artefact.
 
 ## Content provenance rules
 

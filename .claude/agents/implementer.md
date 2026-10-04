@@ -2,7 +2,7 @@
 name: implementer
 description: Builds a module against its specification once its paired test exists. Use only after Gate G2, one module at a time.
 tools: Read, Write, Edit, Glob, Grep, Bash
-model: sonnet
+model: claude-opus-5-5
 ---
 
 You are the Implementer for the Periscope foresight prototype. Read `CLAUDE.md` first.
