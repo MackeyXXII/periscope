@@ -4,16 +4,14 @@
 // any M6 module exists (test-first rule). At G2 every test here fails with "module under test could
 // not be imported" (assets/js/state/*.js not implemented).
 //
-// ASSUMPTIONS, reported to the Orchestrator as specification gaps (change here if the Architect
-// fixes them differently):
-//   - Drafts use the Judgement's field names: canRecord({ gutCall, reason }),
-//     canCommit({ committedLens, rationale }); "no lens" is committedLens: null.
-//   - recordIntuition(...) returns the intuition record { gutCall, reason, recordedAt };
-//     commitJudgement(...) returns the Judgement. `now` is an ISO timestamp string.
-//   - The interface names no function that stamps readingsRevealedAt (the screen does it after
-//     loadReveal, section 6.3). The pure walks below therefore go recordIntuition -> commitJudgement
-//     and require the committed Judgement to carry a readingsRevealedAt between the two timestamps.
-//     If the Architect adds a stamping function, these walks gain that one call.
+// The interface is the M6 drafts and return-shape table of docs/04-module-design.md (revised
+// 5 October 2026): drafts use the Judgement's field names (canRecord({ gutCall, reason }),
+// canCommit({ committedLens, rationale }), "no lens" is null); recordIntuition returns the frozen
+// intuition record; markReadingsRevealed(session, trendId, now) stamps readingsRevealedAt and
+// throws without an intuition record or when called twice; commitJudgement returns the frozen
+// Judgement and throws if markReadingsRevealed has not been called; whatIsMissing returns one of
+// the four hint texts; stageOf returns the trend's stage. `now` is an ISO timestamp string.
+// The pure walks below therefore go recordIntuition -> markReadingsRevealed -> commitJudgement.
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -47,7 +45,7 @@ function stub(values) {
 function pureWalk(S, session, trendId, clock, { gutCall = 'threat', reason = 'zebra-test-reason', committedLens = 'noise', rationale = 'zebra-test-rationale' } = {}) {
   S.lensOrderFor(session, trendId);
   const intuition = S.recordIntuition(session, trendId, { gutCall, reason }, clock());
-  clock(); // the second between record and reveal
+  S.markReadingsRevealed(session, trendId, clock());
   const judgement = S.commitJudgement(session, trendId, { committedLens, rationale, promptAnswers: [] }, clock());
   return { intuition, judgement };
 }
@@ -75,6 +73,30 @@ test('M6-U3 canCommit is false without a lens or with a whitespace-only rational
     if (got !== want) problems.push(`canCommit(${JSON.stringify(draft)}) returned ${JSON.stringify(got)}, expected ${want}`);
   }
   assert.none(problems, 'canCommit errors');
+});
+
+test('M6-U3 whatIsMissing names exactly what is missing, in the specified words', async () => {
+  const S = await load('session');
+  const cases = [
+    { draft: { committedLens: null, rationale: '' }, want: 'Choose a reading and write a rationale to commit your judgement.' },
+    { draft: { committedLens: null, rationale: ' \n' }, want: 'Choose a reading and write a rationale to commit your judgement.' },
+    { draft: { committedLens: null, rationale: 'x' }, want: 'Choose a reading to commit your judgement.' },
+    { draft: { committedLens: 'threat', rationale: '' }, want: 'Write a rationale to commit your judgement.' },
+    { draft: { committedLens: 'threat', rationale: '\n\t ' }, want: 'Write a rationale to commit your judgement.' },
+    { draft: { committedLens: 'threat', rationale: 'x' }, want: '' },
+  ];
+  const problems = [];
+  for (const { draft, want } of cases) {
+    let got;
+    try {
+      got = S.whatIsMissing(draft);
+    } catch (error) {
+      problems.push(`whatIsMissing(${JSON.stringify(draft)}) threw: ${error.message}`);
+      continue;
+    }
+    if (got !== want) problems.push(`whatIsMissing(${JSON.stringify(draft)}) returned ${JSON.stringify(got)}, expected ${JSON.stringify(want)}`);
+  }
+  assert.none(problems, 'whatIsMissing errors');
 });
 
 // ------------------------------------------------------------------------------------------ M6-U5
@@ -200,8 +222,11 @@ test('M6-U8 one lens order per trend per session; trend B untouched by work on t
   const second = S.lensOrderFor(session, ALPHA);
   assert.ok(first === second, 'lensOrderFor returns the same array (===) on a second call');
   assert.deepEqual(Array.from(first), ORDERS[0], 'the order is the one the session random source draws');
+  assert.equal(S.stageOf(session, BETA), 'awaiting-intuition', 'B before any work');
   pureWalk(S, session, ALPHA, clock);
   assert.ok(S.lensOrderFor(session, ALPHA) === first, 'the order of A is unchanged after recording and committing');
+  assert.equal(S.stageOf(session, ALPHA), 'committed', 'A after recording and committing');
+  assert.equal(S.stageOf(session, BETA), 'awaiting-intuition', 'B after recording and committing on A');
   // B is still awaiting its intuition: its first record succeeds and is B's own.
   const bRecord = S.recordIntuition(session, BETA, { gutCall: 'opportunity', reason: null }, clock());
   assert.equal(bRecord.gutCall, 'opportunity', 'trend B accepts its own first intuition record after A was committed');
@@ -218,6 +243,17 @@ test('M6-U13 the Judgement of a full walk passes checkJudgement with ordered tim
   const V = await load('validate');
   const session = S.createSession({ random: seededRandom(13) });
   const clock = makeClock();
+  // Stage order (the M6 interface): no reveal stamp without an intuition record, and no commit
+  // before the readings were revealed; a second stamp throws.
+  assert.throws(() => S.markReadingsRevealed(session, ALPHA, clock()), undefined, 'markReadingsRevealed before recordIntuition must throw');
+  S.recordIntuition(session, BETA, { gutCall: 'threat', reason: null }, clock());
+  assert.throws(
+    () => S.commitJudgement(session, BETA, { committedLens: 'noise', rationale: 'zebra-test-rationale', promptAnswers: [] }, clock()),
+    undefined,
+    'commitJudgement before markReadingsRevealed must throw',
+  );
+  S.markReadingsRevealed(session, BETA, clock());
+  assert.throws(() => S.markReadingsRevealed(session, BETA, clock()), undefined, 'a second markReadingsRevealed must throw');
   const { judgement } = pureWalk(S, session, ALPHA, clock);
   const verdict = V.checkJudgement(judgement);
   assert.ok(verdict && verdict.ok === true, `checkJudgement accepts the Judgement (${JSON.stringify(verdict && verdict.errors)})`);

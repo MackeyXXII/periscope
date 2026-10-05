@@ -4,21 +4,22 @@
 // rule). Browser runner only. At G2 every test fails with "module under test could not be
 // imported".
 //
-// THE WALK (M9-U1, U8, U9). The module design gives M9-U1 the app host with flow 'interactive',
-// but start() takes only { loader, random }: it cannot switch F5 to interactive or inject the
-// fixture level names that the verified readiness view needs. The walk therefore renders each
-// screen through its own render function, in a fresh document that links main.css, with the real
-// loader over the fixtures: trend index; brief; trend card F1-S1, F1-S2 and F1-S4; F5-S2 with
-// ctx.flow 'interactive'; readiness unverified and verified (levelNames injected); governance;
-// log. The shell-level demo-wide statement is checked through the app host in M9-U4, and through
-// renderDemoStatement in M9-U8. Reported to the Orchestrator as a specification gap.
+// THE WALK (M9-U1, U8, U9). M9-U1 allows either the app host with
+// start({ loader, flow: 'interactive', levelNames }) or each screen's render function with the
+// same context. These tests take the second: each screen is rendered in a fresh document that
+// links main.css, with the real loader over the fixtures: trend index; brief; trend card F1-S1,
+// F1-S2 and F1-S4; F5-S2 with ctx.flow 'interactive'; readiness unverified and verified (the
+// fixture level names passed to createLoader and renderReadiness); governance; log. The shell is
+// covered by M9-U4 through the app host, and the demo-wide statement by renderDemoStatement in
+// M9-U8.
 //
-// BADGES AND data-label="frozen" (M9-U9). M9-U2 has renderLabel return an element that carries
-// data-label and the badge text, while M9-U1 has every content element carry data-label as well;
-// read literally, the brief header and its own badge are then two elements with
-// data-label="frozen", which M9-U9 ("exactly one element") forbids. The test reads M9-U9 as:
-// exactly one content element (data-content) carries data-label="frozen", the brief header, and
-// any other element with that label is its badge, inside it. Reported as a specification defect.
+// BADGES (M9-U2, M9-U9). renderLabel returns a badge carrying data-badge="<value>" and never
+// data-label (the DOM hooks table), so a count of data-label values is a count of labelled
+// elements: M9-U9 requires exactly one element with data-label="frozen" across the walk, the
+// brief header; its badge carries data-badge="frozen" and is not counted.
+//
+// M9's functions are taken from the files the module design places them in (labels.js,
+// sources.js, statement.js; see honesty() in tests/lib/screens.mjs).
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -80,7 +81,7 @@ async function fullWalk(host, visit) {
   await show(page, R.renderReadiness, ctx, {});
   await at('F3 readiness, unverified');
   const verified = await fixtureModule('content/readiness-verified.js');
-  const { ctx: vctx } = await screenContext({ overrides: { 'data/readiness.js': verified } });
+  const { ctx: vctx } = await screenContext({ overrides: { 'data/readiness.js': verified }, levelNames: FIXTURE_LEVEL_NAMES });
   await show(page, R.renderReadiness, vctx, { levelNames: FIXTURE_LEVEL_NAMES });
   await at('F3 readiness, verified');
   await show(page, G.renderGovernance, ctx);
@@ -152,7 +153,8 @@ test('M9-U2 renderLabel returns the badge for each of the six values and throws 
     }
     if (!el || el.nodeType !== 1) problems.push(`renderLabel(${value}) did not return an element`);
     else {
-      if (el.getAttribute('data-label') !== value) problems.push(`renderLabel(${value}) carries data-label ${JSON.stringify(el.getAttribute('data-label'))}`);
+      if (el.getAttribute('data-badge') !== value) problems.push(`renderLabel(${value}) carries data-badge ${JSON.stringify(el.getAttribute('data-badge'))}, expected ${JSON.stringify(value)}`);
+      if (el.hasAttribute('data-label')) problems.push(`renderLabel(${value}) carries data-label (a badge must not)`);
       if (textOf(el) !== display[value]) problems.push(`renderLabel(${value}) shows ${JSON.stringify(textOf(el))}, expected ${JSON.stringify(display[value])}`);
     }
   }
@@ -273,7 +275,7 @@ test('M9-U5 peers carry byte-identical label markup: readings, conversation ques
   await recordScenarioInPage(page);
   problems.push(...peerBadgeProblems(Array.from(page.root.querySelectorAll('[data-question]')), 'ai-generated', display, 'conversation questions in F5-S2'));
   await show(page, B.renderBrief, ctx);
-  const signals = outermost(Array.from(page.root.querySelectorAll('[data-content][data-label="real"]')));
+  const signals = Array.from(page.root.querySelectorAll('[data-signal]'));
   problems.push(...peerBadgeProblems(signals, 'real', display, 'signals in F2-S1'));
   assert.none(problems, 'peer label differences');
 });
@@ -316,9 +318,9 @@ test('M9-U6 parts with their own origin show their own label: signal texts, log 
   }
 
   const verified = content.readinessVerified;
-  const { ctx: vctx } = await screenContext({ overrides: { 'data/readiness.js': verified } });
+  const { ctx: vctx } = await screenContext({ overrides: { 'data/readiness.js': verified }, levelNames: FIXTURE_LEVEL_NAMES });
   await show(page, R.renderReadiness, vctx, { levelNames: FIXTURE_LEVEL_NAMES });
-  const descriptions = verified.practices
+  const descriptions = verified.maturity.practices
     .map((p) => p.nextLevel && p.nextLevel.description && p.nextLevel.description.text)
     .filter(Boolean);
   if (descriptions.length === 0) problems.push('the verified fixture has no next-level description (fixture changed?)');
@@ -380,18 +382,19 @@ test('M9-U8 interface copy carries no label: headings, buttons, labels, notes an
 
 // ------------------------------------------------------------------------------------------ M9-U9
 
-test('M9-U9 frozen labels only the brief: one content element across the walk, in F2-S1', LONG, async ({ root }) => {
+test('M9-U9 frozen labels only the brief: exactly one element across the walk, the F2-S1 header', LONG, async ({ root }) => {
   const display = await labelDisplay();
   const found = [];
   const problems = [];
   await fullWalk(root, (stage, r) => {
-    const frozenContent = Array.from(r.querySelectorAll('[data-content][data-label="frozen"]'));
-    for (const el of frozenContent) found.push(stage);
-    for (const el of r.querySelectorAll('[data-label="frozen"]:not([data-content])')) {
-      const isOwnBadge = textOf(el) === display.frozen && frozenContent.some((c) => c.contains(el));
-      if (!isOwnBadge) problems.push(`${stage}: <${el.tagName.toLowerCase()}> "${textOf(el).slice(0, 40)}" carries data-label="frozen" and is not the brief's badge`);
+    // Badges carry data-badge, never data-label, so they are not in this count.
+    for (const el of r.querySelectorAll('[data-label="frozen"]')) {
+      found.push(stage);
+      if (el.hasAttribute('data-badge')) problems.push(`${stage}: an element carries both data-badge and data-label="frozen"`);
+      if (!el.hasAttribute('data-content')) problems.push(`${stage}: <${el.tagName.toLowerCase()}> carries data-label="frozen" without data-content`);
+      else if (!findBadge(el, display.frozen, 'frozen')) problems.push(`${stage}: the frozen element has no data-badge="frozen" badge of its own`);
     }
   });
-  if (found.length !== 1 || found[0] !== 'F2-S1 brief') problems.push(`content elements labelled frozen: ${JSON.stringify(found)}, expected exactly one, in "F2-S1 brief"`);
+  if (found.length !== 1 || found[0] !== 'F2-S1 brief') problems.push(`elements with data-label="frozen": ${JSON.stringify(found)}, expected exactly one, in "F2-S1 brief"`);
   assert.none(problems, 'frozen label problems');
 });

@@ -12,26 +12,29 @@
 // Using the real loader means the tests see exactly the validation the page sees: a reveal bundle
 // that fails checkRevealBundle comes back as { ok: false } from loadReveal, as in the page.
 //
-// THE DOM HOOKS. docs/04-module-design.md fixes the visible texts, the label attributes
-// (data-label, data-content) and the render functions, but not how a test finds a lens option, a
-// reading or an answer field. The tests below rely on these attributes, which the Implementer adds
-// and the Architect is asked to ratify (reported to the Orchestrator with these tests):
+// THE DOM HOOKS. The tests find elements only by the attributes of the "DOM hooks" table in
+// docs/04-module-design.md (ratified by the Architect on 5 October 2026) and by the exact visible
+// texts Level 2 fixes, never by class names or position:
 //
-//   data-control="gut-call"      the gut-reading control (F1-S1); its options are
-//                                <input type="radio" value="<lens>">
-//   data-control="judgement"     the judgement control (F1-S2); options as above
-//   data-area="readings"         the readings area; holds the placeholder sentence before the
-//                                record and the three reading elements after it
+//   data-content, data-label     a content element and its honesty label (same element, only there)
+//   data-badge="<value>"         the visible badge renderLabel returns; never carries data-label
+//   data-area="<region>"         readings, interrogation, judgement, what-you-wrote,
+//                                conversation-questions, signals, entries, maturity, next-level,
+//                                governance-implemented, governance-not-implemented,
+//                                governance-argument
+//   data-control="gut-call" | "judgement"
+//                                a lens control: <input type="radio" value="<lens>"> options
 //   data-reading="<lens>"        one reading element
-//   data-area="interrogation"    the interrogation area (F1-S2)
 //   data-question="<questionId>" one interrogation question (F1) or conversation question (F5)
 //   data-field="reason" | "answer" | "rationale" | "heard" | "playout" | "note"
-//                                the viewer's text fields (an answer field also carries
-//                                data-question-id="<questionId>"; so does a note field)
+//                                the viewer's text fields (answer and note fields also carry
+//                                data-question-id="<questionId>")
 //   data-echo="gut-call" | "reason" | "answer" | "committed-lens" | "rationale" | "heard" | "playout"
 //                                a read-only echo of what the viewer entered (F1-S4, F5)
 //   data-hint="commit" | "scenario"
 //                                the line that says what is still missing
+//   data-signal, data-entry, data-practice, data-category
+//                                one signal (brief), log entry, practice, readiness category
 //
 // Buttons and links are found by their exact visible text, which the specification fixes.
 
@@ -66,14 +69,28 @@ export function load(key) {
   return importUnderTest(repoUrl(PATHS[key]));
 }
 
+/** Which M9 file exports which function (docs/04-module-design.md, M9 Outputs). */
+export const HONESTY_EXPORTS = Object.freeze({
+  labels: Object.freeze(['renderLabel']),
+  sources: Object.freeze(['renderSource', 'renderQuote', 'formatDate']),
+  statement: Object.freeze(['renderDemoStatement']),
+});
+
 /**
- * M9's exports. The module design names the three files of M9 but not which function lives in
- * which, so the tests take each function from whichever of the three exports it. Each of the three
- * files must exist.
+ * M9's exports, each taken from the file the module design places it in: labels.js renderLabel;
+ * sources.js renderSource, renderQuote, formatDate; statement.js renderDemoStatement. Fails,
+ * naming the file, if a file lacks its function.
  */
 export async function honesty() {
-  const [a, b, c] = await Promise.all([load('labels'), load('sources'), load('statement')]);
-  return { ...a, ...b, ...c };
+  const out = {};
+  for (const [file, names] of Object.entries(HONESTY_EXPORTS)) {
+    const mod = await load(file);
+    for (const name of names) {
+      if (typeof mod[name] !== 'function') throw new Error(`${PATHS[file]} does not export ${name}() (M9 Outputs)`);
+      out[name] = mod[name];
+    }
+  }
+  return out;
 }
 
 /** A clock that returns an ISO timestamp one second later on every call. */
@@ -105,9 +122,11 @@ const LOADER_FUNCTIONS = [
  * The M1 loader over the fixtures, with spies.
  *   overrides: { 'data/<path>.js': value } served instead of the fixture for that path
  *   fail:      loader function names that resolve to { ok: false } without loading anything
+ *   levelNames passed to createLoader (and so to checkReadiness) when given; omitted otherwise, so
+ *              that the loader uses MATURITY_LEVEL_NAMES as the page does
  * Resolves to { loader, calls, importerCalls }: calls[name] is the list of argument arrays.
  */
-export async function fixtureLoader({ overrides = {}, fail = [] } = {}) {
+export async function fixtureLoader({ overrides = {}, fail = [], levelNames } = {}) {
   const L = await load('load');
   const importerCalls = [];
   const importer = async (path) => {
@@ -119,7 +138,7 @@ export async function fixtureLoader({ overrides = {}, fail = [] } = {}) {
     if (Object.prototype.hasOwnProperty.call(overrides, key)) return { default: overrides[key] };
     return import(repoUrl(fixturePathFor(key)).href);
   };
-  const real = L.createLoader({ importer });
+  const real = L.createLoader(levelNames === undefined ? { importer } : { importer, levelNames });
   const calls = {};
   const loader = {};
   for (const name of LOADER_FUNCTIONS) {
@@ -142,11 +161,13 @@ export async function routesObject() {
 
 /**
  * A screen context as docs/04-module-design.md describes it: { session, loader, routes, manifest,
- * flow, now }. `random` is handed to createSession; `now` is a clock function.
+ * flow, now } (M6's full context; screens outside M6 ignore session, flow and now). `random` is
+ * handed to createSession; `now` is a clock function; `levelNames`, when given, goes to
+ * createLoader (see fixtureLoader), for the verified readiness view.
  */
-export async function screenContext({ random = seededRandom(1), flow = 'static', overrides, fail, now, session } = {}) {
+export async function screenContext({ random = seededRandom(1), flow = 'static', overrides, fail, now, session, levelNames } = {}) {
   const S = await load('session');
-  const { loader, calls, importerCalls } = await fixtureLoader({ overrides, fail });
+  const { loader, calls, importerCalls } = await fixtureLoader({ overrides, fail, levelNames });
   const ctx = {
     session: session || S.createSession({ random }),
     loader,

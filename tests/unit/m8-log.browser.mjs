@@ -4,29 +4,29 @@
 // with "module under test could not be imported".
 //
 // The log screen is rendered with renderLog(root, ctx) into a fresh document that links
-// assets/css/main.css, with the real M1 loader over the fixtures (tests/lib/screens.mjs). The tests
-// need no DOM hooks of their own: an entry is found as an outermost element carrying
-// data-content and data-label="replay" (the entry is labelled replay, and so is the past judgement
-// inside it), and each part by its fixture marker text and the labels around it.
+// assets/css/main.css, with the real M1 loader over the fixtures (tests/lib/screens.mjs). An entry
+// is the element with data-entry="<entry id>" (the DOM hooks table of docs/04-module-design.md);
+// each part is found by its fixture marker text and the labels around it.
 //
 // Wording the specification does not fix, and how the tests read it (reported to the Orchestrator):
 //   - "the judgements are not the viewer's": one of "not yours", "not your own", "not the
 //     viewer's", "not your judgements"; "judgements from this session do not appear": the words
 //     "this session" and "do not appear" (or "does not appear").
 //   - The authors are named as "Rival Reader" and "Interrogator", as in the replay statement.
-//   - The F4-W1 line for one entry: "1 entry was withheld" or "1 entry were withheld", followed by
-//     "because it/they lacked a dated outcome source or failed validation." (the specification
-//     writes "N entr(y/ies) were withheld because they lacked …" and leaves the singular open).
+// The F4-W1 line is fixed by the "Withheld notices" table: "1 entry was withheld because it lacked
+// a dated outcome source or failed validation." and "N entries were withheld because they lacked …".
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
 import { loadContent, clone } from '../lib/content.mjs';
-import { mount, textOf, precedes, labelChain, textNodesContaining, smallestContaining } from '../lib/dom.mjs';
+import { mount, textOf, precedes, labelChain, labelOf, textNodesContaining, smallestContaining } from '../lib/dom.mjs';
 import { load, honesty, screenContext, fixtureModule, show } from '../lib/screens.mjs';
 
 const DOM = { needs: ['dom'] };
 const EMPTY = 'This build contains no replay entries.';
 const INVALID = 'The decision log could not be shown because its content failed validation.';
+const W1_ONE = '1 entry was withheld because it lacked a dated outcome source or failed validation.';
+const W1_TWO = '2 entries were withheld because they lacked a dated outcome source or failed validation.';
 
 async function renderLogWith(root, log) {
   const L = await load('log');
@@ -37,10 +37,9 @@ async function renderLogWith(root, log) {
   return page;
 }
 
-/** Outermost replay content elements: the entries. */
+/** The entries: the elements with data-entry="<entry id>" (DOM hooks table). */
 function entryElements(root) {
-  const replay = Array.from(root.querySelectorAll('[data-content][data-label="replay"]'));
-  return replay.filter((el) => !replay.some((other) => other !== el && other.contains(el)));
+  return Array.from(root.querySelectorAll('[data-entry]'));
 }
 
 /** The replay statement: the smallest element holding all of its fixed phrases. */
@@ -138,11 +137,19 @@ test('M8-U6 an entry whose outcome has no source date is withheld entirely and c
   const html = page.html();
   assert.none(markers.filter((m) => html.includes(m)), 'parts of the withheld entry in the page');
   assert.equal(entryElements(page.root).length, 2, 'the two valid entries are shown');
-  assert.match(
-    textOf(page.root),
-    /\b1 entry (was|were) withheld because (it|they) lacked a dated outcome source or failed validation\./,
-    'the F4-W1 line for one entry',
-  );
+  assert.includes(textOf(page.root), W1_ONE, 'the F4-W1 line for one entry');
+  assert.notIncludes(textOf(page.root), 'entr(y/ies)', 'the F4-W1 line is proper English, not the Level 2 notation');
+});
+
+test('M8-U6 two undated outcomes: both entries are withheld and the notice is in the plural', DOM, async ({ root }) => {
+  const log = clone(await fixtureModule('invalid/log-undated-outcome.js'));
+  delete log[0].outcome.source.publishedOn;
+  const page = await renderLogWith(root, log);
+  const html = page.html();
+  assert.none([log[0].id, log[1].id].filter((id) => html.includes(id)), 'withheld entry identifiers in the page');
+  assert.equal(entryElements(page.root).length, 1, 'the one valid entry is shown');
+  assert.includes(textOf(page.root), W1_TWO, 'the F4-W1 line for two entries');
+  assert.notIncludes(textOf(page.root), W1_ONE, 'no singular line for two entries');
 });
 
 // ------------------------------------------------------------------------------------------ M8-U9
@@ -163,6 +170,11 @@ test('M8-U9 each entry shows signals, past judgement, outcome and calibration no
     const got = labelChain(node);
     if (JSON.stringify(got) !== JSON.stringify(want)) problems.push(`${what}: labels from the text outwards are ${JSON.stringify(got)}, expected ${JSON.stringify(want)}`);
   };
+  const entryIds = entryElements(r).map((el) => el.getAttribute('data-entry'));
+  if (JSON.stringify([...entryIds].sort()) !== JSON.stringify(log.map((e) => e.id).sort())) problems.push(`data-entry values ${JSON.stringify(entryIds)} do not match the log's entries`);
+  for (const el of entryElements(r)) {
+    if (!el.hasAttribute('data-content') || labelOf(el) !== 'replay') problems.push(`entry ${el.getAttribute('data-entry')}: expected data-content and data-label="replay", got ${JSON.stringify(labelOf(el))}`);
+  }
   for (const e of log) {
     const signals = e.originalSignals.map((s) => ({ title: at(s.title), summary: at(s.summary.text) }));
     const judgement = at(e.pastJudgement.rationale);

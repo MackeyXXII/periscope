@@ -6,7 +6,10 @@
 //
 // A "committed fixture session" is produced the way a viewer produces it: the F1 walk on
 // renderTrend, then renderScenario(root, ctx, trendId) with the same ctx. ctx.flow is
-// 'interactive' unless the test is about the static fallback. DOM hooks: tests/lib/screens.mjs.
+// 'interactive' unless the test is about the static fallback. DOM hooks: the table in
+// docs/04-module-design.md (summarised in tests/lib/screens.mjs); M6-U22 finds its two regions by
+// data-area="what-you-wrote" and data-area="conversation-questions". Hint texts: the
+// whatIsMissingScenario row of the M6 interface table.
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -84,15 +87,19 @@ test('M6-U19 in the page, Record my scenario is disabled and a line names the em
   const r = page.root;
   const button = () => theButton(r, RECORD_SCENARIO);
   const hint = () => textOf(r.querySelector('[data-hint="scenario"]'));
-  const heardRe = /heard/i;
-  const playoutRe = /play out/i;
+  // The hint texts of whatIsMissingScenario (M6 interface table).
+  const HINTS = {
+    both: 'Write what you have heard and how the trend could play out to record your scenario.',
+    heard: 'Write what you have heard to record your scenario.',
+    playout: 'Write how the trend could play out to record your scenario.',
+  };
   const problems = [];
   const expect = (label, wantHeard, wantPlayout) => {
     if (!button().disabled) problems.push(`${label}: "Record my scenario" is enabled`);
     const h = hint();
+    const want = wantHeard && wantPlayout ? HINTS.both : wantHeard ? HINTS.heard : HINTS.playout;
     if (!h) problems.push(`${label}: no line ([data-hint="scenario"]) says what is missing`);
-    if (heardRe.test(h) !== wantHeard) problems.push(`${label}: the line ${wantHeard ? 'does not name' : 'names'} the "heard" field: ${JSON.stringify(h)}`);
-    if (playoutRe.test(h) !== wantPlayout) problems.push(`${label}: the line ${wantPlayout ? 'does not name' : 'names'} the "play out" field: ${JSON.stringify(h)}`);
+    else if (h !== want) problems.push(`${label}: the line reads ${JSON.stringify(h)}, expected ${JSON.stringify(want)}`);
   };
   for (const blank of ['', ' ', '\n\t']) {
     await type(field(r, 'heard'), blank);
@@ -153,23 +160,30 @@ function headingByText(root, text) {
   return found.length === 1 ? found[0] : null;
 }
 
-function regionOf(heading) {
-  return heading.closest('section, [role="region"], article') || heading.parentElement;
+/** The one region with data-area="<name>" (DOM hooks table), or null. */
+function area(root, name) {
+  const found = root.querySelectorAll(`[data-area="${name}"]`);
+  return found.length === 1 ? found[0] : null;
 }
 
 test('M6-U22 F5-S2: "What you wrote" precedes the questions; labels, captions and statements are in place', DOM, async ({ root }) => {
   const { page } = await committedScenarioPage(root);
   await recordScenarioInPage(page);
+  const { LABEL_DISPLAY } = await load('vocabulary');
   const r = page.root;
   const problems = [];
   const h1 = headingByText(r, 'What you wrote');
   const h2 = headingByText(r, 'Questions to take into your next conversations');
+  const wrote = area(r, 'what-you-wrote');
+  const asked = area(r, 'conversation-questions');
   if (!h1) problems.push('no single heading "What you wrote"');
   if (!h2) problems.push('no single heading "Questions to take into your next conversations"');
-  if (h1 && h2) {
-    const wrote = regionOf(h1);
-    const asked = regionOf(h2);
-    if (wrote === asked || wrote.contains(asked) || asked.contains(wrote)) problems.push('the two headings do not head separate regions');
+  if (!wrote) problems.push('no single region data-area="what-you-wrote"');
+  if (!asked) problems.push('no single region data-area="conversation-questions"');
+  if (h1 && wrote && !wrote.contains(h1)) problems.push('the heading "What you wrote" is not inside data-area="what-you-wrote"');
+  if (h2 && asked && !asked.contains(h2)) problems.push('the questions heading is not inside data-area="conversation-questions"');
+  if (h1 && h2 && wrote && asked) {
+    if (wrote.contains(asked) || asked.contains(wrote)) problems.push('the two regions are nested');
     if (!precedes(wrote, asked)) problems.push('"What you wrote" does not precede the questions region');
     // The first region echoes the committed judgement and both fields, each labelled yours.
     for (const typed of ['zebra-test-rationale', 'zebra-test-heard', 'zebra-test-playout']) {
@@ -182,17 +196,21 @@ test('M6-U22 F5-S2: "What you wrote" precedes the questions; labels, captions an
     }
     const lensEcho = wrote.querySelector('[data-echo="committed-lens"]');
     if (!lensEcho || !/noise/i.test(textOf(lensEcho))) problems.push('"What you wrote" does not echo the committed lens (noise)');
+    for (const [kind, typed] of [['heard', 'zebra-test-heard'], ['playout', 'zebra-test-playout']]) {
+      const echo = wrote.querySelector(`[data-echo="${kind}"]`);
+      if (!echo || !textOf(echo).includes(typed)) problems.push(`"What you wrote" has no data-echo="${kind}" showing ${typed}`);
+    }
     for (const echo of wrote.querySelectorAll('[data-echo]')) {
       if (labelOf(echo) !== 'yours') problems.push(`echo ${echo.getAttribute('data-echo')} carries ${JSON.stringify(labelOf(echo))}, expected "yours"`);
-      if (!findBadge(echo, 'Yours')) problems.push(`echo ${echo.getAttribute('data-echo')} has no visible "Yours" badge`);
+      if (!findBadge(echo, LABEL_DISPLAY.yours, 'yours')) problems.push(`echo ${echo.getAttribute('data-echo')} has no visible "${LABEL_DISPLAY.yours}" badge`);
     }
     // Questions: ai-generated, byte-identical label markup, each with a note field.
     const questions = Array.from(asked.querySelectorAll('[data-question]'));
     if (questions.length !== (await conversationTexts()).length) problems.push(`${questions.length} question elements in the questions region`);
     const badges = questions.map((q) => {
       if (labelOf(q) !== 'ai-generated') problems.push(`question ${q.getAttribute('data-question')} carries ${JSON.stringify(labelOf(q))}`);
-      const b = findBadge(q, 'AI-generated');
-      if (!b) problems.push(`question ${q.getAttribute('data-question')} has no visible "AI-generated" badge`);
+      const b = findBadge(q, LABEL_DISPLAY['ai-generated'], 'ai-generated');
+      if (!b) problems.push(`question ${q.getAttribute('data-question')} has no visible "${LABEL_DISPLAY['ai-generated']}" badge`);
       return b ? b.outerHTML : '';
     });
     if (new Set(badges).size > 1) problems.push(`the questions' label markup differs: ${[...new Set(badges)].join(' | ')}`);

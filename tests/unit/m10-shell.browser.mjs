@@ -4,8 +4,10 @@
 //
 // Every test here loads the whole application in tests/app-host.html through appFrame() from
 // tests/lib/dom.mjs, with the real M1 loader serving the synthetic fixtures
-// (fixtureLoader in tests/lib/screens.mjs). Screens are recognised by texts the specification fixes for them
-// (docs/02-system-requirements.md, C-3, C-4, F1 to F5), listed in ROUTES below.
+// (fixtureLoader in tests/lib/screens.mjs), handed to start({ loader, random }). Screens are
+// recognised by texts the specification fixes for them (docs/02-system-requirements.md, C-3, C-4,
+// F1 to F5), listed in ROUTES below; controls and readings by the DOM hooks of
+// docs/04-module-design.md (data-control, data-reading, data-echo).
 //
 // Status at G2: every test fails, naming assets/js/main.js (a placeholder without start()) or
 // assets/js/contracts/load.js (not implemented): the test-first rule working.
@@ -75,36 +77,40 @@ function mainNav(doc) {
   );
 }
 
-/** Chooses the first gut-reading option on the open trend card and records it; waits for F1-S2. */
-async function recordGutReading(app) {
-  const scope = app.doc.getElementById('app') || app.doc.body;
+/** Chooses `lens` in the gut-reading control (data-control="gut-call") and records it; waits for F1-S2. */
+async function recordGutReading(app, lens = 'threat') {
   const option = await waitFor(
-    () => scope.querySelector('input[type="radio"]:not(:disabled), [role="radio"]:not([aria-disabled="true"])'),
-    'a gut-reading lens option (input type="radio" or role="radio")',
+    () => app.doc.querySelector(`[data-control="gut-call"] input[type="radio"][value="${lens}"]`),
+    `the gut-reading option ${lens} ([data-control="gut-call"] input[type="radio"][value="${lens}"])`,
   );
   await choose(option);
   const [button] = buttonsByText(app.doc.body, 'Record my gut reading');
   if (!button) throw new Error('no "Record my gut reading" button on the trend card');
   await click(button);
-  await waitFor(() => LENSES.every((l) => bodyText(app).includes(readingMarker(l))), 'the three readings of F1-S2');
+  await waitFor(() => app.doc.querySelectorAll('[data-reading]').length === 3, 'the three reading elements of F1-S2 ([data-reading])');
+  return lens;
 }
 
-/** The reading element of each lens: the largest ancestor of its text holding no other reading. */
+/** The reading element of each lens (data-reading="<lens>"). */
 function readingElements(doc) {
   const out = {};
   for (const lens of LENSES) {
-    const others = LENSES.filter((l) => l !== lens).map(readingMarker);
-    let el = smallestContaining(doc.body, readingMarker(lens))[0];
-    if (!el) throw new Error(`no element holds ${readingMarker(lens)}`);
-    while (el.parentElement && !others.some((m) => el.parentElement.textContent.includes(m))) el = el.parentElement;
+    const el = doc.querySelector(`[data-reading="${lens}"]`);
+    if (!el) throw new Error(`no element data-reading="${lens}"`);
     out[lens] = el;
   }
   return out;
 }
 
 function lensOrderOnPage(doc) {
-  const els = readingElements(doc);
-  return [...LENSES].sort((a, b) => (precedes(els[a], els[b]) ? -1 : 1));
+  return Array.from(doc.querySelectorAll('[data-reading]')).map((el) => el.getAttribute('data-reading'));
+}
+
+/** The recorded gut reading as the page shows it: the checked, locked gut-call option, or its echo. */
+function recordedGutReading(doc) {
+  const checked = Array.from(doc.querySelectorAll('[data-control="gut-call"] input[type="radio"]')).filter((o) => o.checked);
+  const echo = doc.querySelector('[data-echo="gut-call"]');
+  return { checked: checked.map((o) => ({ lens: o.value, locked: o.disabled || Boolean(o.closest('fieldset[disabled]')) })), echo: echo ? textOf(echo) : null };
 }
 
 function startupFailureShown(doc) {
@@ -155,18 +161,28 @@ test('M10-U5 the first trend opened follows drawLensOrder(seededRandom(7)) and t
   const app = await openApp(root, { random: seededRandom(7) });
   if (app.error) throw new Error(`start() failed with the fixtures: ${app.error.message}`);
   await showsRoute(app, '', ROUTES[0][1]);
+  const record = app.win.__periscopeStartup;
+  assert.ok(record && record.startResolved, 'start() settled in the app host');
+  assert.equal(record.startValue, undefined, 'start() resolves to undefined (the page exposes no handle on the session)');
   await goTo(app, `#/trend/${ALPHA}`, [ALPHA_TITLE]);
-  await recordGutReading(app);
+  const gut = await recordGutReading(app, 'threat');
   assert.deepEqual(lensOrderOnPage(app.doc), expected, 'reading order of the first trend opened');
+  const before = recordedGutReading(app.doc);
 
-  // The session object is not exposed by start(), so "the same object (===)" is checked by its
-  // effect: after every route, the trend resumes in F1-S2 with the same order (reported as a
-  // specification gap).
+  // Behavioural session check (M10-U5): visit every route, then return to the trend; it shows
+  // F1-S2 with the same gut reading and the same lens order.
   for (const [hash, markers] of ROUTES) if (!hash.startsWith('#/trend/')) await goTo(app, hash, markers);
   await goTo(app, `#/trend/${ALPHA}`, [readingMarker('opportunity')]);
+  await waitFor(() => app.doc.querySelectorAll('[data-reading]').length === 3, 'F1-S2 on returning to the trend');
   assert.deepEqual(lensOrderOnPage(app.doc), expected, 'reading order after visiting every route');
-  const record = buttonsByText(app.doc.body, 'Record my gut reading').filter((b) => !b.disabled);
-  assert.equal(record.length, 0, 'no enabled "Record my gut reading" button after returning: the session was kept');
+  const after = recordedGutReading(app.doc);
+  const shown = after.checked.length === 1 ? after.checked[0].lens : after.echo;
+  assert.ok(shown && new RegExp(gut, 'i').test(shown), `the recorded gut reading (${gut}) is shown on return (checked option or data-echo="gut-call")`);
+  assert.ok(after.checked.every((o) => o.locked), 'the recorded gut reading is locked on return');
+  assert.deepEqual(after, before, 'the gut reading shows exactly as it did before leaving');
+  const enabledRecord = buttonsByText(app.doc.body, 'Record my gut reading').filter((b) => !b.disabled);
+  assert.equal(enabledRecord.length, 0, 'no enabled "Record my gut reading" button after returning: the session was kept');
+  assert.equal(app.doc.querySelectorAll('[data-control="judgement"]').length, 1, 'the judgement control of F1-S2 is shown');
 });
 
 // ------------------------------------------------------------------------------------------ M10-U6

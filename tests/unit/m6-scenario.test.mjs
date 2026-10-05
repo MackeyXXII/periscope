@@ -5,17 +5,14 @@
 // At G2 every test here fails with "module under test could not be imported"; the data part of
 // M6-U24 is skipped with "needs data/ (G3); SCENARIO_FLOW is static (O-1)".
 //
-// ASSUMPTIONS, reported to the Orchestrator as specification gaps:
-//   - canRecordScenario and recordScenario take drafts with the ScenarioRecord's field names,
-//     { whatWasHeard, howItCouldPlayOut }; `now` is an ISO timestamp string.
-//   - recordScenario returns the recorded part { whatWasHeard, howItCouldPlayOut, recordedAt, … },
-//     frozen at least in those three fields.
-//   - The committed Judgement comes from recordIntuition -> commitJudgement (see the note on
-//     readingsRevealedAt in m6-judgement.test.mjs).
-//   - The scenario state functions live in assets/js/state/scenario.js (section 6.4 places
-//     scenarioMode there); canRecordScenario, whatIsMissingScenario, recordScenario,
-//     setQuestionNote and snapshotScenario are taken from scenario.js or session.js, whichever
-//     exports them, because the module design lists them without a file.
+// The interface is the M6 drafts and return-shape table of docs/04-module-design.md (revised
+// 5 October 2026): the session functions (createSession, lensOrderFor, recordIntuition,
+// markReadingsRevealed, commitJudgement) come from assets/js/state/session.js; canRecordScenario,
+// whatIsMissingScenario, recordScenario, setQuestionNote, snapshotScenario and scenarioMode from
+// assets/js/state/scenario.js. Drafts are { whatWasHeard, howItCouldPlayOut }; recordScenario
+// returns the frozen { trendId, whatWasHeard, howItCouldPlayOut, recordedAt }; `now` is an ISO
+// timestamp string. The committed Judgement comes from
+// recordIntuition -> markReadingsRevealed -> commitJudgement.
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -26,16 +23,29 @@ import { load, makeClock } from '../lib/screens.mjs';
 
 const ALPHA = 'trend-fixture-alpha';
 
+const SESSION_FUNCTIONS = ['createSession', 'lensOrderFor', 'recordIntuition', 'markReadingsRevealed', 'commitJudgement'];
+const SCENARIO_FUNCTIONS = ['canRecordScenario', 'whatIsMissingScenario', 'recordScenario', 'setQuestionNote', 'snapshotScenario', 'scenarioMode'];
+
+/** Each function from the file the M6 interface table places it in. */
 async function scenarioApi() {
   const [S, Sc] = await Promise.all([load('session'), load('scenarioState')]);
-  return { ...S, ...Sc };
+  const api = {};
+  for (const name of SESSION_FUNCTIONS) {
+    assert.equal(typeof S[name], 'function', `state/session.js exports ${name}`);
+    api[name] = S[name];
+  }
+  for (const name of SCENARIO_FUNCTIONS) {
+    assert.equal(typeof Sc[name], 'function', `state/scenario.js exports ${name}`);
+    api[name] = Sc[name];
+  }
+  return api;
 }
 
 function committedSession(api, clock) {
   const session = api.createSession({ random: seededRandom(21) });
   api.lensOrderFor(session, ALPHA);
   api.recordIntuition(session, ALPHA, { gutCall: 'threat', reason: null }, clock());
-  clock();
+  api.markReadingsRevealed(session, ALPHA, clock());
   const judgement = api.commitJudgement(session, ALPHA, { committedLens: 'noise', rationale: 'zebra-test-rationale', promptAnswers: [] }, clock());
   return { session, judgement };
 }
@@ -65,6 +75,31 @@ test('M6-U19 canRecordScenario is false while either field is blank and true whe
   assert.none(problems, 'canRecordScenario errors');
 });
 
+test('M6-U19 whatIsMissingScenario names exactly the empty field, in the specified words', async () => {
+  const api = await scenarioApi();
+  const BOTH = 'Write what you have heard and how the trend could play out to record your scenario.';
+  const HEARD = 'Write what you have heard to record your scenario.';
+  const PLAYOUT = 'Write how the trend could play out to record your scenario.';
+  const problems = [];
+  const check = (draft, want) => {
+    let got;
+    try {
+      got = api.whatIsMissingScenario(draft);
+    } catch (error) {
+      problems.push(`whatIsMissingScenario(${JSON.stringify(draft)}) threw: ${error.message}`);
+      return;
+    }
+    if (got !== want) problems.push(`whatIsMissingScenario(${JSON.stringify(draft)}) returned ${JSON.stringify(got)}, expected ${JSON.stringify(want)}`);
+  };
+  for (const blank of ['', ' ', '\n\t']) {
+    check({ whatWasHeard: blank, howItCouldPlayOut: blank }, BOTH);
+    check({ whatWasHeard: blank, howItCouldPlayOut: 'zebra-test-playout' }, HEARD);
+    check({ whatWasHeard: 'zebra-test-heard', howItCouldPlayOut: blank }, PLAYOUT);
+  }
+  check({ whatWasHeard: 'zebra-test-heard', howItCouldPlayOut: 'zebra-test-playout' }, '');
+  assert.none(problems, 'whatIsMissingScenario errors');
+});
+
 // ------------------------------------------------------------------------------------------ M6-U21
 
 test('M6-U21 recordScenario freezes the fields, refuses a second record and a non-later time; notes stay editable', async () => {
@@ -86,6 +121,7 @@ test('M6-U21 recordScenario freezes the fields, refuses a second record and a no
 
   const recorded = api.recordScenario(session, ALPHA, { whatWasHeard: 'zebra-test-heard', howItCouldPlayOut: 'zebra-test-playout' }, clock());
   assert.ok(recorded && typeof recorded === 'object', 'recordScenario returns the record');
+  assert.equal(recorded.trendId, ALPHA, 'the record names its trend');
   const before = { whatWasHeard: recorded.whatWasHeard, howItCouldPlayOut: recorded.howItCouldPlayOut, recordedAt: recorded.recordedAt };
   assert.equal(before.whatWasHeard, 'zebra-test-heard', 'whatWasHeard recorded');
   assert.equal(before.howItCouldPlayOut, 'zebra-test-playout', 'howItCouldPlayOut recorded');

@@ -8,7 +8,8 @@
 // Screens are rendered with renderTrend(root, ctx, trendId) and renderTrendIndex(root, ctx) into a
 // fresh document that links assets/css/main.css (tests/lib/dom.mjs, mount), with the real M1
 // loader over the fixtures and spies on every loader function (tests/lib/screens.mjs). The DOM
-// hooks the tests rely on are listed at the top of tests/lib/screens.mjs.
+// hooks are those of the DOM hooks table in docs/04-module-design.md (summarised at the top of
+// tests/lib/screens.mjs); the commit hint texts are those of whatIsMissing in the M6 interface.
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -95,18 +96,17 @@ test('M6-U3 in the page, Commit judgement is disabled and a line says what is mi
   // "x" with no lens.
   await type(field(r, 'rationale'), 'x');
   assert.ok(button().disabled, 'disabled with rationale "x" and no lens');
-  assert.match(hint(), /choose a reading/i, 'with no lens the line names the missing reading');
-  assert.ok(!/rationale/i.test(hint()) || /choose a reading and write a rationale/i.test(hint()), 'the line names only what is missing, or the whole sentence');
+  assert.equal(hint(), 'Choose a reading to commit your judgement.', 'with no lens the line names the missing reading only');
   // A lens, with whitespace-only rationales.
   await choose(optionFor(r, 'judgement', 'opportunity'));
   for (const blank of ['', ' ', '\n\t ']) {
     await type(field(r, 'rationale'), blank);
     assert.ok(button().disabled, `disabled with a lens and rationale ${JSON.stringify(blank)}`);
-    assert.match(hint(), /rationale/i, `with rationale ${JSON.stringify(blank)} the line names the missing rationale`);
-    assert.ok(!/choose a reading/i.test(hint()) || /choose a reading and write a rationale/i.test(hint()), 'the line names only what is missing, or the whole sentence');
+    assert.equal(hint(), 'Write a rationale to commit your judgement.', `with rationale ${JSON.stringify(blank)} the line names the missing rationale only`);
   }
   await type(field(r, 'rationale'), 'x');
   assert.ok(!button().disabled, 'enabled with a lens and rationale "x" (F1-S3)');
+  assert.equal(hint(), '', 'with nothing missing the line is empty (or absent)');
 });
 
 // ------------------------------------------------------------------------------------------ M6-U4
@@ -489,7 +489,7 @@ function yoursProblems(elements, what) {
   if (elements.length === 0) problems.push(`${what}: not found`);
   for (const el of elements) {
     if (labelOf(el) !== 'yours') problems.push(`${what}: data-label is ${JSON.stringify(labelOf(el))}, expected "yours"`);
-    if (!findBadge(el, 'Yours')) problems.push(`${what}: no visible "Yours" badge`);
+    if (!findBadge(el, 'Yours', 'yours')) problems.push(`${what}: no visible "Yours" badge (data-badge="yours")`);
   }
   return problems;
 }

@@ -88,6 +88,71 @@ function stripScriptComments(src, { lineComments, quotes }) {
   return out;
 }
 
+/**
+ * JavaScript code (comments already removed) with the contents of every string literal replaced
+ * by spaces, the quotes kept: the "strings blanked" step of M10-U2, so that prose inside a string
+ * ("caches" in a summary) is not mistaken for an identifier. Inside a template literal, the code of
+ * each `${…}` substitution is kept (to the matching brace, by simple depth counting), because it
+ * executes. Line breaks are kept so that line numbers stay right.
+ */
+export function blankStrings(code) {
+  let out = '';
+  let i = 0;
+  const n = code.length;
+  const blank = (s) => s.replace(/[^\n]/g, ' ');
+  while (i < n) {
+    const c = code[i];
+    if (c === '"' || c === "'" || c === '`') {
+      out += c;
+      let j = i + 1;
+      let run = '';
+      while (j < n && code[j] !== c) {
+        if (code[j] === '\\') {
+          run += code.slice(j, j + 2);
+          j += 2;
+        } else if (c !== '`' && code[j] === '\n') {
+          break;
+        } else if (c === '`' && code[j] === '$' && code[j + 1] === '{') {
+          out += blank(run);
+          run = '';
+          let depth = 1;
+          let k = j + 2;
+          while (k < n && depth > 0) {
+            if (code[k] === '{') depth += 1;
+            else if (code[k] === '}') depth -= 1;
+            k += 1;
+          }
+          out += code.slice(j, k);
+          j = k;
+        } else {
+          run += code[j];
+          j += 1;
+        }
+      }
+      out += blank(run);
+      if (j < n && code[j] === c) {
+        out += c;
+        j += 1;
+      }
+      i = j;
+      continue;
+    }
+    out += c;
+    i += 1;
+  }
+  return out;
+}
+
+/** The contents of every inline <script> element (one without src) of an HTML text, comments removed first. */
+export function inlineScripts(html) {
+  const code = stripHtmlComments(html);
+  const out = [];
+  for (const m of code.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)) {
+    if (!/\bsrc\s*=/i.test(m[1])) out.push(m[2]);
+  }
+  return out;
+}
+
 export function stripHtmlComments(src) {
   let out = '';
   let i = 0;

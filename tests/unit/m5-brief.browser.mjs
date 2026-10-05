@@ -13,27 +13,30 @@
 //            synthetic fixtures (or a named invalid fixture) for each data/ path it is asked for;
 //   routes   a stub whose every function returns '#/zebra-route/<name>/<args>', so that a link
 //            built from ctx.routes is recognisable and a hard-coded route is not;
-//   freeze and manifest   the freeze manifest, under both names (the specification names the
-//            manifest but not its key; M6's ctx calls it `manifest`).
+//   manifest the freeze manifest (the screen context of docs/04-module-design.md, M5: the key is
+//            `manifest`, not `freeze`).
 // A Promise returned by renderBrief is awaited, and the event loop is then let run twice.
 //
 // INTERPRETATIONS AND SPECIFICATION QUESTIONS, reported to the Orchestrator:
-//   - A "signal element" is the outermost element with data-content and data-label="real" that
-//     contains that signal's title and no other signal's title.
-//   - M5-U6, "child structure": the tag and class list of each direct child of the signal element.
-//     Deeper structure cannot be identical, because a signal in two trends has two trend links
-//     where the others have one (M5-U7 requires that), so a recursive comparison could never pass.
-//     Also, the synthetic brief includes one signal with a quote (sig-2026-05-20-zebra-delta) and
-//     four without, so the test passes only if a quote sits inside a child that every signal
-//     element has. If the Architect intends optional parts to be exempt, M5-U6 needs rewording.
+//   - A "signal element" is the one element with data-signal="<signal id>" (the DOM hooks table of
+//     docs/04-module-design.md). It is the signal's content element, so it also carries
+//     data-content and data-label="real" (M5-U11 checks this).
+//   - M5-U6, as specified: the signal element's tag and class list and the tag and class list of
+//     each direct child; deeper structure is not compared. The synthetic brief includes one signal
+//     with a quote (sig-2026-05-20-zebra-delta) and four without, so the test passes only if a
+//     quote sits inside a child that every signal element has.
+//   - M5-U5, F2-W1: the notice is proper English (DOM hooks, "Withheld notices"): two failing
+//     signals give "2 signals were withheld because they failed the provenance check."; one gives
+//     "1 signal was withheld because it failed the provenance check.".
 //   - M5-U6, markers: class names and attribute names are split into tokens (as in M1-U2) and
 //     checked, with attribute values (except href) and the screen's own text, for the whole words
 //     new, pinned, featured and relevant.
 //   - M5-U8, position numbers: "1." and "#1" forms in the interface text of a signal element, and
 //     signal elements rendered as items of a numbered list (<ol> whose items show a marker).
 //   - M5-U11: "shows the freeze date" accepts the date as formatted by M9 ("5 October 2026") or in
-//     ISO form; a "visible badge" is an element whose whole text is LABEL_DISPLAY[value], rendered
-//     inside the labelled element or beside it in its parent, with a client rect and not hidden.
+//     ISO form; a "visible badge" is an element with data-badge="<value>" and no data-label, whose
+//     whole text is LABEL_DISPLAY[value], inside the labelled element and not inside a nested
+//     content element, with a client rect and not hidden.
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -59,7 +62,8 @@ const routes = new Proxy(
 );
 
 const ORDERING_NOTE = 'Listed by publication date. The order says nothing about importance.';
-const WITHHELD_NOTICE = '2 signal(s) were withheld because they failed the provenance check.';
+const WITHHELD_NOTICE_TWO = '2 signals were withheld because they failed the provenance check.';
+const WITHHELD_NOTICE_ONE = '1 signal was withheld because it failed the provenance check.';
 const E1_MESSAGE = 'The weekly brief could not be shown because its content failed validation.';
 const EMPTY_MESSAGE = 'This brief contains no signals.';
 const NO_TREND = 'No trend card for this signal in this build.';
@@ -95,22 +99,18 @@ async function renderF2(root, { from = 'fixtures', overrides = {}, patch = null 
   };
   let loader = L.createLoader({ importer });
   if (patch) loader = Object.assign({}, loader, patch);
-  const freeze = content.freeze;
-  await S.renderBrief(root, { loader, routes, freeze, manifest: freeze });
+  await S.renderBrief(root, { loader, routes, manifest: content.freeze });
   await new Promise((r) => setTimeout(r, 0));
   await new Promise((r) => setTimeout(r, 0));
   return content;
 }
 
-/** The signal element of each signal, as a Map from id to element (or null). */
+/** The signal element of each signal (the one element with data-signal="<id>"), as a Map from id to element or null. */
 function signalElements(root, signals) {
   const out = new Map();
-  const candidates = [...root.querySelectorAll('[data-content][data-label="real"]')];
   for (const s of signals) {
-    const others = signals.filter((o) => o !== s).map((o) => o.title);
-    const own = candidates.filter((el) => el.textContent.includes(s.title) && !others.some((t) => el.textContent.includes(t)));
-    const outermost = own.filter((el) => !own.some((o) => o !== el && o.contains(el)));
-    out.set(s.id, outermost[0] || null);
+    const found = [...root.querySelectorAll('[data-signal]')].filter((el) => el.getAttribute('data-signal') === s.id);
+    out.set(s.id, found.length === 1 ? found[0] : null);
   }
   return out;
 }
@@ -163,16 +163,15 @@ function visible(el) {
   return cs.visibility !== 'hidden' && cs.display !== 'none' && parseFloat(cs.opacity) > 0;
 }
 
-/** A visible badge reading `display` for the labelled element `el`: inside it, or beside it in its parent. */
-function badgeFor(el, display, exclude = new Set()) {
-  const scope = el.parentElement || el;
-  const found = [...scope.querySelectorAll('*')].filter((b) => {
-    if (exclude.has(b) || norm(b.textContent) !== display || !visible(b)) return false;
-    if (b.querySelector('*') && [...b.children].some((c) => norm(c.textContent) === display)) return false; // innermost only
-    if (el.contains(b)) return true;
-    // Beside it: not inside another labelled content element within the same parent.
-    const owner = b.closest('[data-content]');
-    return !owner || owner === el || owner.contains(el);
+/**
+ * The visible badge of the labelled element `el`: an element inside it with data-badge equal to
+ * `value` and no data-label, whose text is `display`, and whose nearest content element is `el`.
+ */
+function badgeFor(el, value, display, exclude = new Set()) {
+  const found = [...el.querySelectorAll('[data-badge]')].filter((b) => {
+    if (exclude.has(b) || b.getAttribute('data-badge') !== value || b.hasAttribute('data-label')) return false;
+    if (norm(b.textContent) !== display || !visible(b)) return false;
+    return Boolean(b.parentElement) && b.parentElement.closest('[data-content]') === el;
   });
   return found[0] || null;
 }
@@ -199,18 +198,34 @@ test('M5-U2 F2-S1 for the brief in data/ reads in ten minutes or less', { needs:
 
 // ------------------------------------------------------------------------------------------ M5-U5
 
-test('M5-U5 two signals failing the per-signal check are withheld and counted', { needs: ['dom'] }, async ({ root }) => {
-  const fixture = await invalidFixture('brief-two-bad-signals.js');
-  const bad = fixture.signals.filter((s) => s.id.includes('zebra-withheld'));
-  const kept = fixture.signals.filter((s) => !s.id.includes('zebra-withheld'));
-  assert.equal(bad.length, 2, 'the fixture has two bad signals');
-  await renderF2(root, { overrides: { 'data/brief.js': fixture.brief, 'data/signals.js': fixture.signals } });
+/** Serves the fixture with `keepBad` of its two failing signals (the other is removed from brief and signals). */
+async function withheldCheck(root, { keepBad, notice, otherNotice }) {
+  const fixture = clone(await invalidFixture('brief-two-bad-signals.js'));
+  const allBad = fixture.signals.filter((s) => s.id.includes('zebra-withheld'));
+  assert.equal(allBad.length, 2, 'the fixture has two bad signals');
+  const bad = allBad.slice(0, keepBad);
+  const dropped = new Set(allBad.slice(keepBad).map((s) => s.id));
+  const signals = fixture.signals.filter((s) => !dropped.has(s.id));
+  const brief = { ...fixture.brief, signalIds: fixture.brief.signalIds.filter((id) => !dropped.has(id)) };
+  const kept = signals.filter((s) => !s.id.includes('zebra-withheld'));
+  await renderF2(root, { overrides: { 'data/brief.js': brief, 'data/signals.js': signals } });
   const html = root.innerHTML;
+  const text = norm(root.textContent);
   const problems = [];
   for (const s of bad) for (const str of [s.id, ...fieldStrings(s)]) if (html.includes(str)) problems.push(`withheld ${s.id} rendered ${JSON.stringify(str)}`);
   for (const s of kept) if (!root.textContent.includes(s.title)) problems.push(`valid signal ${s.id} is not rendered`);
-  if (!norm(root.textContent).includes(WITHHELD_NOTICE)) problems.push(`notice "${WITHHELD_NOTICE}" missing`);
+  if (!text.includes(notice)) problems.push(`notice "${notice}" missing`);
+  if (text.includes(otherNotice)) problems.push(`miscounted notice "${otherNotice}" shown`);
+  if (/signal\(s\)/.test(text)) problems.push('the notice uses the "signal(s)" notation instead of proper English');
   assert.none(problems, 'withholding defects');
+}
+
+test('M5-U5 two signals failing the per-signal check are withheld and counted', { needs: ['dom'] }, async ({ root }) => {
+  await withheldCheck(root, { keepBad: 2, notice: WITHHELD_NOTICE_TWO, otherNotice: WITHHELD_NOTICE_ONE });
+});
+
+test('M5-U5 one signal failing the per-signal check is withheld and counted in the singular', { needs: ['dom'] }, async ({ root }) => {
+  await withheldCheck(root, { keepBad: 1, notice: WITHHELD_NOTICE_ONE, otherNotice: WITHHELD_NOTICE_TWO });
 });
 
 // ------------------------------------------------------------------------------------------ M5-U6
@@ -363,15 +378,18 @@ test('M5-U11 F2 labels: frozen header with the freeze date, real signals, ai-gen
   else {
     const header = headers[0];
     if (!dateForms.some((f) => norm(header.textContent).includes(f))) problems.push(`the brief header does not show the freeze date (${dateForms.join(' or ')})`);
-    if (!badgeFor(header, LABEL_DISPLAY.frozen)) problems.push(`the brief header has no visible "${LABEL_DISPLAY.frozen}" badge`);
+    if (!badgeFor(header, 'frozen', LABEL_DISPLAY.frozen)) problems.push(`the brief header has no visible "${LABEL_DISPLAY.frozen}" badge`);
   }
 
   for (const [id, el] of signalElements(root, briefSignals(content))) {
     if (!el) {
-      problems.push(`no signal element with data-label="real" for ${id}`);
+      problems.push(`no single signal element data-signal="${id}"`);
       continue;
     }
-    if (!badgeFor(el, LABEL_DISPLAY.real)) problems.push(`${id}: no visible "${LABEL_DISPLAY.real}" badge`);
+    if (!el.hasAttribute('data-content') || el.getAttribute('data-label') !== 'real') {
+      problems.push(`${id}: the signal element has data-content=${el.hasAttribute('data-content')} and data-label="${el.getAttribute('data-label')}", expected data-content and "real"`);
+    }
+    if (!badgeFor(el, 'real', LABEL_DISPLAY.real)) problems.push(`${id}: no visible "${LABEL_DISPLAY.real}" badge`);
     const signal = content.signals.find((s) => s.id === id);
     const used = new Set();
     for (const [part, text] of [['summary', signal.summary.text], ['relevance note', signal.relevanceNote.text]]) {
@@ -382,7 +400,7 @@ test('M5-U11 F2 labels: frozen header with the freeze date, real signals, ai-gen
         continue;
       }
       if (own.getAttribute('data-label') !== 'ai-generated') problems.push(`${id}: the ${part} carries data-label="${own.getAttribute('data-label')}", expected ai-generated`);
-      const badge = badgeFor(own, LABEL_DISPLAY['ai-generated'], used);
+      const badge = badgeFor(own, 'ai-generated', LABEL_DISPLAY['ai-generated'], used);
       if (!badge) problems.push(`${id}: the ${part} has no visible "${LABEL_DISPLAY['ai-generated']}" badge of its own`);
       else used.add(badge);
     }

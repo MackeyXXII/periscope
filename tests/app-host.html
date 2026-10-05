@@ -18,8 +18,11 @@
 
     window.parent.__periscopeAppHost = { options(): object, started(error | null): void }
 
-  The host also records, for M10-U3, whether anything had been rendered into #app before
-  #startup-failure left the document: window.__periscopeStartup.
+  start() takes { loader, random, flow, levelNames } (docs/04-module-design.md, M10 "Lives in").
+
+  The host also records, in window.__periscopeStartup: for M10-U3, whether anything had been
+  rendered into #app before #startup-failure left the document; for M10-U5, whether start()
+  resolved and the value it resolved to (startResolved, startValue).
 -->
 <p id="startup-failure">The demo could not load. It makes no network requests. If you opened this file directly from your disk, some browsers block it; please use the hosted version.</p>
 <div id="app"></div>
@@ -61,7 +64,9 @@ try {
   if (typeof main.start !== 'function') {
     throw new Error('assets/js/main.js does not export start(): the M10 shell is not implemented yet (test-first rule)');
   }
-  await main.start(options);
+  const value = await main.start(options);
+  startup.startResolved = true;
+  startup.startValue = value;
 } catch (error) {
   failure = error instanceof Error ? error : new Error(String(error));
 }

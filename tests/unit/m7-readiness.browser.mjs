@@ -3,17 +3,18 @@
 // Written from docs/04-module-design.md (M7) and docs/02-system-requirements.md (F3, C-5) before
 // assets/js/screens/readiness.js and governance.js exist (test-first rule).
 //
-// Interface under test: renderReadiness(root, ctx, { levelNames }) and renderGovernance(root, ctx).
-// The module design does not say what ctx holds for M7; these tests pass what it fixes for M5:
-// { loader, routes, manifest } (reported to the Orchestrator). The loader is the real M1 loader
-// over the synthetic fixtures (fixtureLoader in tests/lib/screens.mjs).
+// Interface under test: renderReadiness(root, ctx, { levelNames }) and renderGovernance(root, ctx),
+// with ctx = { loader, routes, manifest } (the screen context defined under M5). The loader is the
+// real M1 loader over the synthetic fixtures (fixtureLoader in tests/lib/screens.mjs).
 //
 // The verified view (M7-U8, and the verified half of M7-U1 and M7-U3) needs the fixture level
-// names injected. The M1 loader has no such injection: it checks a profile against
-// MATURITY_LEVEL_NAMES, which is empty until D-1 is closed, so it withholds the verified fixture.
-// Those tests therefore replace loadReadiness by a stub resolving to { ok: true, value } with the
-// deep-frozen verified fixture, and inject the names through renderReadiness's levelNames option
-// (reported to the Orchestrator as a specification gap).
+// names injected at the one injection point the module design fixes: the same list is passed to
+// createLoader({ importer, levelNames }) (so checkReadiness accepts the verified fixture) and to
+// renderReadiness's levelNames option.
+//
+// DOM hooks (docs/04-module-design.md): the maturity view is data-area="maturity", the next-level
+// area within it data-area="next-level"; each practice is data-practice="<key>", each readiness
+// category data-category="<key>".
 //
 // Status at G2: every test fails, naming the missing screen or M1 module (test-first rule).
 
@@ -43,21 +44,22 @@ function formatIso(iso) {
   return `${d} ${MONTHS[m - 1]} ${y}`;
 }
 
-function deepFreeze(v) {
-  if (v && typeof v === 'object' && !Object.isFrozen(v)) {
-    Object.freeze(v);
-    Object.values(v).forEach(deepFreeze);
-  }
-  return v;
+async function context({ overrides, fail, verified = false } = {}) {
+  const { loader } = await fixtureLoader({
+    overrides: verified ? { 'data/readiness.js': (await loadContent({ from: 'fixtures' })).readinessVerified, ...overrides } : overrides,
+    fail,
+    ...(verified ? { levelNames: FIXTURE_LEVEL_NAMES } : {}),
+  });
+  return { loader, routes: await routesObject(), manifest: await fixtureManifest() };
 }
 
-async function context({ overrides, fail, verified = false } = {}) {
-  const { loader } = await fixtureLoader({ overrides, fail });
-  if (verified) {
-    const value = deepFreeze(JSON.parse(JSON.stringify((await loadContent({ from: 'fixtures' })).readinessVerified)));
-    loader.loadReadiness = async () => ({ ok: true, value });
-  }
-  return { loader, routes: await routesObject(), manifest: await fixtureManifest() };
+const CATEGORY_ORDER = Object.freeze(['strategic-alignment', 'resources', 'knowledge', 'culture', 'data']);
+const PRACTICE_ORDER = Object.freeze(['scanning', 'trend-analysis', 'scenario-work']);
+
+/** The one element with data-area="<name>" under `root`, or null. */
+function theArea(root, name) {
+  const found = root.querySelectorAll(`[data-area="${name}"]`);
+  return found.length === 1 ? found[0] : null;
 }
 
 async function showReadiness(root, { verified = false, overrides } = {}) {
@@ -107,6 +109,11 @@ test('M7-U1 the screen renders the five categories and three practices in the fi
     problems.push(...orderProblems(text, findings, `${verified ? 'verified' : 'unverified'} categories`));
     for (const f of findings) if (count(text, f) > 1) problems.push(`finding repeated: ${f}`);
     problems.push(...orderProblems(text, profile.maturity.practices.map((p) => p.name), `${verified ? 'verified' : 'unverified'} practices`));
+    const where = verified ? 'verified' : 'unverified';
+    const cats = Array.from(m.root.querySelectorAll('[data-category]')).map((el) => el.getAttribute('data-category'));
+    if (JSON.stringify(cats) !== JSON.stringify(CATEGORY_ORDER)) problems.push(`${where}: data-category elements ${JSON.stringify(cats)}, expected ${JSON.stringify(CATEGORY_ORDER)}`);
+    const pracs = Array.from(m.root.querySelectorAll('[data-practice]')).map((el) => el.getAttribute('data-practice'));
+    if (JSON.stringify(pracs) !== JSON.stringify(PRACTICE_ORDER)) problems.push(`${where}: data-practice elements ${JSON.stringify(pracs)}, expected ${JSON.stringify(PRACTICE_ORDER)}`);
     m.frame.remove();
   }
   assert.none(problems, 'order problems on screen');
@@ -119,13 +126,18 @@ test('M7-U2 the unverified maturity view shows the placeholder per practice and 
   const m = await showReadiness(root);
   const text = m.root.textContent;
   const problems = [];
-  const names = c.readiness.maturity.practices.map((p) => p.name);
-  problems.push(...orderProblems(text, names, 'practices'));
-  names.forEach((name, i) => {
-    const from = text.indexOf(name);
-    const to = i + 1 < names.length ? text.indexOf(names[i + 1]) : text.length;
-    if (from >= 0 && !text.slice(from, to).includes(PLACEHOLDER)) problems.push(`${name}: no ${PLACEHOLDER} after its name`);
-  });
+  const maturity = theArea(m.root, 'maturity');
+  if (!maturity) problems.push('no single maturity view (data-area="maturity")');
+  for (const p of c.readiness.maturity.practices) {
+    const els = maturity ? Array.from(maturity.querySelectorAll('[data-practice]')).filter((el) => el.getAttribute('data-practice') === p.key) : [];
+    if (els.length !== 1) {
+      problems.push(`${p.key}: ${els.length} elements data-practice="${p.key}" in the maturity view, expected 1`);
+      continue;
+    }
+    const t = els[0].textContent;
+    if (!t.includes(p.name)) problems.push(`${p.key}: its name "${p.name}" is not shown`);
+    if (!t.includes(PLACEHOLDER)) problems.push(`${p.key}: ${PLACEHOLDER} is not shown`);
+  }
   if (count(text, PENDING_LEVELS) !== 1) problems.push(`the pending sentence appears ${count(text, PENDING_LEVELS)} times, expected once`);
   const html = m.html();
   if (html.includes(REPORT_DOI) || html.includes('doi.org')) problems.push('a report citation is in the page');
@@ -183,6 +195,15 @@ test('M7-U5 the governance screen shows both lists, verifying tests, sourced and
   const problems = [];
   const headings = Array.from(m.root.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(textOf);
   for (const h of ['Implemented in this demo', 'Not implemented']) if (!headings.includes(h)) problems.push(`no heading "${h}"`);
+  // Each list and the argument sit in their own region (DOM hooks: data-area).
+  for (const [name, items] of [['governance-implemented', g.implemented], ['governance-not-implemented', g.notImplemented], ['governance-argument', g.argument]]) {
+    const region = theArea(m.root, name);
+    if (!region) {
+      problems.push(`no single region data-area="${name}"`);
+      continue;
+    }
+    for (const item of items) if (!region.textContent.includes(item.text)) problems.push(`${item.id} is not inside data-area="${name}"`);
+  }
   const allItemTexts = [...g.implemented, ...g.notImplemented].map((i) => i.text);
   for (const item of [...g.implemented, ...g.notImplemented]) {
     const [el] = smallestContaining(m.root, item.text);
@@ -225,10 +246,12 @@ test('M7-U5 the governance screen shows both lists, verifying tests, sourced and
 test('M7-U7 while unverified, the next-level area holds only the pending sentence', { needs: ['dom'] }, async ({ root }) => {
   const m = await showReadiness(root);
   const text = m.root.textContent;
+  const maturity = theArea(m.root, 'maturity');
+  assert.ok(maturity, 'a single maturity view (data-area="maturity")');
+  const next = theArea(maturity, 'next-level');
+  assert.ok(next, 'a single next-level area (data-area="next-level") within the maturity view');
+  assert.equal(textOf(next), PENDING_NEXT, 'the next-level area renders exactly the pending sentence and nothing else');
   assert.equal(count(text, PENDING_NEXT), 1, 'the pending sentence appears once');
-  const [el] = smallestContaining(m.root, PENDING_NEXT);
-  assert.equal(textOf(el), PENDING_NEXT, 'the element holding it holds nothing else');
-  // The design names no hook for "the next-level area"; nothing of the verified block may appear.
   for (const s of [NEXT_HEADING, 'The report describes', NOT_ADVICE]) assert.notIncludes(text, s);
 });
 
@@ -243,18 +266,28 @@ test('M7-U8 the verified view shows levels, explanations, the next-level block a
   const citedAfter = (el, page, year) =>
     doiLinks.some((a) => (a === el || precedes(el, a)) && a.parentElement.textContent.includes(page) && (!year || a.parentElement.textContent.includes(year)));
 
+  const maturity = theArea(m.root, 'maturity');
+  const next = maturity ? theArea(maturity, 'next-level') : null;
+  if (!maturity) problems.push('no single maturity view (data-area="maturity")');
+  if (!next) problems.push('no single next-level area (data-area="next-level") within the maturity view');
+  const scope = maturity || m.root;
+  const nextScope = next || m.root;
   for (const p of v.maturity.practices) {
-    if (!text.includes(p.levelName)) problems.push(`${p.key}: level name not shown`);
-    const [ex] = smallestContaining(m.root, p.explanation.text);
+    const els = Array.from(scope.querySelectorAll('[data-practice]')).filter((el) => el.getAttribute('data-practice') === p.key && !(next && next.contains(el)));
+    const own = els.length === 1 ? els[0] : null;
+    if (!own) problems.push(`${p.key}: ${els.length} elements data-practice="${p.key}" in the maturity view outside the next-level area, expected 1`);
+    const pScope = own || scope;
+    if (!pScope.textContent.includes(p.levelName)) problems.push(`${p.key}: level name not shown`);
+    const [ex] = smallestContaining(pScope, p.explanation.text);
     if (!ex) problems.push(`${p.key}: explanation not shown`);
     else if (!citedAfter(ex, p.explanation.citation.page)) problems.push(`${p.key}: explanation has no report citation with page ${p.explanation.citation.page}`);
   }
-  const [heading] = Array.from(m.root.querySelectorAll('h1, h2, h3, h4, h5, h6')).filter((h) => textOf(h) === NEXT_HEADING);
-  if (!heading) problems.push(`no heading "${NEXT_HEADING}"`);
+  const [heading] = Array.from(nextScope.querySelectorAll('h1, h2, h3, h4, h5, h6')).filter((h) => textOf(h) === NEXT_HEADING);
+  if (!heading) problems.push(`no heading "${NEXT_HEADING}" in the next-level area`);
   const blockParts = [];
   for (const p of v.maturity.practices) {
     if (p.nextLevel.description) {
-      const [d] = smallestContaining(m.root, p.nextLevel.description.text);
+      const [d] = smallestContaining(nextScope, p.nextLevel.description.text);
       if (!d) {
         problems.push(`${p.key}: next-level description not shown`);
         continue;
@@ -262,11 +295,10 @@ test('M7-U8 the verified view shows levels, explanations, the next-level block a
       blockParts.push(d);
       if (heading && !precedes(heading, d)) problems.push(`${p.key}: description is not under the next-level heading`);
       if (labelChain(d)[0] !== 'ai-generated') problems.push(`${p.key}: description label ${JSON.stringify(labelChain(d)[0])}`);
-      const after = heading ? text.slice(text.indexOf(NEXT_HEADING)) : text;
-      if (!after.includes(p.nextLevel.levelName)) problems.push(`${p.key}: next level name not shown in the block`);
+      if (!nextScope.textContent.includes(p.nextLevel.levelName)) problems.push(`${p.key}: next level name not shown in the next-level area`);
       if (!citedAfter(d, p.nextLevel.citation.page, '2025')) problems.push(`${p.key}: description has no DOI citation with 2025 and page ${p.nextLevel.citation.page}`);
     } else {
-      const exact = Array.from(m.root.querySelectorAll('*')).filter((el) => textOf(el) === NO_LEVEL_ABOVE);
+      const exact = Array.from(nextScope.querySelectorAll('*')).filter((el) => textOf(el) === NO_LEVEL_ABOVE);
       if (exact.length === 0) problems.push(`${p.key}: "${NO_LEVEL_ABOVE}" is not shown as an element of its own`);
       else blockParts.push(exact[exact.length - 1]);
     }

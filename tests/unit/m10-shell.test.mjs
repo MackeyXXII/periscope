@@ -15,7 +15,9 @@ import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
 import { IS_NODE, importUnderTest, readText, listFiles, exists, repoUrl } from '../lib/env.mjs';
 import { SHIPPED_FILES, SCHEMA_FILES, FILES } from '../lib/files.mjs';
-import { codeOf, stripJsComments, stripCssComments, stripHtmlComments } from '../lib/strip-comments.mjs';
+import {
+  codeOf, kindOf, stripJsComments, stripCssComments, stripHtmlComments, blankStrings, inlineScripts,
+} from '../lib/strip-comments.mjs';
 import { TEST_FILES } from './index.mjs';
 
 const STARTUP_FAILURE_TEXT =
@@ -157,35 +159,104 @@ test('M10-U1 data/ makes no network request and references no remote resource', 
 
 // ------------------------------------------------------------------------------------------ M10-U2
 
+// M10-U2 as revised on 5 October 2026: code only, not content prose. In JavaScript (including the
+// inline scripts of index.html), comments are removed and the contents of every string literal
+// blanked; then no identifier use of the eight names, as a whole word, bare or after ".". Before
+// blanking (comments removed), no bracket access with a string literal naming any of them, such
+// as window['caches'] or document["cookie"].
+const STORAGE_NAMES = ['localStorage', 'sessionStorage', 'indexedDB', 'caches', 'serviceWorker', 'cookieStore'];
+
+/** Identifier uses, matched on code with comments removed and strings blanked. */
 export const STORAGE_PATTERNS = Object.freeze([
-  ['localStorage', /localStorage/],
-  ['sessionStorage', /sessionStorage/],
-  ['indexedDB', /indexedDB/],
-  ['document.cookie', /document\s*\.\s*cookie/],
-  ['caches', /\bcaches\b/],
-  ['serviceWorker', /serviceWorker/],
-  ['navigator.storage', /navigator\s*\.\s*storage\b/],
+  ...STORAGE_NAMES.map((name) => [name, new RegExp(String.raw`(?<![\w$])${name}(?![\w$])`)]),
+  ['document.cookie', /(?<![\w$])document\s*\.\s*cookie(?![\w$])/],
+  ['navigator.storage', /(?<![\w$])navigator\s*\.\s*storage(?![\w$])/],
 ]);
 
-test('M10-U2 the storage audit recognises every forbidden name and ignores comments only', () => {
-  const mustMatch = [
-    'localStorage.setItem("a", "b")', 'window.sessionStorage', 'indexedDB.open("x")', 'document.cookie = "a=b"',
-    'caches.open("v1")', 'navigator.serviceWorker.register("sw.js")', 'navigator.storage.persist()',
-    'const k = "localStorage"; window[k]',
-  ];
-  const mustNotMatch = ['// nothing is stored in localStorage', '/* document.cookie is never set */ let a;'];
+/** Bracket access by a string literal, matched on code with comments removed but strings intact. */
+export const STORAGE_BRACKET_PATTERNS = Object.freeze([
+  [
+    'bracket access by string to a storage name',
+    new RegExp(String.raw`[\w$)\]]\s*\[\s*(["'\x60])(?:${STORAGE_NAMES.join('|')})\1\s*\]`),
+  ],
+  ['bracket access document["cookie"]', /(?<![\w$])document\s*\[\s*(["'`])cookie\1\s*\]/],
+  ['bracket access navigator["storage"]', /(?<![\w$])navigator\s*\[\s*(["'`])storage\1\s*\]/],
+]);
+
+/** The JavaScript code units of a file, comments removed: the file itself, or index.html's inline scripts. */
+function scriptUnits(file, text) {
+  if (kindOf(file) === 'js') return [codeOf(file, text)];
+  if (kindOf(file) === 'html') return inlineScripts(text).map((s) => stripJsComments(s));
+  return [];
+}
+
+/** Every M10-U2 problem in one file's text. */
+export function storageProblems(file, text) {
   const problems = [];
-  for (const t of mustMatch) if (auditText('a.js', codeOf('a.js', t), STORAGE_PATTERNS).length === 0) problems.push(`not detected: ${t}`);
-  for (const t of mustNotMatch) if (auditText('a.js', codeOf('a.js', t), STORAGE_PATTERNS).length) problems.push(`false match: ${t}`);
+  scriptUnits(file, text).forEach((code, k) => {
+    const where = kindOf(file) === 'html' ? `${file} inline script ${k + 1}` : file;
+    problems.push(...auditText(where, code, STORAGE_BRACKET_PATTERNS));
+    problems.push(...auditText(where, blankStrings(code), STORAGE_PATTERNS));
+  });
+  return problems;
+}
+
+async function storageAudit(files) {
+  const problems = [];
+  for (const file of files) problems.push(...storageProblems(file, await readText(repoUrl(file))));
+  return problems;
+}
+
+test('M10-U2 the storage audit recognises identifier and bracket uses and ignores comments and prose in strings', () => {
+  const mustMatch = [
+    ['a.js', 'localStorage.setItem("a", "b")'],
+    ['a.js', 'window.sessionStorage'],
+    ['a.js', 'indexedDB.open("x")'],
+    ['a.js', 'document.cookie = "a=b"'],
+    ['a.js', 'document . cookie'],
+    ['a.js', 'caches.open("v1")'],
+    ['a.js', 'navigator.serviceWorker.register("sw.js")'],
+    ['a.js', 'navigator.storage.persist()'],
+    ['a.js', 'await cookieStore.get("a")'],
+    ['a.js', 'window.cookieStore'],
+    ["a.js", "window['caches'].open('v1')"],
+    ['a.js', 'globalThis["localStorage"]'],
+    ['a.js', 'self[`indexedDB`]'],
+    ['a.js', "document['cookie'] = 'a=b'"],
+    ['a.js', 'navigator["storage"].persist()'],
+    ['a.js', 'const t = `${localStorage.length}`;'],
+    ['a.js', '/* unterminated comment localStorage'],
+    ['index.html', '<p>x</p><script type="module">window.localStorage.clear();</script>'],
+    ['index.html', "<script>window['sessionStorage']</script>"],
+  ];
+  const mustNotMatch = [
+    ['a.js', '// nothing is stored in localStorage'],
+    ['a.js', '/* document.cookie is never set */ let a;'],
+    ['a.js', 'const summary = "Vendors add caches and localStorage-like tiers to the collector.";'],
+    ['a.js', "const s = 'document.cookie and navigator.storage are prose here';"],
+    ['a.js', 'export default { "tags": ["caches"], "summary": "cookieStore" };'],
+    ['a.js', 'const myCaches = 1; const cachesize = 2;'],
+    ['index.html', '<!-- <script>localStorage.clear()</script> --><p>localStorage is prose in HTML</p>'],
+    ['index.html', '<script type="module" src="assets/js/main.js"></script>'],
+    ['a.css', '.caches { color: red; }'],
+  ];
+  const problems = [];
+  for (const [file, text] of mustMatch) if (storageProblems(file, text).length === 0) problems.push(`not detected in ${file}: ${text}`);
+  for (const [file, text] of mustNotMatch) {
+    const hits = storageProblems(file, text);
+    if (hits.length) problems.push(`false match in ${file}: ${text} (${hits.join('; ')})`);
+  }
+  // The blanking step keeps quotes, line breaks and template substitutions.
+  if (blankStrings('a("xy")\n`p${q}r`') !== 'a("  ")\n` ${q} `') problems.push(`blankStrings output ${JSON.stringify(blankStrings('a("xy")\n`p${q}r`'))}`);
   assert.none(problems, 'audit self-check failures');
 });
 
 test('M10-U2 index.html and assets/ use no browser storage', async () => {
-  assert.none(await audit(await shippedFiles(), STORAGE_PATTERNS), 'storage references in shipped files');
+  assert.none(await storageAudit(await shippedFiles()), 'storage references in shipped files');
 });
 
 test('M10-U2 data/ uses no browser storage', { needs: ['data'] }, async () => {
-  assert.none(await audit(await dataFiles(), STORAGE_PATTERNS), 'storage references in data/');
+  assert.none(await storageAudit(await dataFiles()), 'storage references in data/');
 });
 
 // ------------------------------------------------------------------------------------------ M10-U3
@@ -257,14 +328,20 @@ test('M10-U3 index.html has lang, viewport, the visible static start-up message 
 const M6_SCREENS = Object.freeze(['assets/js/screens/trend-index.js', 'assets/js/screens/trend.js', 'assets/js/screens/scenario.js']);
 
 /**
- * The permitted import edges, exactly as listed in docs/04-module-design.md (M10, "Permitted
- * import edges"): "main.js and shell/* to screens/*, state/*, honesty/*, contracts/*; screens/*
- * and state/* to honesty/*, contracts/* and shell/routes.js; honesty/* to contracts/*;
- * contracts/load.js and contracts/validate.js to contracts/vocabulary.js and
- * contracts/constants.js; screens/* of M6 to state/*. No other edge." shell/routes.js imports
- * nothing. Reported to the Orchestrator: read literally, this list has no edge from main.js to
- * shell/*, within shell/*, within state/*, within honesty/*, or from contracts/load.js to
- * contracts/validate.js. The test applies the list as written until the Architect amends it.
+ * The permitted import edges, exactly as tabled in docs/04-module-design.md (M10, "Permitted import
+ * edges", revised 5 October 2026); paths relative to assets/js/:
+ *   main.js                  shell/*, screens/*, state/*, honesty/*, contracts/*
+ *   shell/*                  other shell/* files, screens/*, state/*, honesty/*, contracts/*;
+ *                            shell/routes.js imports nothing
+ *   screens/*                honesty/*, contracts/*, shell/routes.js; the M6 screens
+ *                            (trend-index.js, trend.js, scenario.js) also state/*
+ *   state/*                  other state/* files, contracts/*
+ *   honesty/*                other honesty/* files, contracts/*
+ *   contracts/load.js        contracts/validate.js, vocabulary.js, constants.js
+ *   contracts/validate.js    contracts/vocabulary.js, constants.js
+ *   contracts/vocabulary.js, constants.js   nothing
+ * No other edge: no screen imports another screen, no screen outside M6 imports state/*, nothing
+ * under contracts/ imports outside contracts/, and nothing imports main.js.
  */
 export function permittedEdge(from, to) {
   const dir = (p) => {
@@ -273,18 +350,21 @@ export function permittedEdge(from, to) {
   };
   const fromDir = dir(from);
   const toDir = dir(to);
-  if (from === 'assets/js/shell/routes.js') return false;
-  if (from === 'assets/js/main.js' || fromDir === 'shell') {
-    return ['screens', 'state', 'honesty', 'contracts'].includes(toDir);
+  if (from === to || to === 'assets/js/main.js' || toDir === null) return false;
+  const C = (name) => `assets/js/contracts/${name}`;
+  if (from === 'assets/js/main.js') return ['shell', 'screens', 'state', 'honesty', 'contracts'].includes(toDir);
+  if (fromDir === 'shell') {
+    if (from === 'assets/js/shell/routes.js') return false;
+    return ['shell', 'screens', 'state', 'honesty', 'contracts'].includes(toDir);
   }
-  if (fromDir === 'screens' || fromDir === 'state') {
+  if (fromDir === 'screens') {
     if (toDir === 'honesty' || toDir === 'contracts' || to === 'assets/js/shell/routes.js') return true;
     return toDir === 'state' && M6_SCREENS.includes(from);
   }
-  if (fromDir === 'honesty') return toDir === 'contracts';
-  if (from === 'assets/js/contracts/load.js' || from === 'assets/js/contracts/validate.js') {
-    return to === 'assets/js/contracts/vocabulary.js' || to === 'assets/js/contracts/constants.js';
-  }
+  if (fromDir === 'state') return toDir === 'state' || toDir === 'contracts';
+  if (fromDir === 'honesty') return toDir === 'honesty' || toDir === 'contracts';
+  if (from === C('load.js')) return [C('validate.js'), C('vocabulary.js'), C('constants.js')].includes(to);
+  if (from === C('validate.js')) return [C('vocabulary.js'), C('constants.js')].includes(to);
   return false;
 }
 
@@ -364,15 +444,29 @@ export function importGraphProblems(files) {
 test('M10-U4 the import-graph check recognises every forbidden edge, string and call', () => {
   const good = new Map([
     ['index.html', '<script type="module" src="assets/js/main.js"></script>'],
-    ['assets/js/main.js', "import { renderBrief } from './screens/brief.js';\n// data/ is loaded by contracts/load.js\n"],
+    ['assets/js/main.js', "import { renderBrief } from './screens/brief.js';\nimport { route } from './shell/router.js';\n// data/ is loaded by contracts/load.js\n"],
+    ['assets/js/shell/router.js', "import { routes } from './routes.js';\nimport { renderNav } from './nav.js';\nimport { createSession } from '../state/session.js';"],
+    ['assets/js/shell/nav.js', "import { routes } from './routes.js';"],
     ['assets/js/screens/brief.js', "import { routes } from '../shell/routes.js';\nimport { renderLabel } from '../honesty/labels.js';"],
     ['assets/js/screens/trend.js', "import { createSession } from '../state/session.js';\nloader.loadReveal(id);"],
+    ['assets/js/state/session.js', "import { drawLensOrder } from './lens-order.js';\nimport { LENSES } from '../contracts/vocabulary.js';"],
+    ['assets/js/state/lens-order.js', "import { LENSES } from '../contracts/vocabulary.js';"],
     ['assets/js/honesty/labels.js', "import { LABELS } from '../contracts/vocabulary.js';"],
-    ['assets/js/contracts/load.js', "import { X } from './constants.js';\nconst p = `../../data/${name}.js`; await import(p); loadReveal; loadConversation;"],
+    ['assets/js/honesty/sources.js', "import { renderLabel } from './labels.js';"],
+    ['assets/js/contracts/load.js', "import { X } from './constants.js';\nimport { checkTrend } from './validate.js';\nconst p = `../../data/${name}.js`; await import(p); loadReveal; loadConversation;"],
+    ['assets/js/contracts/validate.js', "import { LABELS } from './vocabulary.js';\nimport { QUOTE_MAX_WORDS } from './constants.js';"],
     ['assets/js/shell/routes.js', 'export const routes = {};'],
   ]);
   assert.deepEqual(importGraphProblems(good), []);
   const bad = [
+    ['assets/js/state/session.js', "import { x } from '../honesty/labels.js';"],
+    ['assets/js/state/session.js', "import { routes } from '../shell/routes.js';"],
+    ['assets/js/contracts/validate.js', "import { x } from './load.js';"],
+    ['assets/js/contracts/vocabulary.js', "import { x } from './constants.js';"],
+    ['assets/js/contracts/load.js', "import { x } from '../honesty/labels.js';"],
+    ['assets/js/shell/router.js', "import { start } from '../main.js';"],
+    ['assets/js/screens/brief.js', "import { x } from '../shell/router.js';"],
+    ['assets/js/honesty/labels.js', "import { x } from '../state/session.js';"],
     ['assets/js/screens/log.js', "import { x } from '../state/session.js';"],
     ['assets/js/screens/brief.js', "import { x } from '../screens/log.js';"],
     ['assets/js/honesty/labels.js', "import { x } from '../screens/brief.js';"],

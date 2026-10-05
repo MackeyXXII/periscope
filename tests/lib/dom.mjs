@@ -26,10 +26,12 @@
 //   serialise(doc)                   document.documentElement.outerHTML: attributes, comments and
 //                                    <template> contents included (M6-U1, M6-U20).
 //   buttonsByText, elementsByText, smallestContaining, isVisible, isEditable, focusables, labelOf,
-//   findBadge                        Queries used by several screen tests.
+//   findBadge                        Queries used by several screen tests. findBadge finds a badge by
+//                                    its data-badge hook (never data-label), as the module design's
+//                                    DOM hooks table fixes it.
 //
-// Added by the Test Engineer on 5 October 2026 for the M6, M8 and M9 tests; the test plan lists
-// dom.mjs as shared tooling still to be written.
+// Added by the Test Engineer on 5 October 2026 for the M6, M8 and M9 tests; aligned on 5 October
+// 2026 with the DOM hooks table of docs/04-module-design.md (data-area, data-badge).
 
 import { repoUrl } from './env.mjs';
 
@@ -339,17 +341,21 @@ export function textNodesContaining(root, needle) {
 const VOID_CONTROLS = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'IMG']);
 
 /**
- * The visible badge that belongs to a labelled element: an element whose text is exactly
- * `display`, inside the element and not inside a nested content element (a part's own badge does
- * not count for its entity). For a form control, which cannot hold children, the badge is looked
- * for beside it, in its parent, outside any other content element. Returns the badge or null.
+ * The visible badge that belongs to a labelled element (the DOM hooks table of
+ * docs/04-module-design.md): an element with a data-badge attribute (equal to `value` when given)
+ * and no data-label, whose text is exactly `display`, inside the element and not inside a nested
+ * content element (a part's own badge does not count for its entity). For a form control, which
+ * cannot hold children, the badge is looked for beside it, within the same wrapper (its parent),
+ * outside any other content element. Returns the badge or null.
  */
-export function findBadge(el, display) {
+export function findBadge(el, display, value = null) {
   const isVoid = VOID_CONTROLS.has(el.tagName);
   const scope = isVoid ? el.parentElement : el;
   if (!scope) return null;
-  for (const candidate of scope.querySelectorAll('*')) {
+  for (const candidate of scope.querySelectorAll('[data-badge]')) {
     if (candidate === el || textOf(candidate) !== display) continue;
+    if (candidate.hasAttribute('data-label')) continue;
+    if (value !== null && candidate.getAttribute('data-badge') !== value) continue;
     const owner = candidate.closest('[data-content]');
     const belongs = owner === null || owner === el || owner.contains(scope);
     if (belongs && isVisible(candidate)) return candidate;
