@@ -3,10 +3,11 @@
 **Status: expanded by the Requirements Engineer on 19 September 2026; revised on 5 October 2026 to
 apply Miguel's G2 decisions of 4 October 2026, and again on 5 October 2026 to apply his decisions
 of that day and the Red-team Reviewer's G2 findings B4, B5 and N2, all recorded in `gates.md`.
-Awaiting G2. Owner: Requirements Engineer. Every conflict and question raised on 19 September has
-been decided; the record of how each was resolved is at the end of this document. Two proposals in
-it await Miguel's confirmation at G2: the exemption of R7 from a flow, and the `fictional` label on
-the readiness category findings.**
+**Approved at G2 by Miguel on 5 October 2026**, on condition that his N6 decision (option (b)) is
+applied; it is applied in F3 (state `F3-S3a`). Owner: Requirements Engineer. Every conflict and
+question raised on 19 September has been decided; the record of how each was resolved is at the
+end of this document. The exemption of R7 from a flow and the `fictional` label on the readiness
+category findings were confirmed by Miguel on 5 October 2026.**
 
 Five demo flows, in build order, plus six non-functional requirements. If budget runs short, F3
 and F4 become static screens rather than being cut; F1 and F2 are never reduced. **F5 ships in this
@@ -28,14 +29,13 @@ ships as the static screen `F5-ST`: in this release the viewer reads a descripti
 step and writes nothing. The rows for F1 to F4 are unchanged from the seeded scope except F3, whose
 wording now follows decisions K-2 and D-1.
 
-**R7 has no flow, by a reasoned exemption (proposed, Miguel to confirm at G2).** R7 asks for a
+**R7 has no flow, by a reasoned exemption (confirmed by Miguel on 5 October 2026; `gates.md`).** R7 asks for a
 role-aware model. It is designed, not built: the architecture gives `Judgement` and `LogEntry` an
 optional `role` field and sets out the role-aware data model (`03-architecture.md`, section 11),
 and the governance screen lists the role-aware model under "Not implemented" (F3). No flow uses
 the field, so no F is assigned. R7's Level 1 acceptance is met by that documentation, checked by
 review and by the unit test that no fixture or page code uses `role`. A flow is not added because
-it would need viewer roles, and the demo has no accounts and stores nothing (C-1). If Miguel does
-not confirm the exemption, R7 is a gap that must be closed before G2 is recorded.
+it would need viewer roles, and the demo has no accounts and stores nothing (C-1).
 
 ## Non-functional requirements
 
@@ -484,7 +484,7 @@ testable are in step 3.
 | 1 | Opens Readiness | Shows `F3-S1`: the five categories in source order, each with Tracewell's answers and a prose finding; a citation of Jöhnk et al. (2021) with a dated link | ReadinessProfile (categories, answers, findings, framework provenance) | Nothing |
 | 2 | Reads the maturity view | For each practice, in C-4 order: the practice name and its level. **Unverified (`F3-S2`):** the level reads `LEVEL_NAME_UNVERIFIED`, followed once by the sentence "Level names pending verification against the WEF/OECD report." **Verified (`F3-S2v`):** the level name, and an explanation of why Tracewell's practice sits at that level, drawing on the dossier answers and citing the report with its page | ReadinessProfile (per practice: level, explanation; report citation) | Nothing |
 | 3 | Reads what the report describes for the next level | **Unverified:** "Pending: the next complement depends on the verified level definitions." and nothing more. **Verified:** a block headed "What the WEF/OECD report describes for the next level", holding for each practice the name of the next level and the report's description of it, under the constraints below, and after all practices the sentence "These are the report's descriptions of the next level. They are not advice from this demo." | ReadinessProfile (per practice: next-level name and description; report citation) | Nothing |
-| 4 | Opens the governance screen, from a link in F3 and from the main navigation | Shows `F3-S3` with two lists and the argument for own-data ingestion's conditions (see below) | Governance content | Nothing |
+| 4 | Opens the governance screen, from a link in F3 and from the main navigation | Shows `F3-S3` with two lists and the argument for own-data ingestion's conditions (see below); if the governance content holds no argument paragraph, shows `F3-S3a` instead | Governance content | Nothing |
 
 **Wording constraints for the next-level description (K-2).** Each description must satisfy all of
 the following; each is checkable by a test or by the Verifier as stated.
@@ -518,15 +518,28 @@ under NF2 and passes the Verifier. The Architect writes the argument, drafting o
 Scout's frozen regulatory sources; any sentence it cannot tie to a listed source is cut (Q-5,
 decided by structured debate and confirmed by Miguel on 5 October 2026; `gates.md`).
 
+R8's acceptance rests on the two lists, not on the argument (N6, option (b), decided by Miguel on
+5 October 2026). If the Verifier strikes every argument paragraph, including the one-paragraph
+GDPR fallback, the governance content holds an empty argument and the screen ships as `F3-S3a`:
+both lists, followed by this sentence, verbatim, as interface copy with no label:
+
+"The argument for own-data ingestion is not shown in this build because its claims did not pass
+verification."
+
+Nothing unverified is shown in its place, and no partial argument is shown: the argument is either
+present and verified in full (`F3-S3`) or absent (`F3-S3a`).
+
 **Expected labels.** The readiness profile, Tracewell's answers, and each practice's level
 assignment: `fictional`. The category findings: `fictional`, as part of the persona dossier about
-the fictional company (a proposed default, pending Miguel at G2). The framework citations (Jöhnk et
+the fictional company (confirmed by Miguel on 5 October 2026; if an interpretive agent writes or
+assigns them instead, they are labelled `ai-generated`). The framework citations (Jöhnk et
 al. and the WEF/OECD report): `real`. Each practice's maturity explanation and next-level
 description: `ai-generated`, since the Trend Analyst writes them (O-2), each shown with its own
 label as signal summaries are. The maturity placeholder: no label, since it is not content. The two
 governance lists: `real`, since each implemented item is a statement about the demo verified by a
 named test (DM-2). The governance argument paragraphs: `ai-generated`, since the Architect writes
-them (Q-5); each claim in them carries its own `real`, dated source.
+them (Q-5); each claim in them carries its own `real`, dated source. The withheld-argument
+sentence of `F3-S3a`: no label, since it is interface copy, not content.
 
 ### Screen states
 
@@ -536,8 +549,9 @@ them (Q-5); each claim in them carries its own `real`, dated source.
 | `F3-S2` | Maturity view, unverified | The three practices, each with `LEVEL_NAME_UNVERIFIED`; the pending sentence of step 2; the pending sentence of step 3 | Any level name, level count, level criterion or next-level description |
 | `F3-S2v` | Maturity view, verified | The three practices, each with its verified level and explanation; the next-level block of step 3 | Any number, bar or scale; any wording that addresses Tracewell or the viewer in the next-level block |
 | `F3-S3` | Governance screen | Both lists and the sourced argument | — |
+| `F3-S3a` | Governance screen, argument withheld | Both lists, then the sentence "The argument for own-data ingestion is not shown in this build because its claims did not pass verification." verbatim, without a label | Any argument paragraph; any `ai-generated` element |
 | `F3-E1` | Readiness profile withheld | "The readiness profile was withheld because its content failed validation." | All five categories and the maturity view, so that none is shown partially |
-| `F3-E2` | Governance content missing | "The governance statement could not be shown." This state must not ship, since R8's acceptance depends on the screen | — |
+| `F3-E2` | Governance content missing | "The governance statement could not be shown." This state must not ship, since R8's acceptance depends on the screen; an empty argument is not this state but `F3-S3a` | — |
 | `G-E1`, `G-E2` | Application-wide | As in C-3 | — |
 
 The build renders whichever of `F3-S2` and `F3-S2v` the frozen data calls for. `F3-S2v` ships only
@@ -547,8 +561,9 @@ if the Verifier has confirmed p. 9 and Miguel has set the status to verified bef
 ### Exit criterion
 
 F3 is satisfied when `F3-S1` shows all five categories with answers, findings and a dated
-citation; the maturity view shows one level for each of the three practices; `F3-S3` shows both
-the implemented and not-implemented lists; and either
+citation; the maturity view shows one level for each of the three practices; either `F3-S3` or
+`F3-S3a` shows both the implemented and not-implemented lists (`F3-S3a` with its sentence verbatim
+and no argument paragraph); `F3-E2` does not ship; and either
 
 - **unverified:** `F3-S2` shows `LEVEL_NAME_UNVERIFIED` for every practice, and no other level name
   appears anywhere in `index.html`, `assets/` or `data/`; or
@@ -935,9 +950,11 @@ Miguel closed each of these on 5 October 2026 (`gates.md`).
   Architect writes it, so its paragraphs are `ai-generated` and no seventh label is needed.
 - **F-9 and DM-11.** *Resolved:* Node is installed on the build machine, and DM-11 is not needed.
 
-Two proposals still await Miguel at G2: the **R7 exemption** (no flow for R7; designed, not built;
-acceptance met by documentation), stated under the functional requirements above, and the
-**proposed default that the category findings are labelled `fictional`** (F3, expected labels).
+Miguel confirmed on 5 October 2026 (`gates.md`) the **R7 exemption** (no flow for R7; designed,
+not built; acceptance met by documentation), stated under the functional requirements above, and
+the **default that the category findings and level assignments are labelled `fictional`** (F3,
+expected labels). He also decided **N6, option (b)** in place of the proposed no-go: a struck
+argument no longer stops the release; the governance screen ships as `F3-S3a`.
 
 ### Red-team findings applied at Level 2, 5 October 2026
 
@@ -951,8 +968,8 @@ The Red-team Reviewer blocked G2 on these findings. None is resolved by softenin
   general knowledge extends to mid-2026. The replay statement now says what was withheld and names
   the limit, in two fixed phrases, and the Verifier records per entry whether the outcome predates
   June 2026 (F4).
-- **N2.** R7 had no F and no recorded reason. The exemption is now stated and reasoned, as a
-  proposal for Miguel.
+- **N2.** R7 had no F and no recorded reason. The exemption is now stated and reasoned, and
+  Miguel confirmed it on 5 October 2026.
 
 ---
 
