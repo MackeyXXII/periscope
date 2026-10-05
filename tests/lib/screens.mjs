@@ -21,7 +21,7 @@
 //   data-area="<region>"         readings, interrogation, judgement, what-you-wrote,
 //                                conversation-questions, signals, entries, maturity, next-level,
 //                                governance-implemented, governance-not-implemented,
-//                                governance-argument
+//                                governance-argument, governance-argument-withheld
 //   data-control="gut-call" | "judgement"
 //                                a lens control: <input type="radio" value="<lens>"> options
 //   data-reading="<lens>"        one reading element

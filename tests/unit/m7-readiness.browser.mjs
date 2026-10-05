@@ -1,5 +1,5 @@
 // M7 Readiness and maturity: the browser-only unit tests, M7-U1 (screen part), M7-U2 to M7-U5,
-// M7-U7, M7-U8 and M7-U11. The content tests are in m7-readiness.test.mjs.
+// M7-U7, M7-U8, M7-U11 and M7-U12. The content tests are in m7-readiness.test.mjs.
 // Written from docs/04-module-design.md (M7) and docs/02-system-requirements.md (F3, C-5) before
 // assets/js/screens/readiness.js and governance.js exist (test-first rule).
 //
@@ -71,9 +71,9 @@ async function showReadiness(root, { verified = false, overrides } = {}) {
   return m;
 }
 
-async function showGovernance(root) {
+async function showGovernance(root, { overrides } = {}) {
   const screen = await load('governance');
-  const ctx = await context();
+  const ctx = await context({ overrides });
   const m = await mount(root);
   await screen.renderGovernance(m.root, ctx);
   await settle(4);
@@ -317,9 +317,10 @@ test('M7-U8 the verified view shows levels, explanations, the next-level block a
 });
 
 // ------------------------------------------------------------------------------------------ M7-U11
-// F3-E2 is a defence, not a shipping state: under the default proposed for Miguel to confirm at G2
-// (Red-team finding N6), a build whose governance content cannot be frozen is a G4 no-go. This test
-// proves the defence works; it does not make F3-E2 acceptable in a shipped build.
+// F3-E2 is a defence, not a shipping state, and must never ship. Under N6 option (b), decided by
+// Miguel on 5 Oct 2026, an argument struck entirely no longer leads here: it freezes as an empty
+// argument and ships as F3-S3a (M7-U12). This test proves the defence works; it does not make F3-E2
+// acceptable in a shipped build.
 
 test('M7-U11 with loadGovernance failing, governance shows F3-E2 and readiness still renders', { needs: ['dom'], timeout: 15000 }, async ({ root }) => {
   const { loader } = await fixtureLoader({ fail: ['loadGovernance'] });
@@ -328,4 +329,100 @@ test('M7-U11 with loadGovernance failing, governance shows F3-E2 and readiness s
   await waitFor(() => app.doc.body.textContent.includes(GOVERNANCE_MISSING), `"${GOVERNANCE_MISSING}" on #/governance`, 3000);
   await app.navigate('#/readiness');
   await waitFor(() => app.doc.body.textContent.includes('zebra-strategic-alignment-finding'), 'F3-S1 on #/readiness', 3000);
+});
+
+// ------------------------------------------------------------------------------------------ M7-U12
+// F3-S3a, argument withheld (N6 option (b), decided by Miguel on 5 Oct 2026). With argument: [] the
+// screen renders both lists as in F3-S3 and, in place of the argument, one withheld notice that is
+// interface copy (C-5 rule 6): no data-content, no data-label. No argument heading and no
+// data-area="governance-argument". With the standard fixture the notice is absent.
+
+const ARGUMENT_WITHHELD = 'The argument for own-data ingestion is not shown in this build because its claims did not pass verification.';
+const LIST_HEADINGS = Object.freeze(['Implemented in this demo', 'Not implemented']);
+
+/** Problems with the two lists, as M7-U5 states them (every item, label real, verifiedBy shown). */
+function listProblems(rootEl, g) {
+  const problems = [];
+  const headings = Array.from(rootEl.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(textOf);
+  for (const h of LIST_HEADINGS) if (!headings.includes(h)) problems.push(`no heading "${h}"`);
+  for (const [name, items] of [['governance-implemented', g.implemented], ['governance-not-implemented', g.notImplemented]]) {
+    const region = theArea(rootEl, name);
+    if (!region) {
+      problems.push(`no single region data-area="${name}"`);
+      continue;
+    }
+    for (const item of items) if (!region.textContent.includes(item.text)) problems.push(`${item.id} is not inside data-area="${name}"`);
+  }
+  const allItemTexts = [...g.implemented, ...g.notImplemented].map((i) => i.text);
+  for (const item of [...g.implemented, ...g.notImplemented]) {
+    const [el] = smallestContaining(rootEl, item.text);
+    if (!el) {
+      problems.push(`item ${item.id} not shown`);
+      continue;
+    }
+    if (labelChain(el)[0] !== 'real') problems.push(`item ${item.id}: covered by label ${JSON.stringify(labelChain(el)[0])}, expected "real"`);
+    const ids = item.verifiedBy || [];
+    if (ids.length === 0) problems.push(`item ${item.id}: no verifiedBy in the content to show`);
+    let scope = el;
+    while (scope && !ids.every((id) => scope.textContent.includes(id))) {
+      const parent = scope.parentElement;
+      if (!parent || allItemTexts.some((t) => t !== item.text && parent.textContent.includes(t))) {
+        scope = null;
+        break;
+      }
+      scope = parent;
+    }
+    if (!scope) problems.push(`item ${item.id}: its test identifiers ${ids.join(', ')} are not shown with it`);
+  }
+  return problems;
+}
+
+test('M7-U12 with an empty argument, governance shows both lists and the withheld sentence (F3-S3a)', { needs: ['dom'] }, async ({ root }) => {
+  const c = await loadContent({ from: 'fixtures' });
+  const g = c.governanceArgumentWithheld;
+  assert.ok(g && Array.isArray(g.argument) && g.argument.length === 0, 'governance-argument-withheld.js has argument: []');
+  const problems = [];
+
+  const m = await showGovernance(root, { overrides: { 'data/governance.js': g } });
+  problems.push(...listProblems(m.root, g));
+  const withheld = m.root.querySelectorAll('[data-area="governance-argument-withheld"]');
+  if (withheld.length !== 1) problems.push(`${withheld.length} elements data-area="governance-argument-withheld", expected 1`);
+  else {
+    const el = withheld[0];
+    if (textOf(el) !== ARGUMENT_WITHHELD) problems.push(`withheld element text ${JSON.stringify(textOf(el))}, expected the sentence verbatim`);
+    for (const attr of ['data-content', 'data-label']) if (el.hasAttribute(attr)) problems.push(`the withheld element carries ${attr}`);
+  }
+  if (m.root.querySelector('[data-area="governance-argument"]')) problems.push('an element data-area="governance-argument" is rendered');
+  // No argument heading. The argument heading is identified on the standard render: a heading
+  // inside data-area="governance-argument", or the last heading before that region and after the
+  // not-implemented region. A heading of that text, or any heading mentioning "argument", fails.
+  const withheldHeadings = Array.from(m.root.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(textOf);
+  for (const sel of ['[data-label="ai-generated"]', '[data-badge="ai-generated"]']) {
+    if (m.root.querySelector(sel)) problems.push(`an element ${sel} is rendered`);
+  }
+  if (m.root.textContent.includes(GOVERNANCE_MISSING)) problems.push(`"${GOVERNANCE_MISSING}" is shown`);
+  m.frame.remove();
+  const std = await showGovernance(root);
+  const argumentHeadings = new Set();
+  const argRegion = theArea(std.root, 'governance-argument');
+  const notImpl = theArea(std.root, 'governance-not-implemented');
+  if (argRegion) {
+    const all = Array.from(std.root.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+    for (const h of all) if (argRegion.contains(h)) argumentHeadings.add(textOf(h));
+    const before = all.filter((h) => !argRegion.contains(h) && precedes(h, argRegion) && (!notImpl || (!notImpl.contains(h) && precedes(notImpl, h))));
+    if (before.length > 0) argumentHeadings.add(textOf(before[before.length - 1]));
+  }
+  std.frame.remove();
+  for (const h of withheldHeadings) {
+    if (LIST_HEADINGS.includes(h)) continue;
+    if (argumentHeadings.has(h) || /argument/i.test(h)) problems.push(`an argument heading is rendered: "${h}"`);
+  }
+
+  // With the standard fixture the withheld element is absent.
+  const s = await showGovernance(root);
+  if (s.root.querySelector('[data-area="governance-argument-withheld"]')) problems.push('the standard governance.js renders a withheld element');
+  if (s.root.textContent.includes(ARGUMENT_WITHHELD)) problems.push('the standard governance.js shows the withheld sentence');
+  s.frame.remove();
+
+  assert.none(problems, 'F3-S3a problems');
 });

@@ -308,6 +308,8 @@ async function mutationSamples() {
     { kind: 'ReadinessProfile (unverified)', schema: 'readiness-profile.schema.json', value: c.readiness, check: (V, v) => V.checkReadiness(v, { levelNames: [] }) },
     { kind: 'ReadinessProfile (verified)', schema: 'readiness-profile.schema.json', value: c.readinessVerified, check: (V, v) => V.checkReadiness(v, { levelNames: FIXTURE_LEVEL_NAMES }) },
     { kind: 'Governance', schema: 'governance.schema.json', value: c.governance, check: (V, v) => V.checkGovernance(v) },
+    // N6 option (b), decided by Miguel on 5 Oct 2026: an empty argument is valid, not a mutant.
+    { kind: 'Governance (argument withheld)', schema: 'governance.schema.json', value: c.governanceArgumentWithheld, check: (V, v) => V.checkGovernance(v) },
     { kind: 'LogEntry', schema: 'log-entry.schema.json', value: c.log.find((e) => e.originalSignals.length > 1), check: (V, v) => V.checkLogEntry(v) },
     { kind: 'Judgement', schema: 'judgement.schema.json', value: s.judgement, check: (V, v) => V.checkJudgement(v) },
     { kind: 'ScenarioRecord', schema: 'scenario-record.schema.json', value: s.scenarioRecord, check: (V, v) => V.checkScenarioRecord(v, s.judgement), deferred: true },
@@ -363,6 +365,11 @@ function mutantsOf(sample) {
     // N5: a not-implemented statement must name the tests that verify it.
     out.push(mutant(v, 'notImplemented item verifiedBy removed', (m) => { delete m.notImplemented[0].verifiedBy; }));
     out.push(mutant(v, 'notImplemented item verifiedBy []', (m) => { m.notImplemented[0].verifiedBy = []; }));
+  }
+  if (kind === 'Governance' || kind === 'Governance (argument withheld)') {
+    // N6 option (b): an empty argument is valid, but the property itself stays required. Named
+    // explicitly (it is also among the required-property mutants) so the guard below can see it.
+    out.push(mutant(v, 'governance argument property removed', (m) => { delete m.argument; }));
   }
   if (kind === 'ReadinessProfile (verified)') {
     // B1: a maturity explanation is generatedText, labelled ai-generated.
@@ -431,9 +438,13 @@ test('M1-U6 validate.js accepts every valid sample and rejects every mutant', as
   const samples = (await mutationSamples()).filter((s) => !s.deferred);
   // Guard: the new mutant classes of 5 Oct 2026 (B1, N5) are generated, or this could not fail on them.
   const labels = samples.flatMap((s) => mutantsOf(s).map((m) => m.label));
-  for (const needle of ['explanation.text a plain string', 'explanation.text.label "fictional"', 'verifiedBy removed', 'verifiedBy []']) {
+  for (const needle of ['explanation.text a plain string', 'explanation.text.label "fictional"', 'verifiedBy removed', 'verifiedBy []', 'governance argument property removed']) {
     assert.ok(labels.some((l) => l.includes(needle)), `a mutant "${needle}" is generated`);
   }
+  // N6 option (b): the empty-argument sample is among the valid samples, so a checkGovernance that
+  // rejects argument: [] fails here as "the valid sample is not accepted".
+  const withheld = samples.find((s) => s.kind === 'Governance (argument withheld)');
+  assert.ok(withheld && Array.isArray(withheld.value.argument) && withheld.value.argument.length === 0, 'the argument-withheld sample (argument: []) is a valid sample');
   const V = await importUnderTest(VALIDATE);
   assert.none(await validatorDisagreements(V, samples), 'runtime-check disagreements');
 });

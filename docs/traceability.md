@@ -91,7 +91,7 @@ Engineer, with every **D** test or part skipped under the reason "Deferred (F5 s
 - [x] N6 decided by Miguel (5 Oct 2026): option (b), not the no-go. Applied at Level 2 as `F3-S3a`
   (Requirements Engineer, 5 Oct 2026)
 - [x] N6 option (b) applied at Levels 3 and 4 and in the governance schema (empty `argument`
-  allowed), test M7-U12 specified (Architect, 5 Oct 2026). Open: M1-U6 and M7-U12 carried into `tests/unit/`
-  (Test Engineer)
+  allowed), test M7-U12 specified (Architect, 5 Oct 2026); M1-U6 and M7-U12 carried into `tests/unit/`
+  (Test Engineer, 5 Oct 2026)
 - [ ] OECD/WEF level names confirmed against p. 9, or `LEVEL_NAME_UNVERIFIED` still in place
   (Verifier before G3; Miguel sets the status)

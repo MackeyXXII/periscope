@@ -22,6 +22,7 @@
 //     conversation,            { [trendId]: conversation questions }, possibly empty
 //     modules,                 Map from data/ path (as listed in the manifest) to its default export
 //     readinessVerified,       fixtures only: the synthetic verified profile; null for data
+//     governanceArgumentWithheld  fixtures only: governance.js with argument [] (N6 option (b)); null for data
 //   }
 // Values are the modules' own objects: tests must not mutate them (use clone()).
 
@@ -77,8 +78,10 @@ export async function loadContent({ from } = {}) {
   }
 
   let readinessVerified = null;
+  let governanceArgumentWithheld = null;
   if (source === 'fixtures') {
     readinessVerified = (await import(repoUrl(`${FIXTURE_DIR}readiness-verified.js`).href)).default;
+    governanceArgumentWithheld = (await import(repoUrl(`${FIXTURE_DIR}governance-argument-withheld.js`).href)).default;
   }
 
   return {
@@ -94,6 +97,7 @@ export async function loadContent({ from } = {}) {
     conversation,
     modules,
     readinessVerified,
+    governanceArgumentWithheld,
   };
 }
 

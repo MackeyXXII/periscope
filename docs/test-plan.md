@@ -127,7 +127,11 @@ the page.`
   level names "Fixture level one" to "Fixture level three"; every maturity explanation is
   `{ text, label: 'ai-generated' }`, B1), the governance container (every item of both lists with
   a non-empty `verifiedBy` naming only tests that are not deferred, N5), and three log entries (one
-  with two original signals; original signals on both replay-window boundary dates).
+  with two original signals; original signals on both replay-window boundary dates). Beside them,
+  outside the manifest, sits `governance-argument-withheld.js`: a copy of `governance.js` with
+  `argument: []` and both lists unchanged, added on 5 October 2026 for N6 option (b). It is a valid
+  sample for M1-U6 and the content M7-U12 renders; it has no pipeline or expected-data counterpart,
+  because M1-U13 compares the standard set only.
 - `session/`: a valid Judgement and ScenarioRecord.
 - `pipeline/`: the same entities as raw pipeline output, with a verification record whose hashes
   are the entities' canonical SHA-256; `expected-data/`: the exact files the freeze core must
@@ -156,7 +160,7 @@ The unit tests are those of `04-module-design.md`, by identifier, in `tests/unit
 | M4 Interpretation pipeline | M4-U1 to M4-U11 | `m4-interpretation.test.mjs` | 5 Oct 2026 |
 | M5 Brief composer | M5-U1 to M5-U11 | `m5-brief.test.mjs`, `m5-brief.browser.mjs` | 5 Oct 2026 |
 | M6 Judgement and scenario capture | M6-U1 to M6-U26 | `m6-judgement.test.mjs`, `m6-judgement.browser.mjs`, `m6-scenario.test.mjs`, `m6-scenario.browser.mjs` | 5 Oct 2026 |
-| M7 Readiness and maturity | M7-U1 to M7-U11 | `m7-readiness.test.mjs`, `m7-readiness.browser.mjs` | 5 Oct 2026 |
+| M7 Readiness and maturity | M7-U1 to M7-U12 | `m7-readiness.test.mjs`, `m7-readiness.browser.mjs` | 5 Oct 2026 |
 | M8 Decision log and replay | M8-U1 to M8-U10 | `m8-log.test.mjs`, `m8-log.browser.mjs` | 5 Oct 2026 |
 | M9 Honesty and provenance layer | M9-U1 to M9-U9 | `m9-honesty.test.mjs`, `m9-honesty.browser.mjs` | 5 Oct 2026 |
 | M10 UI shell and navigation | M10-U1 to M10-U9 | `m10-shell.test.mjs`, `m10-shell.browser.mjs` | 5 Oct 2026 |
@@ -171,6 +175,19 @@ and M7-U6; the B1 explanation label in M7-U8, M7-U10 and M9-U6; the two B5 phras
 forbidden phrases in M8-U4; the walk through `F5-ST` in M9-U1; M10-U4's rule that
 `loadConversation` is named nowhere and `assets/js/state/scenario.js` does not exist; and, for the
 Red-team finding B3, M10-U9's rule that paths with a segment beginning with a dot are ignored.
+
+Later on 5 October 2026 the tests were brought in line with N6 option (b), decided by Miguel the
+same day: an empty governance `argument` is valid and ships as `F3-S3a`. M1-U6 gained the mutant
+"governance `argument` property removed" (the property stays required) and the valid sample
+`governance-argument-withheld.js`, which both `mini-schema.mjs` and `checkGovernance` must accept;
+the `validate.js` side also guards that this sample is present. The new browser test M7-U12
+renders that sample and asserts both lists with their `verifiedBy`, exactly one
+`data-area="governance-argument-withheld"` element holding, verbatim, "The argument for own-data
+ingestion is not shown in this build because its claims did not pass verification." with no
+`data-content` or `data-label`, no `data-area="governance-argument"`, no argument heading, nothing
+labelled or badged `ai-generated`, and no `F3-E2` sentence; and, with the standard fixture, that the
+withheld element is absent. M7-U11's note now says that `F3-E2` must never ship and that a fully
+struck argument leads to `F3-S3a`, not to `F3-E2`.
 
 Where a test has a part that runs on the synthetic fixtures and a part that asserts on `data/`, the
 two are registered as separate tests with the same identifier, the second with `needs: ['data']`.
@@ -264,11 +281,14 @@ the lists below say which cause to expect, so that an open dependency is never m
 defect and a real defect is never mistaken for an open dependency. A test registration not listed
 here passes at G2 or is skipped with a named reason.
 
-### Under `node --test` (run on 5 October 2026)
+### Under `node --test` (run on 5 October 2026, re-run after the N6 option (b) changes)
 
 137 test registrations: **50 pass, 38 fail, 49 skipped** (37 "needs data/ (G3)", 12 "Deferred (F5
 static, decision of 5 Oct 2026)"). Every one of the 38 failures is listed here with the cause it
-reports; no other test fails.
+reports; no other test fails. The N6 option (b) changes leave these counts unchanged: the new M1-U6
+sample and mutant sit inside the two existing M1-U6 registrations (the schema side passes with
+them; the `validate.js` side fails, as before, on the missing `validate.js`), and M7-U12 is a
+browser test, so Node does not register it.
 
 | Test registration | Named cause |
 |---|---|
@@ -310,7 +330,8 @@ is ignored (B3).
 Not run since this revision. Expected: every `*.browser.mjs` test that is not deferred fails with
 "module under test could not be imported", naming the missing screen, state, honesty, shell or M1
 module (M5-U2, M5-U5 to M5-U11; M6-U1, U2, U4, U9 to U12, U14 to U17 and the page parts of U3 to
-U7; the built part of M6-U24; M7-U1 screen part to M7-U5, M7-U7, M7-U8, M7-U11; M8-U4 to M8-U6,
+U7; the built part of M6-U24; M7-U1 screen part to M7-U5, M7-U7, M7-U8, M7-U11, M7-U12 (the
+latter naming the missing `assets/js/screens/governance.js` or M1 loader); M8-U4 to M8-U6,
 M8-U9, M8-U10; M9-U1 to M9-U9; M10-U3 start-up part and M10-U5 to M10-U8). The deferred browser
 tests (M6-U18 to M6-U23, M6-U25, M6-U26) are skipped with the deferred reason. The pure tests behave
 as under Node, except that every test reading raw file text (M1-U13 byte comparison, M1-U14, M1-U18
@@ -338,3 +359,9 @@ M10-U9) pass; the freeze driver test (M1-U11) fails on the missing `pipeline/fre
 raw-text audits (M10-U1, M10-U2, M1-U18) pass on the seeded files. The regenerated governance
 fixtures were checked by recomputing every canonical SHA-256 in `tests/fixtures/pipeline/verification.json`
 against its entity (24 of 24 match) and by a byte-for-byte round trip of the expected-data module.
+
+After the N6 option (b) changes the suite was run again under `node --test`: 137 registrations,
+50 passed, 38 failed, 49 skipped, and the 38 failures are exactly those in the table above, each
+with its listed cause. The M1-U6 schema side passes with the empty-argument sample accepted and the
+removed-`argument` mutant rejected. M7-U12 has not yet been run in the browser runner; it parses
+(`node --check`) and is expected to fail on the missing governance screen until L5.
