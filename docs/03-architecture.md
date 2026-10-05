@@ -550,8 +550,9 @@ do.
 No application code imports anything from `data/` with a static `import` statement. All data is
 loaded through the M1 loader (`assets/js/contracts/load.js`), which uses dynamic `import()` with a
 fixed, literal module path for each top-level data module, validates what it receives, deep-freezes
-it and memoises it for the rest of the session. `createLoader({ importer })` returns the loader
-functions; the page uses the default importer (`(path) => import(path)`), and tests inject one that
+it and memoises it for the rest of the session. `createLoader({ importer, levelNames })` returns
+the loader functions (`levelNames` lets a test validate a verified readiness fixture against
+synthetic level names); the page uses the default importer (`(path) => import(path)`), and tests inject one that
 maps paths to fixture modules or records calls.
 
 A static import that fails (a missing file, a syntax error) takes down the whole module graph, so

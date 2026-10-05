@@ -121,7 +121,8 @@ sound: a check takes the record and, where a rule spans two records, the record 
 | `checkScenarioRecord(record, judgement)` | Both fields, `recordedAt` after `judgement.committedAt`, same `trendId`, label `yours` |
 | `checkFreezeManifest(manifest)` | `frozenOn` and `pipelineRunOn` are ISO dates; `modules` is a non-empty, duplicate-free list of paths matching the manifest pattern and includes `data/freeze.js`. A failure is treated by `loadFreeze` like a failed import: `G-E1` |
 | `findBannedKeys(value)` | Returns the paths of every key, at any depth, containing a banned token |
-`load.js` exports `createLoader({ importer })`, returning `loadFreeze()`, `loadSignals()`,
+`load.js` exports `createLoader({ importer, levelNames = MATURITY_LEVEL_NAMES } = {})` (`levelNames`
+is passed to `checkReadiness`; see M7), returning `loadFreeze()`, `loadSignals()`,
 `loadTrends()`, `loadBrief()`, `loadReadiness()`, `loadGovernance()`, `loadLog()`,
 `loadReveal(trendId)` and `loadConversation(trendId)`. Each resolves to `{ ok: true, value }` with a
 deep-frozen value, or `{ ok: false, reason, withheld }`, and never throws. Per-item checks that
@@ -180,7 +181,7 @@ table of columns Name, Kind, Source URL, Date. The scanning brief has a line
 | ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
 |---|---|---|---|---|
 | M2-U1 *(seeded, made testable)* | Every row of every "Named entities" table has a non-empty Name, a Kind from {competitor, incumbent, technology, regulation, standard, publication}, an `https://` Source URL and an ISO date. Whether the entity is real is the Verifier's check at G3; this test guarantees the claim is checkable. Fails if a file lacks the section or any row lacks a field or has a malformed URL or date. | The three briefs files | both | B |
-| M2-U2 | Every `publisher` in any content module, and the words "Dynatrace" and "OpenTelemetry" wherever they appear in content text, appear as a Name in some "Named entities" table. Fails, naming the item, on any absence. | Briefs; content source | both | B, G3 |
+| M2-U2 | Every `publisher` in any content module, and the words "Dynatrace" and "OpenTelemetry" wherever they appear in content text, appear as a Name in some "Named entities" table. Fails, naming the item, on any absence. The synthetic fixtures' publishers are invented and are not expected in the real briefs, so this test runs only against `data/`: before `CONTENT_FROZEN` it is skipped with "needs data/ (G3)", and it can show a result only from G3, once both the briefs and `data/` exist. | Briefs; `data/` | both | B, G3 (skipped before G3) |
 | M2-U3 | The persona dossier states that Tracewell is fictional (contains "fictional" within the paragraph that first names Tracewell), names the five readiness categories (strategic alignment, resources, knowledge, culture, data), and cites Jöhnk et al. (2021) with an `https://` URL and a date. Fails if any is missing. | `persona-dossier.md` | both | B |
 | M2-U4 | The scanning brief has a `Window:` line with two ISO dates, start before end. Fails if missing, malformed or reversed. | `scanning-brief.md` | both | B |
 | M2-U5 | Every replay candidate has at least one `Original:` line and one `Outcome:` line with URL and date; every original date lies within `REPLAY_WINDOW_START` to `REPLAY_WINDOW_END`; the outcome date is later than every original date and no later than 2026-09-30. Fails on any missing source or date out of range. | `replay-candidates.md`; `constants.js` | both | B |
@@ -251,7 +252,10 @@ table of columns Name, Kind, Source URL, Date. The scanning brief has a line
 | **Invariant most at risk** | **Invariant 1, no ranking.** A digest is the format most easily read as "the important things, most important first". The order rule, the ordering note and identical templates are what keep it a list of peers. |
 
 **Interface.** Pure: `orderSignals(signals)`, `trendLinksFor(signalId, trends)`. Render:
-`renderBrief(root, ctx)`, where `ctx` holds `loader`, `routes` and the freeze manifest.
+`renderBrief(root, ctx)`. **The screen context** passed by M10 to every screen module (M5 to M8)
+is one object with these keys: `loader` (from `createLoader`), `routes` (the `shell/routes.js`
+functions), `manifest` (the loaded freeze manifest; the key is `manifest`, not `freeze`), and, for
+M6 only, `session`, `flow` and `now`. A screen ignores keys it does not use.
 
 | ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
 |---|---|---|---|---|
@@ -260,7 +264,7 @@ table of columns Name, Kind, Source URL, Date. The scanning brief has a line
 | M5-U3 | `orderSignals` returns signals by `publishedOn` newest first, ties by `id` ascending, for ten permutations of the brief's signals produced with `seededRandom` seeds 1 to 10, and always the same order. Fails if any permutation yields a different order. | Fixture signals (two share a date) | both | I |
 | M5-U4 | Every signal in the brief appears in at least one Trend's `signalIds`; the test reports orphans by identifier. Fails on any orphan. | Content source | both | T, G3 |
 | M5-U5 | With two signals failing the per-signal check (one without `publishedOn`, one without a relevance note), the screen contains no text from either and contains "2 signal(s) were withheld because they failed the provenance check." Fails if any withheld text renders or the notice is missing or miscounted. | `tests/fixtures/invalid/brief-two-bad-signals.js` | browser | I |
-| M5-U6 | Every signal element in `F2-S1` has the same tag, class list and child structure; no element carries a class, attribute or text marking it new, pinned, featured or relevant; "Listed by publication date. The order says nothing about importance." is present. Fails on any template difference, marker or missing note. | Content source | browser | I |
+| M5-U6 | Every signal element in `F2-S1` has the same tag and class list, and the same sequence of direct children by tag and class list. Deeper structure is not compared, because a signal in two trends legitimately holds two links where others hold one (M5-U7); the links share one template. No element carries a class, attribute or text marking it new, pinned, featured or relevant; "Listed by publication date. The order says nothing about importance." is present. Fails on any template difference, marker or missing note. | Content source | browser | I |
 | M5-U7 | A signal that belongs to two trends shows two links, in alphabetical order of trend title, each `href` equal to `routes.trend(id)`. Fails if links are missing, out of order or point elsewhere. | Fixture shared signal | browser | I |
 | M5-U8 | No count, level or marker of relevance: the interface text the screen adds around the fixture fields contains no "high", "medium", "low" or "relevance:"; no signal element contains a position number ("1.", "#1"); there is no `<meter>` or `<progress>`. Fails on any. | Content source | browser | I |
 | M5-U9 | `F2-E1`: a brief container with an extra field `featured` shows "The weekly brief could not be shown because its content failed validation." and no signal title. Fails otherwise. | `tests/fixtures/invalid/brief-featured-field.js` | browser | I |
@@ -343,8 +347,15 @@ trendId)`, where `ctx` holds `session`, `loader` (so a test can inject spies for
 | **Lives in** | `assets/js/screens/readiness.js`, `assets/js/screens/governance.js`. Tests: `tests/unit/m7-readiness.test.mjs`, `tests/unit/m7-readiness.browser.mjs`. |
 | **Invariant most at risk** | **Invariant 1, no ranking**, in two forms. A readiness diagnostic invites bars, traffic lights and "you are strongest in…", and the contract has no numbers to draw them from; the screen must not invent them. And a next-level description can slide from what the report describes into what Tracewell should do, which is a recommendation; the K-2 wording tests exist for that. |
 
-**Interface.** `renderReadiness(root, ctx, { levelNames = MATURITY_LEVEL_NAMES })`,
-`renderGovernance(root, ctx)`.
+**Interface.** `renderReadiness(root, ctx, { levelNames = MATURITY_LEVEL_NAMES } = {})`,
+`renderGovernance(root, ctx)`, with `ctx` = `{ loader, routes, manifest }` as defined under M5.
+Because `loadReadiness` validates with `checkReadiness`, verified level names reach both places
+through one injection point: `createLoader({ importer, levelNames = MATURITY_LEVEL_NAMES })` passes
+`levelNames` to `checkReadiness`, and the test passes the same list to `renderReadiness`. A test
+may instead stub `loadReadiness` to return the verified fixture; both are acceptable, and the page
+uses neither option. **DOM hooks:** the maturity view is the element with
+`data-region="maturity"`, and the next-level area within it is the element with
+`data-region="next-level"`; M7-U2, M7-U7 and M7-U8 locate them by these attributes.
 
 | ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
 |---|---|---|---|---|
@@ -430,11 +441,22 @@ last). Render: `renderLog(root, ctx)`.
 | **Lives in** | `index.html` (only: `lang`, viewport meta, stylesheet link, the static `#startup-failure` message, an `#app` root, one module script calling `start()`); `assets/js/main.js` (exports `start({ loader, random })`); `assets/js/shell/router.js`, `routes.js`, `nav.js`; `assets/css/main.css`. Tests: `tests/unit/m10-shell.test.mjs`, `tests/unit/m10-shell.browser.mjs`; whole-app tests load `tests/app-host.html`, which has the same static elements as `index.html` and calls `start()` with the options the test page provides. |
 | **Invariant most at risk** | **Invariant 5's clause "viewers trigger no live AI calls", and NF1.** The shell is where a convenient web font, a CDN copy of a library, an analytics snippet or a prefetch hint would be added, and any of them turns a self-contained demo into one that talks to the network. |
 
-**Permitted import edges** (checked by M10-U4): `main.js` and `shell/*` to `screens/*`, `state/*`,
-`honesty/*`, `contracts/*`; `screens/*` and `state/*` to `honesty/*`, `contracts/*` and
-`shell/routes.js`; `honesty/*` to `contracts/*`; `contracts/load.js` and `contracts/validate.js` to
-`contracts/vocabulary.js` and `contracts/constants.js`; `screens/*` of M6 to `state/*`. No other
-edge. `state/*` belongs to M6 and no other screen module imports it.
+**Permitted import edges** (checked by M10-U4). Paths are relative to `assets/js/`; an edge is
+from the importing file to the imported file.
+
+| From | May import |
+|---|---|
+| `main.js` | `shell/*`, `screens/*`, `state/*`, `honesty/*`, `contracts/*` |
+| `shell/*` | other `shell/*` files, `screens/*`, `state/*`, `honesty/*`, `contracts/*`; `shell/routes.js` imports nothing |
+| `screens/*` | `honesty/*`, `contracts/*`, `shell/routes.js`; and the M6 screens (`trend-index.js`, `trend.js`, `scenario.js`) also `state/*` |
+| `state/*` | other `state/*` files, `contracts/*` |
+| `honesty/*` | other `honesty/*` files, `contracts/*` |
+| `contracts/load.js` | `contracts/validate.js`, `contracts/vocabulary.js`, `contracts/constants.js` |
+| `contracts/validate.js` | `contracts/vocabulary.js`, `contracts/constants.js` |
+| `contracts/vocabulary.js`, `contracts/constants.js` | nothing |
+
+No other edge: in particular no screen imports another screen, no screen outside M6 imports
+`state/*`, nothing under `contracts/` imports outside `contracts/`, and nothing imports `main.js`.
 
 **How the static audits treat comments** (M10-U1, M10-U2, M10-U4). A comment executes nothing, so it
 can neither make a network call nor hide one. Before matching, each file is reduced to its code by
@@ -452,10 +474,10 @@ shipped files.
 | ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
 |---|---|---|---|---|
 | M10-U1 *(seeded)* | Static network audit of `index.html`, every file in `assets/` and every file in `data/`: no `fetch(`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `sendBeacon` or `<iframe>`; no `import` specifier, `<script src>`, `<link href>`, `<img src>`, `srcset`, CSS `@import`, `url()` or `@font-face` source pointing to an `http:`, `https:` or protocol-relative (`//`) address. Relative references and `<a href>` to any address are allowed. `tests/` and `pipeline/` are not shipped files and are out of scope (DM-11). Fails on any match. | File inventory | both | T at G2 on the seeded files; re-run on every change |
-| M10-U2 | Static storage audit of the same files: no `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `caches`, `serviceWorker` or `navigator.storage`. Fails on any match. | File inventory | both | T, as M10-U1 |
+| M10-U2 | Static storage audit of the same files, matching code only, not content prose. In JavaScript (including inline scripts in `index.html`), with comments removed as above and the contents of every string literal blanked, there is no identifier use of `localStorage`, `sessionStorage`, `indexedDB`, `caches`, `serviceWorker`, `document.cookie`, `navigator.storage` or `cookieStore` (as a whole word, bare or after `.`); and, before blanking, no bracket access with a string literal naming any of them (such as `window['caches']`), so access by string cannot slip through. Prose inside strings, such as "caches" in an observability summary in `data/`, does not count. Fails on any match. | File inventory | both | T, as M10-U1 |
 | M10-U3 | `index.html` has `<html lang="en">`, a viewport meta element, and an element `id="startup-failure"`, without `hidden` and not hidden by `main.css`, containing exactly "The demo could not load. It makes no network requests. If you opened this file directly from your disk, some browsers block it; please use the hosted version."; it has exactly one module script. In the app host, with `loadFreeze` stubbed to fail, the element stays; with fixtures, it is removed only after the first screen has rendered. Fails on any. | `index.html`; `tests/app-host.html` | both (static), browser (start-up) | I |
 | M10-U4 | Import graph. Parsing every `import` statement and `import(` call in `assets/js/` yields only the permitted edges above, with no cycles; no file outside `contracts/load.js` contains the string `data/` or calls `import(`; `loadReveal` is named only in `contracts/load.js` and `screens/trend.js`, and `loadConversation` only in `contracts/load.js` and `screens/scenario.js`; nothing imports from `pipeline/`, `schemas/` or `tests/`; `index.html` has no `modulepreload`, `prefetch` or `preload` link. Fails on any. | File inventory | both | I |
-| M10-U5 | Router (C-7). An empty fragment and `#/brief` show the brief; `#/trends`, `#/trend/<id>`, `#/scenario/<id>`, `#/readiness`, `#/governance` and `#/log` show their screens; `#/trend/trend-does-not-exist` shows `F1-E1`; `#/nothing` shows "This page does not exist in this build." with a link to `#/brief` while the navigation and demo-wide statement stay visible; after visiting every route, the session object M6 receives is the same object (`===`) as at start-up; with `start({ random: seededRandom(7) })`, the first trend opened shows its readings in `drawLensOrder(seededRandom(7))` order. Fails on any. | `tests/app-host.html` with fixtures | browser | I |
+| M10-U5 | Router (C-7). An empty fragment and `#/brief` show the brief; `#/trends`, `#/trend/<id>`, `#/scenario/<id>`, `#/readiness`, `#/governance` and `#/log` show their screens; `#/trend/trend-does-not-exist` shows `F1-E1`; `#/nothing` shows "This page does not exist in this build." with a link to `#/brief` while the navigation and demo-wide statement stay visible; the session survives navigation, checked behaviourally: after recording a gut reading on `trend-fixture-alpha` and visiting every route, returning to that trend shows `F1-S2` with the same gut reading and lens order (the page exposes no handle on the session, and the test needs none; `start()` resolves to `undefined`); with `start({ random: seededRandom(7) })`, the first trend opened shows its readings in `drawLensOrder(seededRandom(7))` order. Fails on any. | `tests/app-host.html` with fixtures | browser | I |
 | M10-U6 | Per-screen failure: with `loadLog` stubbed to fail, `#/log` shows `F4-E1` while `#/brief`, `#/trends` and `#/readiness` render normally and `#startup-failure` is not shown. Fails if another screen fails or the application shows `G-E1`. | Loader stub | browser | I |
 | M10-U7 | The navigation lists Brief, Trends, Readiness, Governance and Decision log in that order on every screen, with the same template, no scenario item, and no count, badge or "new" marker. Fails on any difference between screens, any template difference or any marker. | `tests/app-host.html` | browser | I |
 | M10-U8 | Responsive at the four Q-7 viewports, 360 × 640 and 390 × 844 (portrait) and 1280 × 800 and 1440 × 900 (landscape), each an `<iframe>` of that size loading the app host: on every route, `scrollWidth` does not exceed `clientWidth`; body text's computed `font-size` is at least 16px; every control's bounding box lies within the viewport width; in `F1-S2` the three reading elements have equal computed `font-size` and `font-weight`, and equal widths within 1px when side by side; on arrival at `#/log` the replay statement lies entirely within the viewport. Fails on any. | `tests/app-host.html` with fixtures | browser | I |
