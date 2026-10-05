@@ -38,7 +38,7 @@ the Architect, applying Miguel's G2 decisions of 4 October 2026, the Q-5 debate 
 |---|---|---|
 | NF1 Static, no runtime network calls | M10, M1, M6 | Unit: static audit for network calls and storage (M10-U1, M10-U2); no data path outside the loader, no preload (M10-U4); no storage in F1 and F5 (M6-U9, M6-U25) · Integration: offline from a local server in Chromium and Firefox, F1 to F5; from `file://`, Firefox works and Chromium shows `G-E1` with its `file://` sentence (DM-6) · System: invariant audit 6 |
 | NF2 Provenance | M9, M3, M4, M7, M8, M1 | Unit: every claim resolves to a dated source (M1-U1, M3-U1, M3-U2, M4-U2, M4-U4, M8-U1); nothing ships without a `pass` verdict (M1-U16); quotes at most 15 words (M3-U4, M9-U7); report citations with page (M7-U8, M7-U9, M9-U3) · Review: Verifier at G3 · System: invariant audit 4 |
-| NF3 Honest labelling | M9, M6, M5, M8, M1 | Unit: every element carries a label from the six-value vocabulary, including `yours` on every viewer entry in F1 and F5 (M9-U1, M9-U2, M6-U17, M6-U22); identical labels on peers (M9-U5); per-part labels (M9-U6, M5-U11, M8-U9); interface copy unlabelled (M9-U8); `frozen` only on the brief (M9-U9) · System: invariant audit 5 (to be updated to six labels by the Test Engineer) · Review: labels correct under C-5 |
+| NF3 Honest labelling | M9, M6, M5, M8, M1 | Unit: every element carries a label from the six-value vocabulary, including `yours` on every viewer entry in F1 and F5 (M9-U1, M9-U2, M6-U17, M6-U22); identical labels on peers (M9-U5); per-part labels (M9-U6, M5-U11, M8-U9); interface copy unlabelled (M9-U8); `frozen` only on the brief (M9-U9) · System: invariant audit 5, listing the six labels (`test-plan.md`, 5 Oct 2026) · Review: labels correct under C-5 |
 | NF4 Core loop under 8 minutes | M10, M5, M6 | Acceptance: unaided walk, timed only for the core loop (Q-6), from first display of `F1-S1` to `F1-S4`; the entry screen is the weekly brief (DM-7) and time there is not counted |
 | NF5 Responsive | M10 | Unit: M10-U8 at 360 × 640 and 390 × 844 portrait, 1280 × 800 and 1440 × 900 landscape (Q-7) · System: F1 to F5 complete at the same four viewports |
 | NF6 English interface | M10 | Unit: `<html lang="en">` (M10-U3) · Review: German-source coverage recorded as a future requirement |
@@ -67,8 +67,10 @@ the Architect, applying Miguel's G2 decisions of 4 October 2026, the Q-5 debate 
 - [x] F5 assigned to a module and its tests specified (Architect, 5 Oct 2026: M6, M6-U18 to M6-U26)
 - [x] Unit tests specified for each of M1–M10, including the revisions listed in A-14 (Architect,
   5 Oct 2026, in `04-module-design.md`)
-- [ ] Unit tests written for each of M1–M10 (Test Engineer)
-- [ ] Invariant audit 5 in `test-plan.md` updated to the six labels (Test Engineer)
+- [ ] Unit tests written for each of M1–M10 (Test Engineer). M1-U1 to M1-U20 written on 5 Oct 2026, in
+  `tests/unit/m1-contracts.test.mjs` and `tests/unit/m1-freeze.test.mjs`, with the shared harness in
+  `tests/lib/`; M2 to M10 to follow
+- [x] Invariant audit 5 in `test-plan.md` updated to the six labels (Test Engineer, 5 Oct 2026)
 - [ ] Level 2 changes C-R4 to C-R7 from `03-architecture.md` section 13 applied (Requirements
   Engineer)
 - [ ] Q-5 outcome confirmed by Miguel; DM-11 (test tooling may read files by same-origin requests)

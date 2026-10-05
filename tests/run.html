@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Periscope unit tests</title>
+<style>
+  body { font: 15px/1.4 system-ui, sans-serif; margin: 1.5rem; color: #1a1a1a; }
+  h1 { font-size: 1.3rem; }
+  #summary { font-weight: 600; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; vertical-align: top; padding: 0.3rem 0.5rem; border-bottom: 1px solid #ddd; }
+  td.reason { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 0.85rem; }
+  tr.pass td.result { color: #1b5e20; }
+  tr.fail td.result { color: #b71c1c; font-weight: 600; }
+  tr.skip td.result { color: #8a6d00; }
+  #scratch { position: absolute; left: -10000px; top: 0; width: 1280px; }
+  #static-notice { padding: 0.75rem; border: 1px solid #b71c1c; }
+</style>
+</head>
+<body>
+<h1>Periscope unit tests</h1>
+<p>Test tooling. Not part of the demo, and not linked from it. Run from a local static server or
+from the published site; append <code>?filter=M1-U6</code> to run the tests whose names start
+with that text.</p>
+<p id="static-notice">The runner has not started. It is a module page and needs a static origin
+(a local static server or the published site); opened from <code>file://</code>, Chromium-based
+browsers refuse to load it.</p>
+<p id="summary"></p>
+<table>
+  <thead><tr><th>Identifier</th><th>Result</th><th>Test</th><th>Reason</th></tr></thead>
+  <tbody id="results"></tbody>
+</table>
+<div id="scratch" aria-hidden="true"></div>
+<script type="module" src="./run.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "$id": "https://periscope.invalid/tests/fixtures/invalid/bad-schema.json",
+  "title": "Fictional test schema for M1-U7",
+  "description": "Fictional test data for Periscope unit tests. Never imported by the page. Uses exclusiveMinimum, a keyword outside the mini-schema list, nested one level down so that the interpreter must walk subschemas to find it. The mini-schema interpreter must throw when it is given this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "count": { "type": "string", "exclusiveMinimum": 0 }
+  }
+}

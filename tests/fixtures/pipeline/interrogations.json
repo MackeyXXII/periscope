@@ -1,0 +1,94 @@
+[
+  {
+    "id": "interrogation-fixture-alpha",
+    "trendId": "trend-fixture-alpha",
+    "provenanceChecks": [
+      {
+        "id": "q-alpha-provenance-one",
+        "text": "zebra-alpha-provenance-one: who published the synthetic source?"
+      }
+    ],
+    "assumptionProbes": [
+      {
+        "id": "q-alpha-assumption-one",
+        "text": "zebra-alpha-assumption-one: what is assumed about the example tools?"
+      },
+      {
+        "id": "q-alpha-assumption-two",
+        "text": "zebra-alpha-assumption-two: what would change if the dates were later?"
+      }
+    ],
+    "preMortem": [
+      {
+        "id": "q-alpha-premortem-one",
+        "text": "zebra-alpha-premortem-one: a year on, what went differently?"
+      },
+      {
+        "id": "q-alpha-premortem-two",
+        "text": "zebra-alpha-premortem-two: which synthetic event was missed?"
+      },
+      {
+        "id": "q-alpha-premortem-three",
+        "text": "zebra-alpha-premortem-three: what did the fixture team not ask?"
+      }
+    ],
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "interrogator"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  },
+  {
+    "id": "interrogation-fixture-beta",
+    "trendId": "trend-fixture-beta",
+    "provenanceChecks": [
+      {
+        "id": "q-beta-provenance-one",
+        "text": "zebra-beta-provenance-one: who published the synthetic source?"
+      }
+    ],
+    "assumptionProbes": [
+      {
+        "id": "q-beta-assumption-one",
+        "text": "zebra-beta-assumption-one: what is assumed about the example tools?"
+      },
+      {
+        "id": "q-beta-assumption-two",
+        "text": "zebra-beta-assumption-two: what would change if the dates were later?"
+      }
+    ],
+    "preMortem": [
+      {
+        "id": "q-beta-premortem-one",
+        "text": "zebra-beta-premortem-one: a year on, what went differently?"
+      },
+      {
+        "id": "q-beta-premortem-two",
+        "text": "zebra-beta-premortem-two: which synthetic event was missed?"
+      },
+      {
+        "id": "q-beta-premortem-three",
+        "text": "zebra-beta-premortem-three: what did the fixture team not ask?"
+      }
+    ],
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "interrogator"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  }
+]

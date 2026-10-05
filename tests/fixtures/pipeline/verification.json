@@ -1,0 +1,172 @@
+{
+  "entities": [
+    {
+      "type": "signal",
+      "id": "sig-2026-02-10-zebra-alpha",
+      "hash": "0c8f6c1f0d1df6ee39f6b38d2383a03334ab7655c617a4deea38ac991ec56c9e",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-02-10-zebra-beta",
+      "hash": "1d6e620e417a4264135464167fcfe8977c3741d914e7e6df65f45629c8dd4810",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-03-04-zebra-gamma",
+      "hash": "187e774a18448e5610258c939ebc3538293710ecf537aec68f2f2a68ad451dee",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-05-20-zebra-delta",
+      "hash": "ce3adcab3cffddcf180d8f973062cedf8fb1286bc265d8b0351391c0287dd6a5",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-06-15-zebra-epsilon",
+      "hash": "cf0c759165d9244f0fc915991c0b45a37f23921410b6e836b8a5bae4b1a4cef8",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2025-11-02-zebra-zeta",
+      "hash": "ce17b4ba4133f6a1ce98e665e5c935d69238e61a387c727b739ee175ddc4c8eb",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "trend",
+      "id": "trend-fixture-alpha",
+      "hash": "fdfea3b74fa01c0971ae24e8a2d837c8fcd5ab54f6437b6ec7604e1096b5d78f",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "trend",
+      "id": "trend-fixture-beta",
+      "hash": "7bbcb6ef9266e0cefdb7a4cf1a5db4f6b304e26a8494951630b5fcc81be5fc07",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "reading",
+      "id": "reading-fixture-alpha-opportunity",
+      "hash": "210c605009543a202f14bedadea238bb159170e1a2c4f6f75e558ad31c089f51",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "reading",
+      "id": "reading-fixture-alpha-threat",
+      "hash": "5518e67668d2412746d950e873c78f9e97d0fd56289135384a8620b519ba78a1",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "reading",
+      "id": "reading-fixture-alpha-noise",
+      "hash": "b6fe09c016ac17d67bc06dfd4ac76bdba4bbb32b4b825df63f91b7d888522915",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "reading",
+      "id": "reading-fixture-beta-opportunity",
+      "hash": "6c322764b874f7e0cfd80169b9a2e5edac99578a43142f190ea63ee6bc77e116",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "reading",
+      "id": "reading-fixture-beta-threat",
+      "hash": "e26136b73785404a6f1f2dfc91b7649a6dce6fff281262ab9f2b4f4b190aaa1e",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "reading",
+      "id": "reading-fixture-beta-noise",
+      "hash": "237e00457c0245bf0d2be5cfa3df570fe8be36d1ff31178830e9bde411fd34f7",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-fixture-alpha",
+      "hash": "30af4a270c811199cd956a582d15002ca96031d48402e27ffdd3f87740c63ce3",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-fixture-beta",
+      "hash": "89043f8813d706ee3c436831908a8890afcebea5163e61df991714759f52cea2",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "conversation-questions",
+      "id": "conversation-fixture-alpha",
+      "hash": "5a089b4f8a38c1972c189a35d3fc28d45abf478384d5a9a4adb14bbf87a1bd0f",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "conversation-questions",
+      "id": "conversation-fixture-beta",
+      "hash": "ec0165df57c98bd5402469a622b98dab761eedf36f55dc62c957beab30cbdcb3",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "brief",
+      "id": "brief-2026-06-19",
+      "hash": "b5f04566dc5e04fca244bbd0b4134a23e025b151a734787f9de88c00dfd122f0",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "readiness-profile",
+      "id": "readiness-fixture-team",
+      "hash": "c42b8be60562e0e3f9a05a64754d508242a3cae52219b7e0c99e3dcfc4c48a86",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "governance",
+      "id": "governance",
+      "hash": "09a871d8033707f571801b410d0ae8e6e155ef4bbcba1655c1972fc0602de385",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "log-entry",
+      "id": "replay-2026-01-01-zebra-log-one",
+      "hash": "f0878481db59b55af2f257c25fa45c18ddd86ead386f0b2a62bbc6f0db1a1a90",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "log-entry",
+      "id": "replay-2026-02-14-zebra-log-two",
+      "hash": "485f0f10445f8efdc025bbd61e54f56beb36c11d5731626684ad97e0d1167717",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    },
+    {
+      "type": "log-entry",
+      "id": "replay-2026-03-31-zebra-log-three",
+      "hash": "dbd481a0e41d0c56d4a2aa531ca8046ce25e24413f8aa6aa2caa0515e92d7377",
+      "verdict": "pass",
+      "note": "Fixture verdict for unit tests; nothing was verified."
+    }
+  ]
+}

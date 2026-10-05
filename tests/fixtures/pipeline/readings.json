@@ -1,0 +1,260 @@
+[
+  {
+    "id": "reading-fixture-alpha-opportunity",
+    "trendId": "trend-fixture-alpha",
+    "lens": "opportunity",
+    "text": "zebra-alpha-opportunity-text: a synthetic rival reading written for the unit tests only.",
+    "evidence": [
+      {
+        "claim": "zebra-alpha-opportunity-evidence: a synthetic claim supporting this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-alpha-opportunity-evidence",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-01",
+          "retrievedOn": "2026-10-01",
+          "title": "Fixture evidence source"
+        },
+        "signalId": "sig-2026-02-10-zebra-alpha"
+      }
+    ],
+    "counterEvidence": [
+      {
+        "claim": "zebra-alpha-opportunity-counter: a synthetic claim against this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-alpha-opportunity-counter",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-02",
+          "retrievedOn": "2026-10-01"
+        }
+      }
+    ],
+    "disconfirmingCondition": "zebra-alpha-opportunity-disconfirm: a synthetic observable event that would contradict this reading.",
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "rival-reader"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  },
+  {
+    "id": "reading-fixture-alpha-threat",
+    "trendId": "trend-fixture-alpha",
+    "lens": "threat",
+    "text": "zebra-alpha-threat-text: a synthetic rival reading written for the unit tests only.",
+    "evidence": [
+      {
+        "claim": "zebra-alpha-threat-evidence: a synthetic claim supporting this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-alpha-threat-evidence",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-01",
+          "retrievedOn": "2026-10-01",
+          "title": "Fixture evidence source"
+        },
+        "signalId": "sig-2026-02-10-zebra-alpha"
+      }
+    ],
+    "counterEvidence": [
+      {
+        "claim": "zebra-alpha-threat-counter: a synthetic claim against this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-alpha-threat-counter",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-02",
+          "retrievedOn": "2026-10-01"
+        }
+      }
+    ],
+    "disconfirmingCondition": "zebra-alpha-threat-disconfirm: a synthetic observable event that would contradict this reading.",
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "rival-reader"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  },
+  {
+    "id": "reading-fixture-alpha-noise",
+    "trendId": "trend-fixture-alpha",
+    "lens": "noise",
+    "text": "zebra-alpha-noise-text: a synthetic rival reading written for the unit tests only.",
+    "evidence": [
+      {
+        "claim": "zebra-alpha-noise-evidence: a synthetic claim supporting this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-alpha-noise-evidence",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-01",
+          "retrievedOn": "2026-10-01",
+          "title": "Fixture evidence source"
+        },
+        "signalId": "sig-2026-02-10-zebra-alpha"
+      }
+    ],
+    "counterEvidence": [
+      {
+        "claim": "zebra-alpha-noise-counter: a synthetic claim against this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-alpha-noise-counter",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-02",
+          "retrievedOn": "2026-10-01"
+        }
+      }
+    ],
+    "disconfirmingCondition": "zebra-alpha-noise-disconfirm: a synthetic observable event that would contradict this reading.",
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "rival-reader"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  },
+  {
+    "id": "reading-fixture-beta-opportunity",
+    "trendId": "trend-fixture-beta",
+    "lens": "opportunity",
+    "text": "zebra-beta-opportunity-text: a synthetic rival reading written for the unit tests only.",
+    "evidence": [
+      {
+        "claim": "zebra-beta-opportunity-evidence: a synthetic claim supporting this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-beta-opportunity-evidence",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-01",
+          "retrievedOn": "2026-10-01",
+          "title": "Fixture evidence source"
+        },
+        "signalId": "sig-2026-03-04-zebra-gamma"
+      }
+    ],
+    "counterEvidence": [
+      {
+        "claim": "zebra-beta-opportunity-counter: a synthetic claim against this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-beta-opportunity-counter",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-02",
+          "retrievedOn": "2026-10-01"
+        }
+      }
+    ],
+    "disconfirmingCondition": "zebra-beta-opportunity-disconfirm: a synthetic observable event that would contradict this reading.",
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "rival-reader"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  },
+  {
+    "id": "reading-fixture-beta-threat",
+    "trendId": "trend-fixture-beta",
+    "lens": "threat",
+    "text": "zebra-beta-threat-text: a synthetic rival reading written for the unit tests only.",
+    "evidence": [
+      {
+        "claim": "zebra-beta-threat-evidence: a synthetic claim supporting this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-beta-threat-evidence",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-01",
+          "retrievedOn": "2026-10-01",
+          "title": "Fixture evidence source"
+        },
+        "signalId": "sig-2026-03-04-zebra-gamma"
+      }
+    ],
+    "counterEvidence": [
+      {
+        "claim": "zebra-beta-threat-counter: a synthetic claim against this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-beta-threat-counter",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-02",
+          "retrievedOn": "2026-10-01"
+        }
+      }
+    ],
+    "disconfirmingCondition": "zebra-beta-threat-disconfirm: a synthetic observable event that would contradict this reading.",
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "rival-reader"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  },
+  {
+    "id": "reading-fixture-beta-noise",
+    "trendId": "trend-fixture-beta",
+    "lens": "noise",
+    "text": "zebra-beta-noise-text: a synthetic rival reading written for the unit tests only.",
+    "evidence": [
+      {
+        "claim": "zebra-beta-noise-evidence: a synthetic claim supporting this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-beta-noise-evidence",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-01",
+          "retrievedOn": "2026-10-01",
+          "title": "Fixture evidence source"
+        },
+        "signalId": "sig-2026-03-04-zebra-gamma"
+      }
+    ],
+    "counterEvidence": [
+      {
+        "claim": "zebra-beta-noise-counter: a synthetic claim against this reading.",
+        "source": {
+          "url": "https://example.org/fixture/zebra-beta-noise-counter",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-02",
+          "retrievedOn": "2026-10-01"
+        }
+      }
+    ],
+    "disconfirmingCondition": "zebra-beta-noise-disconfirm: a synthetic observable event that would contradict this reading.",
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "rival-reader"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  }
+]

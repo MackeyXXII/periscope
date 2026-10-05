@@ -1,0 +1,97 @@
+// Fictional test data for Periscope unit tests. Never imported by the page.
+export default {
+  "id": "governance",
+  "implemented": [
+    {
+      "id": "open-web-sources-frozen",
+      "text": "zebra-governance-open-web: synthetic statement for tests.",
+      "verifiedBy": [
+        "M1-U16"
+      ]
+    },
+    {
+      "id": "no-viewer-data-stored-or-sent",
+      "text": "zebra-governance-no-viewer-data: synthetic statement for tests.",
+      "verifiedBy": [
+        "M10-U2",
+        "M6-U9"
+      ]
+    },
+    {
+      "id": "no-live-ai",
+      "text": "zebra-governance-no-live-ai: synthetic statement for tests.",
+      "verifiedBy": [
+        "M10-U1",
+        "M10-U4"
+      ]
+    },
+    {
+      "id": "no-accounts-cookies-analytics",
+      "text": "zebra-governance-no-accounts: synthetic statement for tests.",
+      "verifiedBy": [
+        "M10-U2"
+      ]
+    }
+  ],
+  "notImplemented": [
+    {
+      "id": "own-data-ingestion",
+      "text": "zebra-governance-own-data: synthetic statement for tests."
+    },
+    {
+      "id": "cross-session-persistence",
+      "text": "zebra-governance-persistence: synthetic statement for tests."
+    },
+    {
+      "id": "role-aware-model",
+      "text": "zebra-governance-roles: synthetic statement for tests."
+    }
+  ],
+  "argument": [
+    {
+      "id": "zebra-argument-one",
+      "text": "zebra-argument-one-text: a synthetic paragraph stating a condition, for tests.",
+      "sources": [
+        {
+          "url": "https://example.org/fixture/governance-one",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-02-01",
+          "retrievedOn": "2026-10-01",
+          "title": "Fixture regulation page"
+        }
+      ],
+      "label": "ai-generated"
+    },
+    {
+      "id": "zebra-argument-two",
+      "text": "zebra-argument-two-text: a second synthetic paragraph, for tests.",
+      "sources": [
+        {
+          "url": "https://example.org/fixture/governance-two",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-01",
+          "retrievedOn": "2026-10-01"
+        },
+        {
+          "url": "https://example.org/fixture/governance-three",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-04-01",
+          "retrievedOn": "2026-10-01"
+        }
+      ],
+      "label": "ai-generated"
+    }
+  ],
+  "label": "real",
+  "provenance": {
+    "sourceUrl": null,
+    "publisher": null,
+    "publishedOn": null,
+    "retrievedOn": null,
+    "producedBy": [
+      "architect"
+    ],
+    "producedOn": "2026-10-04",
+    "frozenOn": "2026-10-05"
+  }
+};
