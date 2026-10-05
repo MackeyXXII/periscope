@@ -47,7 +47,7 @@ function replayStatement(root) {
   const holders = smallestContaining(root, /retrospective replay/i);
   for (let el = holders[0]; el && el !== root.parentElement; el = el.parentElement) {
     const t = textOf(el);
-    if (/Verifier/.test(t) && /AI-generated/.test(t) && /withheld/i.test(t) && /31 March 2026/.test(t)) return el;
+    if (/Verifier/.test(t) && /AI-generated/.test(t) && /retrospective replay/i.test(t) && /31 March 2026/.test(t)) return el;
   }
   return null;
 }
@@ -59,15 +59,29 @@ async function twoDateLog() {
   return log;
 }
 
+/**
+ * Red-team finding B5: the two phrases the replay statement must hold verbatim (the same two as
+ * Level 2, F4 step 1), and the phrases that would overclaim what the agents knew.
+ */
+const B5_REQUIRED = Object.freeze([
+  "the outcomes were withheld from the agents' inputs",
+  "the model's general knowledge extends to mid-2026 and may include some of these outcomes",
+]);
+const B5_FORBIDDEN = Object.freeze(['signals only', 'those signals only', 'from those signals alone', 'using only']);
+
 function statementProblems(root, { writingDates, formatDate }) {
   const problems = [];
   const s = replayStatement(root);
-  if (!s) return ['no replay statement (an element holding "retrospective replay", "1 January … 31 March 2026", "withheld", "Verifier", "AI-generated")'];
+  if (!s) return ['no replay statement (an element holding "retrospective replay", "31 March 2026", "Verifier", "AI-generated")'];
   const t = textOf(s);
-  for (const phrase of ['retrospective replay', '1 January', '31 March 2026', 'fictional', 'Rival Reader', 'Interrogator', 'withheld', 'Verifier', 'AI-generated']) {
+  for (const phrase of ['retrospective replay', '1 January', '31 March 2026', 'fictional', 'Rival Reader', 'Interrogator', 'Verifier', 'AI-generated']) {
     if (!t.toLowerCase().includes(phrase.toLowerCase())) problems.push(`the replay statement lacks "${phrase}"`);
   }
-  if (!/\bsome\b/i.test(t)) problems.push('the replay statement does not say "some"');
+  const flat = t.replace(/\s+/g, ' ').replace(/[‘’]/g, "'");
+  for (const phrase of B5_REQUIRED) if (!flat.includes(phrase)) problems.push(`the replay statement lacks, verbatim, "${phrase}" (B5)`);
+  for (const phrase of B5_FORBIDDEN) if (flat.toLowerCase().includes(phrase)) problems.push(`the replay statement contains the forbidden phrase "${phrase}" (B5)`);
+  const outsideB5 = B5_REQUIRED.reduce((acc, phrase) => acc.split(phrase).join(' '), flat);
+  if (!/\bsome\b/i.test(outsideB5)) problems.push('the replay statement does not say "some" outside the two B5 phrases');
   if (/\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(of\s+the\s+)?(replay\s+|past\s+)?(entries|entry|judgements?)\b/i.test(t)) {
     problems.push('the replay statement gives a number of entries or judgements');
   }

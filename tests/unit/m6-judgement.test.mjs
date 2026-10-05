@@ -1,4 +1,5 @@
-// M6 Judgement and scenario capture, F1: the pure parts of M6-U3, M6-U5 to M6-U8 and M6-U13.
+// M6 Judgement and scenario capture, F1: the pure parts of M6-U3, M6-U5 to M6-U8 and M6-U13,
+// including the state-level refusals of Red-team finding B4 (M6-U3, M6-U5).
 // The page parts, and M6-U1, U2, U4, U9 to U12 and U14 to U17, are in m6-judgement.browser.mjs.
 // Written from docs/04-module-design.md (M6) and docs/03-architecture.md (sections 6.3, 7) before
 // any M6 module exists (test-first rule). At G2 every test here fails with "module under test could
@@ -99,7 +100,85 @@ test('M6-U3 whatIsMissing names exactly what is missing, in the specified words'
   assert.none(problems, 'whatIsMissing errors');
 });
 
+test('M6-U3 below the UI, commitJudgement refuses every draft the gate refuses and leaves the stage unchanged (B4)', async () => {
+  const S = await load('session');
+  const session = S.createSession({ random: seededRandom(3) });
+  const clock = makeClock();
+  S.lensOrderFor(session, ALPHA);
+  S.recordIntuition(session, ALPHA, { gutCall: 'threat', reason: 'zebra-test-reason' }, clock());
+  const revealedAt = S.markReadingsRevealed(session, ALPHA, clock());
+  assert.equal(S.stageOf(session, ALPHA), 'intuition-recorded', 'stage before the refused calls');
+  const refused = [
+    { label: 'rationale ""', draft: { committedLens: 'threat', rationale: '', promptAnswers: [] }, now: clock() },
+    { label: 'rationale " "', draft: { committedLens: 'threat', rationale: ' ', promptAnswers: [] }, now: clock() },
+    { label: 'rationale of a newline, a tab and a space', draft: { committedLens: 'threat', rationale: '\n\t ', promptAnswers: [] }, now: clock() },
+    { label: 'no lens', draft: { committedLens: null, rationale: 'x', promptAnswers: [] }, now: clock() },
+    // Passes canCommit, but the Judgement it assembles fails checkJudgement: committedAt earlier
+    // than readingsRevealedAt.
+    {
+      label: 'now earlier than readingsRevealedAt',
+      draft: { committedLens: 'threat', rationale: 'zebra-test-rationale', promptAnswers: [] },
+      now: new Date(Date.parse(revealedAt || '2026-10-05T09:00:01.000Z') - 60000).toISOString(),
+    },
+  ];
+  assert.ok(S.canCommit(refused[4].draft), 'the last refused draft passes canCommit, so only checkJudgement can refuse it');
+  const problems = [];
+  for (const { label, draft, now } of refused) {
+    let committed = false;
+    try {
+      S.commitJudgement(session, ALPHA, draft, now);
+      committed = true;
+    } catch {
+      // refused, as specified
+    }
+    if (committed) {
+      problems.push(`${label}: commitJudgement did not throw`);
+      break; // the session is now committed; later cases would not test what they say
+    }
+    const stage = S.stageOf(session, ALPHA);
+    if (stage !== 'intuition-recorded') problems.push(`${label}: the refused call changed the stage to ${JSON.stringify(stage)}`);
+  }
+  assert.none(problems, 'refused drafts that were committed or changed the session');
+  const judgement = S.commitJudgement(session, ALPHA, { committedLens: 'noise', rationale: 'zebra-test-rationale', promptAnswers: [] }, clock());
+  assert.equal(judgement.committedLens, 'noise', 'a following valid commit succeeds');
+  assert.equal(S.stageOf(session, ALPHA), 'committed', 'stage after the valid commit');
+});
+
 // ------------------------------------------------------------------------------------------ M6-U5
+
+test('M6-U5 recordIntuition refuses a draft canRecord refuses and leaves the trend awaiting intuition (B4)', async () => {
+  const S = await load('session');
+  const session = S.createSession({ random: seededRandom(5) });
+  const clock = makeClock();
+  S.lensOrderFor(session, ALPHA);
+  const refused = [
+    { gutCall: null, reason: 'x' },
+    { gutCall: null, reason: null },
+    { gutCall: 'verified', reason: 'x' },
+  ];
+  const problems = [];
+  for (const draft of refused) {
+    if (S.canRecord(draft) !== false) problems.push(`canRecord(${JSON.stringify(draft)}) is not false`);
+    let recorded = false;
+    try {
+      S.recordIntuition(session, ALPHA, draft, clock());
+      recorded = true;
+    } catch {
+      // refused, as specified
+    }
+    if (recorded) {
+      problems.push(`recordIntuition(${JSON.stringify(draft)}) did not throw`);
+      break;
+    }
+    const stage = S.stageOf(session, ALPHA);
+    if (stage !== 'awaiting-intuition') problems.push(`${JSON.stringify(draft)}: the refused call changed the stage to ${JSON.stringify(stage)}`);
+  }
+  assert.none(problems, 'refused drafts that were recorded or changed the session');
+  // No intuition record exists: the reveal stamp, which requires one, still throws.
+  assert.throws(() => S.markReadingsRevealed(session, ALPHA, clock()), undefined, 'no intuition record exists after the refused calls');
+  const record = S.recordIntuition(session, ALPHA, { gutCall: 'threat', reason: null }, clock());
+  assert.equal(record.gutCall, 'threat', 'a following valid record succeeds');
+});
 
 test('M6-U5 the recorded intuition is frozen and a second record for the trend throws', async () => {
   const S = await load('session');

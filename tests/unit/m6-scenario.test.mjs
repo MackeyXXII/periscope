@@ -1,9 +1,13 @@
-// M6 Judgement and scenario capture, F5: the pure parts of M6-U19, M6-U21 and M6-U24, and the
-// G3/Q part of M6-U24. The page parts, and M6-U18, U20, U22, U23, U25 and U26, are in
-// m6-scenario.browser.mjs. Written from docs/04-module-design.md (M6), docs/02-system-requirements.md
-// (F5) and docs/03-architecture.md (section 6.4) before any M6 module exists (test-first rule).
-// At G2 every test here fails with "module under test could not be imported"; the data part of
-// M6-U24 is skipped with "needs data/ (G3); SCENARIO_FLOW is static (O-1)".
+// M6 Judgement and scenario capture, F5: the pure parts of M6-U19, M6-U21 and M6-U24. The page
+// parts, and M6-U18, U20, U22, U23, U25 and U26, are in m6-scenario.browser.mjs. Written from
+// docs/04-module-design.md (M6), docs/02-system-requirements.md (F5) and docs/03-architecture.md
+// (section 6.4) before any M6 module exists (test-first rule).
+//
+// In this release F5 ships as the static screen F5-ST (decision of 5 Oct 2026). Every test in this
+// file belongs to the interactive F5 (assets/js/state/scenario.js, not written in this release) and
+// is skipped with "Deferred (F5 static, decision of 5 Oct 2026)": M6-U19, M6-U21 (with the B4 case)
+// and the pure scenarioMode part of M6-U24. The built part of M6-U24, the F5-ST page, is in
+// m6-scenario.browser.mjs. The former G3/Q data part of M6-U24 is retired with the Q status.
 //
 // The interface is the M6 drafts and return-shape table of docs/04-module-design.md (revised
 // 5 October 2026): the session functions (createSession, lensOrderFor, recordIntuition,
@@ -18,7 +22,6 @@ import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
 import { loadContent, clone } from '../lib/content.mjs';
 import { seededRandom } from '../lib/seeded-random.mjs';
-import { importUnderTest, repoUrl } from '../lib/env.mjs';
 import { load, makeClock } from '../lib/screens.mjs';
 
 const ALPHA = 'trend-fixture-alpha';
@@ -52,7 +55,7 @@ function committedSession(api, clock) {
 
 // ------------------------------------------------------------------------------------------ M6-U19
 
-test('M6-U19 canRecordScenario is false while either field is blank and true when both hold text', async () => {
+test('M6-U19 canRecordScenario is false while either field is blank and true when both hold text', { needs: ['deferred'] }, async () => {
   const api = await scenarioApi();
   const blanks = ['', ' ', '\n\t'];
   const problems = [];
@@ -75,7 +78,7 @@ test('M6-U19 canRecordScenario is false while either field is blank and true whe
   assert.none(problems, 'canRecordScenario errors');
 });
 
-test('M6-U19 whatIsMissingScenario names exactly the empty field, in the specified words', async () => {
+test('M6-U19 whatIsMissingScenario names exactly the empty field, in the specified words', { needs: ['deferred'] }, async () => {
   const api = await scenarioApi();
   const BOTH = 'Write what you have heard and how the trend could play out to record your scenario.';
   const HEARD = 'Write what you have heard to record your scenario.';
@@ -102,7 +105,7 @@ test('M6-U19 whatIsMissingScenario names exactly the empty field, in the specifi
 
 // ------------------------------------------------------------------------------------------ M6-U21
 
-test('M6-U21 recordScenario freezes the fields, refuses a second record and a non-later time; notes stay editable', async () => {
+test('M6-U21 recordScenario freezes the fields, refuses a second record and a non-later time; notes stay editable', { needs: ['deferred'] }, async () => {
   const api = await scenarioApi();
   const V = await load('validate');
   const clock = makeClock();
@@ -157,9 +160,41 @@ test('M6-U21 recordScenario freezes the fields, refuses a second record and a no
   assert.ok(verdict && verdict.ok === true, `the snapshot passes checkScenarioRecord with the session's Judgement (${JSON.stringify(verdict && verdict.errors)})`);
 });
 
+test('M6-U21 recordScenario refuses every draft canRecordScenario refuses and leaves the stage at committed (B4)', { needs: ['deferred'] }, async () => {
+  const api = await scenarioApi();
+  const clock = makeClock();
+  const { session } = committedSession(api, clock);
+  const S = await load('session');
+  assert.equal(S.stageOf(session, ALPHA), 'committed', 'stage before the refused calls');
+  const problems = [];
+  for (const blank of ['', ' ', '\n\t']) {
+    for (const draft of [
+      { whatWasHeard: blank, howItCouldPlayOut: 'zebra-test-playout' },
+      { whatWasHeard: 'zebra-test-heard', howItCouldPlayOut: blank },
+    ]) {
+      let recorded = false;
+      try {
+        api.recordScenario(session, ALPHA, draft, clock());
+        recorded = true;
+      } catch {
+        // refused, as specified
+      }
+      if (recorded) {
+        problems.push(`recordScenario(${JSON.stringify(draft)}) did not throw`);
+        break;
+      }
+      const stage = S.stageOf(session, ALPHA);
+      if (stage !== 'committed') problems.push(`${JSON.stringify(draft)}: the refused call changed the stage to ${JSON.stringify(stage)}`);
+    }
+  }
+  assert.none(problems, 'refused drafts that were recorded or changed the session');
+  const recorded = api.recordScenario(session, ALPHA, { whatWasHeard: 'zebra-test-heard', howItCouldPlayOut: 'zebra-test-playout' }, clock());
+  assert.equal(recorded.whatWasHeard, 'zebra-test-heard', 'a following valid record succeeds');
+});
+
 // ------------------------------------------------------------------------------------------ M6-U24
 
-test('M6-U24 scenarioMode: interactive only with the switch on and a conversation module for every trend', async () => {
+test('M6-U24 scenarioMode: interactive only with the switch on and a conversation module for every trend', { needs: ['deferred'] }, async () => {
   const api = await scenarioApi();
   const content = await loadContent({ from: 'fixtures' });
   const all = clone(content.freeze);
@@ -170,14 +205,4 @@ test('M6-U24 scenarioMode: interactive only with the switch on and a conversatio
   assert.equal(api.scenarioMode(none, trends, 'interactive'), 'static', 'flow interactive, no module listed');
   assert.equal(api.scenarioMode(all, trends, 'static'), 'static', 'flow static, every module listed');
   assert.throws(() => api.scenarioMode(some, trends, 'interactive'), undefined, 'some trends with a module and others without must throw');
-});
-
-test('M6-U24 from G3, with SCENARIO_FLOW interactive, every trend in data/ has a conversation module', { needs: ['questions'] }, async () => {
-  const constants = await importUnderTest(repoUrl('assets/js/contracts/constants.js'));
-  assert.equal(constants.SCENARIO_FLOW, 'interactive', 'SCENARIO_FLOW');
-  const content = await loadContent({ from: 'data' });
-  const missing = content.trends
-    .map((t) => `data/conversation/${t.id}.js`)
-    .filter((p) => !content.freeze.modules.includes(p));
-  assert.none(missing, 'trends without a conversation module in data/');
 });

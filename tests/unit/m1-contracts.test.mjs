@@ -1,5 +1,8 @@
 // M1 Data contracts: unit tests M1-U1 to M1-U10, M1-U12, M1-U15 and M1-U17 to M1-U20.
 // The freeze tests (M1-U11, M1-U13, M1-U14, M1-U16) are in m1-freeze.test.mjs.
+// Deferred (F5 static, decision of 5 Oct 2026), skipped with that reason: M1-U19, the
+// loadConversation part of M1-U12 and the validator half of the conversation and scenario-record
+// mutants of M1-U6. Their schema halves run.
 // Written from docs/04-module-design.md (M1) before any M1 module exists (test-first rule).
 //
 // Status at G2: tests that depend only on tooling, fixtures and schemas/ (status T) should pass;
@@ -20,7 +23,7 @@ import { SCHEMAS, SCHEMA_FILES, contractValidator, schemaForModule } from '../li
 import { KEYWORDS, SchemaKeywordError, createValidator, collectKeywords } from '../lib/mini-schema.mjs';
 import { loadContent, loadSession, clone, fixturePathFor } from '../lib/content.mjs';
 import {
-  bannedTokensIn, subschemas, allKeys, objectPaths, pathsOfKey, getAt, setAt, showPath,
+  bannedTokensIn, nameTokens, subschemas, allKeys, objectPaths, pathsOfKey, getAt, setAt, showPath,
 } from '../lib/contract-rules.mjs';
 import { CANDIDATE_LEVEL_NAMES, candidatesIn } from '../lib/candidate-level-names.mjs';
 import { SHIPPED_FILES } from '../lib/files.mjs';
@@ -109,24 +112,43 @@ test('M1-U1 every module in data/ validates against its schema', { needs: ['data
 
 // ------------------------------------------------------------------------------------------ M1-U2
 
-test('M1-U2 no property name or required entry in schemas/ contains a banned token', () => {
+/**
+ * The extended tokens of M1-U2 (Red-team finding N3). They are checked against schema property
+ * names and `required` entries only: not against content keys (every object is closed, so a
+ * content key is always a schema property name), not by the runtime findBannedKeys, and not in
+ * code identifiers, where lensOrder, drawLensOrder, orderReadings, orderSignals and orderEntries
+ * are legitimate (docs/03-architecture.md, section 5.1). The list lives here, not in vocabulary.js.
+ */
+const EXTENDED_SCHEMA_TOKENS = Object.freeze([
+  'strength', 'urgency', 'severity', 'impact', 'primary', 'preferred', 'pinned', 'position', 'order', 'index',
+]);
+
+function schemaNameHits(name) {
+  const tokens = nameTokens(name);
+  return [...bannedTokensIn(name), ...tokens.filter((t) => EXTENDED_SCHEMA_TOKENS.includes(t))];
+}
+
+test('M1-U2 no property name or required entry in schemas/ contains a banned or extended token', () => {
   // Guard: the tokeniser must find tokens inside compound names, or this test could not fail.
   assert.deepEqual(bannedTokensIn('isFeatured'), ['featured']);
   assert.deepEqual(bannedTokensIn('top-score'), ['top', 'score']);
+  assert.deepEqual(schemaNameHits('displayOrder'), ['order']);
+  assert.deepEqual(schemaNameHits('signal-strength'), ['strength']);
+  assert.deepEqual(schemaNameHits('isPrimary'), ['primary']);
   const problems = [];
   for (const file of SCHEMA_FILES) {
     for (const { node, at } of subschemas(SCHEMAS[file], `schemas/${file}#`)) {
       for (const name of Object.keys(node.properties || {})) {
-        const hits = bannedTokensIn(name);
+        const hits = schemaNameHits(name);
         if (hits.length) problems.push(`${at}/properties/${name}: ${hits.join(', ')}`);
       }
       for (const name of node.required || []) {
-        const hits = bannedTokensIn(name);
+        const hits = schemaNameHits(name);
         if (hits.length) problems.push(`${at}/required "${name}": ${hits.join(', ')}`);
       }
     }
   }
-  assert.none(problems, 'banned names in schemas/');
+  assert.none(problems, 'banned or extended names in schemas/');
 });
 
 function bannedKeysInContent(content) {
@@ -267,7 +289,12 @@ test('M1-U5 every schema enumeration, identifier pattern and bound agrees with v
 
 // ------------------------------------------------------------------------------------------ M1-U6
 
-/** The valid samples of every entity and container, with the runtime check that matches each. */
+/**
+ * The valid samples of every entity and container, with the runtime check that matches each.
+ * `deferred: true` marks the two whose runtime check belongs to the interactive F5
+ * (checkConversation, checkScenarioRecord): their schema half runs; their validator half is
+ * Deferred (F5 static, decision of 5 Oct 2026) and registered separately below.
+ */
 async function mutationSamples() {
   const c = await loadContent({ from: 'fixtures' });
   const s = await loadSession();
@@ -276,14 +303,14 @@ async function mutationSamples() {
     { kind: 'Signal', schema: 'signal.schema.json', value: c.signals.find((x) => x.quote), check: (V, v) => V.checkSignal(v) },
     { kind: 'Trend', schema: 'trend.schema.json', value: alpha, check: (V, v) => V.checkTrend(v, c.signals) },
     { kind: 'RevealBundle', schema: 'reveal-bundle.schema.json', value: c.reveal[ALPHA], check: (V, v) => V.checkRevealBundle(v, alpha) },
-    { kind: 'ConversationQuestions', schema: 'conversation-questions.schema.json', value: c.conversation[ALPHA], check: (V, v) => V.checkConversation(v, alpha) },
+    { kind: 'ConversationQuestions', schema: 'conversation-questions.schema.json', value: c.conversation[ALPHA], check: (V, v) => V.checkConversation(v, alpha), deferred: true },
     { kind: 'Brief', schema: 'brief.schema.json', value: c.brief, check: (V, v) => V.checkBrief(v) },
     { kind: 'ReadinessProfile (unverified)', schema: 'readiness-profile.schema.json', value: c.readiness, check: (V, v) => V.checkReadiness(v, { levelNames: [] }) },
     { kind: 'ReadinessProfile (verified)', schema: 'readiness-profile.schema.json', value: c.readinessVerified, check: (V, v) => V.checkReadiness(v, { levelNames: FIXTURE_LEVEL_NAMES }) },
     { kind: 'Governance', schema: 'governance.schema.json', value: c.governance, check: (V, v) => V.checkGovernance(v) },
     { kind: 'LogEntry', schema: 'log-entry.schema.json', value: c.log.find((e) => e.originalSignals.length > 1), check: (V, v) => V.checkLogEntry(v) },
     { kind: 'Judgement', schema: 'judgement.schema.json', value: s.judgement, check: (V, v) => V.checkJudgement(v) },
-    { kind: 'ScenarioRecord', schema: 'scenario-record.schema.json', value: s.scenarioRecord, check: (V, v) => V.checkScenarioRecord(v, s.judgement) },
+    { kind: 'ScenarioRecord', schema: 'scenario-record.schema.json', value: s.scenarioRecord, check: (V, v) => V.checkScenarioRecord(v, s.judgement), deferred: true },
     { kind: 'FreezeManifest', schema: 'freeze-manifest.schema.json', value: c.freeze, check: (V, v) => V.checkFreezeManifest(v) },
   ];
 }
@@ -333,6 +360,21 @@ function mutantsOf(sample) {
   if (kind === 'Governance') {
     out.push(mutant(v, 'argument item label removed', (m) => { delete m.argument[0].label; }));
     out.push(mutant(v, 'argument item label "real"', (m) => { m.argument[0].label = 'real'; }));
+    // N5: a not-implemented statement must name the tests that verify it.
+    out.push(mutant(v, 'notImplemented item verifiedBy removed', (m) => { delete m.notImplemented[0].verifiedBy; }));
+    out.push(mutant(v, 'notImplemented item verifiedBy []', (m) => { m.notImplemented[0].verifiedBy = []; }));
+  }
+  if (kind === 'ReadinessProfile (verified)') {
+    // B1: a maturity explanation is generatedText, labelled ai-generated.
+    v.maturity.practices.forEach((p, i) => {
+      if (!p.explanation) return;
+      out.push(mutant(v, `practice ${i} explanation.text a plain string`, (m) => {
+        m.maturity.practices[i].explanation.text = m.maturity.practices[i].explanation.text.text;
+      }));
+      out.push(mutant(v, `practice ${i} explanation.text.label "fictional"`, (m) => {
+        m.maturity.practices[i].explanation.text.label = 'fictional';
+      }));
+    });
   }
   if (kind === 'ConversationQuestions') {
     out.push(mutant(v, 'question text without "?"', (m) => { m.questions[0].text = 'zebra-mutant statement.'; }));
@@ -372,11 +414,9 @@ test('M1-U6 mini-schema accepts every valid sample and rejects every mutant', as
   assert.none(problems, 'schema disagreements');
 });
 
-test('M1-U6 validate.js accepts every valid sample and rejects every mutant', async () => {
-  const V = await importUnderTest(VALIDATE);
+async function validatorDisagreements(V, samples) {
   const problems = [];
-  for (const sample of await mutationSamples()) {
-    if (!sample.check) continue;
+  for (const sample of samples) {
     const ok = verdict(() => sample.check(V, sample.value));
     if (ok !== 'accepted') problems.push(`${sample.kind}: the valid sample is not accepted: ${ok}`);
     for (const m of mutantsOf(sample)) {
@@ -384,7 +424,24 @@ test('M1-U6 validate.js accepts every valid sample and rejects every mutant', as
       if (r !== 'rejected') problems.push(`${sample.kind}: mutant ${m.label}: ${r}`);
     }
   }
-  assert.none(problems, 'runtime-check disagreements');
+  return problems;
+}
+
+test('M1-U6 validate.js accepts every valid sample and rejects every mutant', async () => {
+  const samples = (await mutationSamples()).filter((s) => !s.deferred);
+  // Guard: the new mutant classes of 5 Oct 2026 (B1, N5) are generated, or this could not fail on them.
+  const labels = samples.flatMap((s) => mutantsOf(s).map((m) => m.label));
+  for (const needle of ['explanation.text a plain string', 'explanation.text.label "fictional"', 'verifiedBy removed', 'verifiedBy []']) {
+    assert.ok(labels.some((l) => l.includes(needle)), `a mutant "${needle}" is generated`);
+  }
+  const V = await importUnderTest(VALIDATE);
+  assert.none(await validatorDisagreements(V, samples), 'runtime-check disagreements');
+});
+
+test('M1-U6 checkConversation and checkScenarioRecord reject their mutants (validator half)', { needs: ['deferred'] }, async () => {
+  const V = await importUnderTest(VALIDATE);
+  const samples = (await mutationSamples()).filter((s) => s.deferred);
+  assert.none(await validatorDisagreements(V, samples), 'runtime-check disagreements');
 });
 
 // ------------------------------------------------------------------------------------------ M1-U7
@@ -559,10 +616,16 @@ test('M1-U9 the content in data/ is referentially intact', { needs: ['data'] }, 
   assert.none(referentialProblems(await loadContent({ from: 'data' })), 'dangling or disagreeing references in data/');
 });
 
-test('M1-U9 every trend in data/ has its conversation module', { needs: ['data', 'questions'] }, async () => {
-  const content = await loadContent({ from: 'data' });
-  const missing = content.trends.filter((t) => !content.conversation[t.id]).map((t) => t.id);
-  assert.none(missing, 'trends without a conversation module while SCENARIO_FLOW is interactive');
+// M1-U9 holds for a build with no conversation modules without any skip: referentialProblems()
+// accepts "every trend has one" or "none exists" and rejects a partial set. In this release data/
+// has none (F5 static, decision of 5 Oct 2026); the synthetic fixtures keep theirs, so both
+// branches stay exercised. The guard below proves the partial-set branch can fail.
+test('M1-U9 a partial set of conversation modules is detected, and none at all is accepted', async () => {
+  const content = await loadContent({ from: 'fixtures' });
+  const partial = { ...content, conversation: { [ALPHA]: content.conversation[ALPHA] } };
+  assert.ok(referentialProblems(partial).some((p) => p.includes('partial set')), 'a partial set is detected');
+  const none = { ...content, conversation: {} };
+  assert.none(referentialProblems(none), 'no conversation module at all');
 });
 
 // ------------------------------------------------------------------------------------------ M1-U10
@@ -591,7 +654,7 @@ test('M1-U10 checkJudgement accepts the valid Judgement and rejects each invalid
 
 // ------------------------------------------------------------------------------------------ M1-U12
 
-test('M1-U12 loadReveal and loadConversation refuse malformed and unknown identifiers without importing', async () => {
+async function loaderRefusals(fns) {
   const L = await importUnderTest(LOAD);
   const calls = [];
   const importer = async (path) => {
@@ -603,7 +666,11 @@ test('M1-U12 loadReveal and loadConversation refuse malformed and unknown identi
   const loader = L.createLoader({ importer });
   const allowed = (p) => /data\/(trends|freeze)\.js$/.test(p);
   const problems = [];
-  for (const fn of ['loadReveal', 'loadConversation']) {
+  for (const fn of fns) {
+    if (typeof loader[fn] !== 'function') {
+      problems.push(`createLoader() returns no function ${fn}`);
+      continue;
+    }
     for (const id of ['../x', 'trend-unknown', 'Trend-A']) {
       calls.length = 0;
       let result;
@@ -622,12 +689,20 @@ test('M1-U12 loadReveal and loadConversation refuse malformed and unknown identi
   calls.length = 0;
   await loader.loadReveal(ALPHA);
   if (!calls.some((p) => p.includes(`reveal/${ALPHA}.js`))) problems.push('loadReveal(trend-fixture-alpha) never reached the importer');
-  assert.none(problems, 'loader guard failures');
+  return problems;
+}
+
+test('M1-U12 loadReveal refuses malformed and unknown identifiers without importing', async () => {
+  assert.none(await loaderRefusals(['loadReveal']), 'loader guard failures');
+});
+
+test('M1-U12 loadConversation refuses malformed and unknown identifiers without importing', { needs: ['deferred'] }, async () => {
+  assert.none(await loaderRefusals(['loadConversation']), 'loader guard failures');
 });
 
 // ------------------------------------------------------------------------------------------ M1-U15
 
-test('M1-U15 constants.js holds the values fixed by DM-9 and a valid SCENARIO_FLOW', async () => {
+test('M1-U15 constants.js holds the values fixed by DM-9 and SCENARIO_FLOW "static"', async () => {
   const c = await importUnderTest(CONSTANTS);
   const expected = {
     BRIEF_SIGNAL_CAP: 5,
@@ -641,8 +716,9 @@ test('M1-U15 constants.js holds the values fixed by DM-9 and a valid SCENARIO_FL
   for (const [name, value] of Object.entries(expected)) {
     if (!Object.is(c[name], value)) problems.push(`${name} is ${JSON.stringify(c[name])}, expected ${JSON.stringify(value)}`);
   }
-  if (c.SCENARIO_FLOW !== 'static' && c.SCENARIO_FLOW !== 'interactive') {
-    problems.push(`SCENARIO_FLOW is ${JSON.stringify(c.SCENARIO_FLOW)}, expected 'static' or 'interactive'`);
+  // Decision of 5 Oct 2026: F5 ships as the static F5-ST; the interactive value is deferred.
+  if (c.SCENARIO_FLOW !== 'static') {
+    problems.push(`SCENARIO_FLOW is ${JSON.stringify(c.SCENARIO_FLOW)}, expected 'static'`);
   }
   assert.none(problems, 'constant mismatches');
 });
@@ -760,7 +836,7 @@ test('M1-U18 while the readiness content is unverified, no candidate level name 
 
 // ------------------------------------------------------------------------------------------ M1-U19
 
-test('M1-U19 checkScenarioRecord accepts the valid pair and rejects each invalid record', async () => {
+test('M1-U19 checkScenarioRecord accepts the valid pair and rejects each invalid record', { needs: ['deferred'] }, async () => {
   const V = await importUnderTest(VALIDATE);
   const { judgement, scenarioRecord: rec } = await loadSession();
   const cases = [];
@@ -816,7 +892,16 @@ test('M1-U20 checkReadiness accepts both fixtures and rejects each broken level 
     [mutant(verified, 'verified profile checked with an empty list', () => {}), { levelNames: [] }],
     [mutant(unverified, 'unverified profile with a non-null explanation', (m) => { p(m, 0).explanation = clone(p(verified, 0).explanation); }), names],
     [mutant(verified, 'a profile with two practices', (m) => { m.maturity.practices.pop(); }), names],
+    // B1: a verified explanation's text is generatedText labelled ai-generated.
+    [mutant(verified, 'explanation.text a plain string', (m) => { p(m, 1).explanation.text = p(verified, 1).explanation.text.text; }), names],
+    ...SIX_LABELS.filter((l) => l !== 'ai-generated').map((l) => [
+      mutant(verified, `explanation.text.label "${l}"`, (m) => { p(m, 1).explanation.text.label = l; }), names,
+    ]),
   ];
+  // Guard: the fixture holds the B1 shape, so the mutants above differ from it.
+  if (!p(verified, 1).explanation || typeof p(verified, 1).explanation.text !== 'object') {
+    problems.push('readiness-verified.js: practices[1].explanation.text is not { text, label } (B1)');
+  }
   for (const [c2, options] of cases) {
     const r = verdict(() => V.checkReadiness(c2.value, options));
     if (r !== 'rejected') problems.push(`${c2.label}: ${r}`);

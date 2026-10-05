@@ -33,8 +33,7 @@ const ROUTES = Object.freeze([
   ['#/trends', ['Listed alphabetically.']],
   [`#/trend/${ALPHA}`, [ALPHA_TITLE]],
   [`#/scenario/${ALPHA}`, [
-    'Scenario work from your own conversations', // F5-ST, SCENARIO_FLOW 'static'
-    'Scenario work on this trend starts from a judgement you have committed in this session.', // F5-S0
+    'Scenario work from your own conversations', // F5-ST, the only F5 screen in this release (SCENARIO_FLOW 'static')
   ]],
   ['#/readiness', ['zebra-strategic-alignment-finding']],
   ['#/governance', ['Implemented in this demo']],

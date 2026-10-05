@@ -1,7 +1,7 @@
 // Test tooling for Periscope. Never imported by the page.
 //
 // A skip is a test that cannot run here, for a named reason: a part that needs data/ before G3,
-// a raw-file read in the browser runner, a DOM test under Node. It is never a pass. Throw
+// a raw-file read in the browser runner, a DOM test under Node, a test of the deferred interactive F5. It is never a pass. Throw
 // `new Skip(reason)` (or call `skip(reason)`) from inside a test body; both runners report the
 // test as skipped with that reason.
 
@@ -21,8 +21,8 @@ export function skip(reason) {
 export const REASONS = Object.freeze({
   data: 'needs data/ (G3)',
   verified: 'maturity unverified (D-1)',
-  questions: 'SCENARIO_FLOW is static (O-1)',
+  deferred: 'Deferred (F5 static, decision of 5 Oct 2026)',
   dom: 'needs a real DOM: runs only from tests/run.html',
   fs: 'needs Node: directory listing or child process',
-  text: 'needs Node or DM-11: reads raw file text, which the browser runner may not request until DM-11 is decided',
+  text: 'needs Node',
 });

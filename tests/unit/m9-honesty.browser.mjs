@@ -5,10 +5,11 @@
 // imported".
 //
 // THE WALK (M9-U1, U8, U9). M9-U1 allows either the app host with
-// start({ loader, flow: 'interactive', levelNames }) or each screen's render function with the
-// same context. These tests take the second: each screen is rendered in a fresh document that
-// links main.css, with the real loader over the fixtures: trend index; brief; trend card F1-S1,
-// F1-S2 and F1-S4; F5-S2 with ctx.flow 'interactive'; readiness unverified and verified (the
+// start({ loader, levelNames }) or each screen's render function with the same context. These
+// tests take the second: each screen is rendered in a fresh document that links main.css, with the
+// real loader over the fixtures: trend index; brief; trend card F1-S1, F1-S2 and F1-S4; the static
+// F5-ST (ctx.flow 'static', the build's value; the interactive F5-S2 left the walk with the
+// decision of 5 Oct 2026, F5 static); readiness unverified and verified (the
 // fixture level names passed to createLoader and renderReadiness); governance; log. The shell is
 // covered by M9-U4 through the app host, and the demo-wide statement by renderDemoStatement in
 // M9-U8.
@@ -30,11 +31,13 @@ import {
 } from '../lib/dom.mjs';
 import {
   load, honesty, screenContext, fixtureLoader, fixtureManifest, fixtureModule, show,
-  recordScenarioInPage, openTrend, recordGut, fillJudgement, commit, readingElements, ORDER_NOTE,
+  openTrend, recordGut, fillJudgement, commit, readingElements, ORDER_NOTE,
 } from '../lib/screens.mjs';
 
 const ALPHA = 'trend-fixture-alpha';
 const DOM = { needs: ['dom'] };
+/** The walk's stage name for the static F5 screen, which has no content element (M6-U24). */
+const F5_ST = 'F5-ST';
 const LONG = { needs: ['dom'], timeout: 30000 };
 const SIX = ['real', 'ai-generated', 'frozen', 'fictional', 'replay', 'yours'];
 const FIXTURE_LEVEL_NAMES = Object.freeze(['Fixture level one', 'Fixture level two', 'Fixture level three']);
@@ -64,7 +67,7 @@ async function fullWalk(host, visit) {
     stages.push(stage);
     await visit(stage, page.root);
   };
-  const { ctx } = await screenContext({ random: seededRandom(91), flow: 'interactive' });
+  const { ctx } = await screenContext({ random: seededRandom(91), flow: 'static' });
   await show(page, I.renderTrendIndex, ctx);
   await at('F1-S0 trend index');
   await show(page, B.renderBrief, ctx);
@@ -76,8 +79,7 @@ async function fullWalk(host, visit) {
   await walkToCommittedFromS2(page);
   await at('F1-S4');
   await show(page, Sc.renderScenario, ctx, ALPHA);
-  await recordScenarioInPage(page);
-  await at('F5-S2');
+  await at(F5_ST);
   await show(page, R.renderReadiness, ctx, {});
   await at('F3 readiness, unverified');
   const verified = await fixtureModule('content/readiness-verified.js');
@@ -121,7 +123,8 @@ test('M9-U1 across the walk, every content element carries a vocabulary label an
   let counted = 0;
   await fullWalk(root, (stage, r) => {
     const content = Array.from(r.querySelectorAll('[data-content]'));
-    if (content.length === 0) problems.push(`${stage}: no element carries data-content`);
+    // F5-ST passes with no content element at all; any data-content on it fails M6-U24.
+    if (content.length === 0 && stage !== F5_ST) problems.push(`${stage}: no element carries data-content`);
     counted += content.length;
     for (const el of content) {
       const value = el.getAttribute('data-label');
@@ -261,19 +264,17 @@ function outermost(elements) {
   return elements.filter((el) => !elements.some((o) => o !== el && o.contains(el)));
 }
 
-test('M9-U5 peers carry byte-identical label markup: readings, conversation questions, brief signals', LONG, async ({ root }) => {
+// The conversation questions of F5-S2 left this test with the interactive F5 (F5 static, decision of
+// 5 Oct 2026); they return to it if F5 is built.
+test('M9-U5 peers carry byte-identical label markup: readings, brief signals', LONG, async ({ root }) => {
   const display = await labelDisplay();
-  const [B, T, Sc] = await Promise.all(['brief', 'trend', 'scenario'].map(load));
+  const [B, T] = await Promise.all(['brief', 'trend'].map(load));
   const page = await mount(root);
-  const { ctx } = await screenContext({ random: seededRandom(95), flow: 'interactive' });
+  const { ctx } = await screenContext({ random: seededRandom(95) });
   const problems = [];
   await openTrend(page, T, ctx, ALPHA);
   await recordGut(page, { lens: 'threat' });
   problems.push(...peerBadgeProblems(readingElements(page.root), 'ai-generated', display, 'readings in F1-S2'));
-  await walkToCommittedFromS2(page);
-  await show(page, Sc.renderScenario, ctx, ALPHA);
-  await recordScenarioInPage(page);
-  problems.push(...peerBadgeProblems(Array.from(page.root.querySelectorAll('[data-question]')), 'ai-generated', display, 'conversation questions in F5-S2'));
   await show(page, B.renderBrief, ctx);
   const signals = Array.from(page.root.querySelectorAll('[data-signal]'));
   problems.push(...peerBadgeProblems(signals, 'real', display, 'signals in F2-S1'));
@@ -282,7 +283,7 @@ test('M9-U5 peers carry byte-identical label markup: readings, conversation ques
 
 // ------------------------------------------------------------------------------------------ M9-U6
 
-test('M9-U6 parts with their own origin show their own label: signal texts, log parts, argument paragraphs, next-level descriptions', LONG, async ({ root }) => {
+test('M9-U6 parts with their own origin show their own label: signal texts, log parts, argument paragraphs, maturity explanations, next-level descriptions', LONG, async ({ root }) => {
   const display = await labelDisplay();
   const content = await loadContent({ from: 'fixtures' });
   const [B, G, L, R] = await Promise.all(['brief', 'governance', 'log', 'readiness'].map(load));
@@ -325,6 +326,24 @@ test('M9-U6 parts with their own origin show their own label: signal texts, log 
     .filter(Boolean);
   if (descriptions.length === 0) problems.push('the verified fixture has no next-level description (fixture changed?)');
   for (const d of descriptions) problems.push(...partLabelProblems(page.root, d, ['ai-generated'], display, 'next-level description'));
+  // B1: each maturity explanation shows its own ai-generated label inside the fictional profile.
+  const explanations = verified.maturity.practices
+    .map((p) => p.explanation && p.explanation.text && p.explanation.text.text)
+    .filter(Boolean);
+  if (explanations.length !== verified.maturity.practices.length) problems.push('the verified fixture lacks an explanation of the shape { text: { text, label } } (B1)');
+  for (const x of explanations) problems.push(...partLabelProblems(page.root, x, ['ai-generated', 'fictional'], display, 'maturity explanation'));
+  // ... while a practice's level name stays under the profile's fictional label, never ai-generated.
+  for (const p of verified.maturity.practices) {
+    const nodes = textNodesContaining(page.root, p.levelName);
+    if (nodes.length === 0) problems.push(`level name ${JSON.stringify(p.levelName)} is not shown`);
+    for (const n of nodes) {
+      const chain = labelChain(n);
+      if (chain[0] === 'ai-generated') problems.push(`level name ${JSON.stringify(p.levelName)} carries ai-generated (${JSON.stringify(chain)})`);
+    }
+    if (nodes.length && !nodes.some((n) => labelChain(n)[0] === 'fictional')) {
+      problems.push(`level name ${JSON.stringify(p.levelName)} is nowhere directly under the profile's fictional label`);
+    }
+  }
   assert.none(problems, 'per-part label problems');
 });
 

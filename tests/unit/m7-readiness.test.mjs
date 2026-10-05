@@ -7,7 +7,7 @@
 // Status at G2: every fixture part passes (status T); the data/ parts are skipped with "needs data/
 // (G3)" and the verified data/ parts also with "maturity unverified (D-1)"; M7-U6's check of
 // verifiedBy against the module design reads that document as raw text, so in the browser it is
-// skipped with "needs Node or DM-11".
+// skipped with "needs Node".
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -73,6 +73,12 @@ export function governanceItemProblems(g, file) {
   const ids = (list) => (Array.isArray(list) ? list.map((i) => i && i.id) : []);
   for (const id of REQUIRED_IMPLEMENTED) if (!ids(g.implemented).includes(id)) problems.push(`${file}: implemented item ${id} missing`);
   for (const id of REQUIRED_NOT_IMPLEMENTED) if (!ids(g.notImplemented).includes(id)) problems.push(`${file}: not-implemented item ${id} missing`);
+  // N5: every item of both lists names the tests that verify it.
+  for (const [name, list] of [['implemented', g.implemented], ['notImplemented', g.notImplemented]]) {
+    for (const item of list || []) {
+      if (!Array.isArray(item.verifiedBy) || item.verifiedBy.length === 0) problems.push(`${file}: ${name} item ${item.id} has no verifiedBy`);
+    }
+  }
   return problems;
 }
 
@@ -84,8 +90,11 @@ function verifiedByIds(g) {
   return out;
 }
 
-/** Problems with verifiedBy identifiers: an audit outside 1 to 6, or a unit test not in `rowIds`. */
-export function testIdProblems(entries, rowIds, file) {
+/**
+ * Problems with verifiedBy identifiers: an audit outside 1 to 6, a unit test not in `rowIds`, or a
+ * unit test in `deferredIds` (a deferred test verifies nothing in this release).
+ */
+export function testIdProblems(entries, rowIds, file, deferredIds = new Set()) {
   const problems = [];
   for (const { item, id } of entries) {
     const audit = /^AUDIT-(\d+)$/.exec(id);
@@ -94,6 +103,7 @@ export function testIdProblems(entries, rowIds, file) {
       if (!(n >= 1 && n <= 6) || audit[1] !== String(n)) problems.push(`${file} ${item}: ${id} is not an audit AUDIT-1 to AUDIT-6`);
     } else if (/^M\d+-U\d+$/.test(id)) {
       if (rowIds && !rowIds.has(id)) problems.push(`${file} ${item}: ${id} is not a unit-test row in docs/04-module-design.md`);
+      else if (deferredIds.has(id)) problems.push(`${file} ${item}: ${id} is Deferred (F5 static, decision of 5 Oct 2026) and verifies nothing in this release`);
     } else {
       problems.push(`${file} ${item}: ${id} is neither a unit test nor an audit`);
     }
@@ -101,9 +111,21 @@ export function testIdProblems(entries, rowIds, file) {
   return problems;
 }
 
-async function moduleDesignRowIds() {
+/**
+ * The unit-test rows of docs/04-module-design.md: every identifier, and those whose status (the last
+ * cell of the row) is Deferred as a whole. A row with only a deferred part (status "I; … part:
+ * Deferred …") is not a deferred test.
+ */
+async function moduleDesignRows() {
   const text = await readText(repoUrl('docs/04-module-design.md'));
-  return new Set([...text.matchAll(/^\|\s*(M\d+-U\d+)\b/gm)].map((m) => m[1]));
+  const ids = new Set();
+  const deferred = new Set();
+  for (const m of text.matchAll(/^\|\s*(M\d+-U\d+)\b.*$/gm)) {
+    ids.add(m[1]);
+    const cells = m[0].split('|').map((c) => c.trim()).filter((c) => c !== '');
+    if (/^Deferred\b/.test(cells[cells.length - 1])) deferred.add(m[1]);
+  }
+  return { ids, deferred };
 }
 
 async function governanceIdCheck(g, file) {
@@ -111,16 +133,25 @@ async function governanceIdCheck(g, file) {
   // The audit range does not need the design document, so it is checked before the raw-text read.
   problems.push(...testIdProblems(verifiedByIds(g), null, file));
   assert.none(problems, 'governance item problems');
-  const rows = await moduleDesignRowIds(); // skips in the browser: "needs Node or DM-11"
+  const { ids: rows, deferred } = await moduleDesignRows(); // skips in the browser: "needs Node"
   assert.ok(rows.has('M7-U6') && rows.has('M10-U9') && rows.has('M1-U1'), 'the row identifiers were read from the module design');
-  // Guard: unknown identifiers are detected.
-  const guard = testIdProblems([{ item: 'g', id: 'M99-U1' }, { item: 'g', id: 'AUDIT-7' }, { item: 'g', id: 'AUDIT-0' }, { item: 'g', id: 'T-1' }], rows, 'guard');
-  assert.equal(guard.length, 4, 'every unknown identifier in the guard is detected');
-  assert.none(testIdProblems(verifiedByIds(g), rows, file), 'unknown verifiedBy identifiers');
+  assert.ok(deferred.has('M6-U18') && deferred.has('M1-U19') && !deferred.has('M1-U12') && !deferred.has('M6-U24'), 'the deferred rows were read from the status column');
+  // Guard: unknown and deferred identifiers are detected.
+  const guard = testIdProblems(
+    [{ item: 'g', id: 'M99-U1' }, { item: 'g', id: 'AUDIT-7' }, { item: 'g', id: 'AUDIT-0' }, { item: 'g', id: 'T-1' }, { item: 'g', id: 'M6-U25' }],
+    rows, 'guard', deferred,
+  );
+  assert.equal(guard.length, 5, 'every unknown or deferred identifier in the guard is detected');
+  assert.none(testIdProblems(verifiedByIds(g), rows, file, deferred), 'unknown or deferred verifiedBy identifiers');
 }
 
 test('M7-U6 the synthetic governance content holds the required items and only known test identifiers', async () => {
   const c = await loadContent({ from: 'fixtures' });
+  // Guard (N5): a not-implemented item without verifiedBy, or with an empty one, is detected.
+  const bad = clone(c.governance);
+  delete bad.notImplemented[0].verifiedBy;
+  bad.notImplemented[1].verifiedBy = [];
+  assert.equal(governanceItemProblems(bad, 'guard').length, 2, 'missing and empty verifiedBy are detected');
   await governanceIdCheck(c.governance, 'tests/fixtures/content/governance.js');
 });
 
@@ -192,7 +223,9 @@ export function lowerLevelRuleProblems(profile, file) {
   profile.maturity.practices.forEach((p, i) => {
     const where = `${file} /maturity/practices/${i} (${p.key})`;
     const ex = p.explanation || {};
-    if (p.betweenLevels && !/lower level/i.test(String(ex.text || ''))) problems.push(`${where}: between two levels, but the explanation does not state the lower-level rule`);
+    // B1: the explanation's text is generatedText, so the prose is explanation.text.text.
+    const prose = ex.text && typeof ex.text === 'object' ? ex.text.text : undefined;
+    if (p.betweenLevels && !/lower level/i.test(String(prose || ''))) problems.push(`${where}: between two levels, but the explanation does not state the lower-level rule`);
     const cite = ex.citation || {};
     if (cite.url !== REPORT_DOI) problems.push(`${where}: explanation does not cite ${REPORT_DOI}`);
     if (typeof cite.page !== 'string' || cite.page.trim() === '') problems.push(`${where}: explanation citation has no page`);
@@ -206,7 +239,7 @@ test('M7-U10 the verified fixture states the lower-level rule and cites the repo
   assert.ok(v.maturity.practices.some((p) => p.betweenLevels), 'the fixture has a practice between two levels');
   const bad = clone(v);
   const between = bad.maturity.practices.find((p) => p.betweenLevels);
-  between.explanation.text = 'zebra-guard: an explanation that omits the rule.';
+  between.explanation.text.text = 'zebra-guard: an explanation that omits the rule.';
   delete bad.maturity.practices[1].explanation.citation.page;
   assert.equal(lowerLevelRuleProblems(bad, 'guard').length, 2, 'the guard omissions are detected');
   assert.none(lowerLevelRuleProblems(v, 'tests/fixtures/content/readiness-verified.js'), 'lower-level rule omissions');

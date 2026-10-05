@@ -4,8 +4,8 @@
 //
 // Status at G2 (B): every test reads pipeline/briefs/*.md, which do not exist until the Cowork
 // Persona and Brief Researcher delivers them (D-2). Under Node each test fails naming the missing
-// file; in the browser runner each test is skipped, because reading raw file text needs Node or
-// DM-11. Each test first runs its parser on small in-memory samples (a guard), so that a parser that
+// file; in the browser runner each test is skipped ("needs Node"), because reading raw file text
+// needs Node. Each test first runs its parser on small in-memory samples (a guard), so that a parser that
 // accepts everything is caught even before the briefs exist.
 //
 // M2-U2 is "B, G3": its fixture part checks the synthetic content against the Named entities table

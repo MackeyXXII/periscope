@@ -1,12 +1,13 @@
 # Test plan — the right arm of the V
 
 **Status: planned for G2 by the Test Engineer on 5 October 2026, applying Miguel's G2 decisions of
-4 October 2026 (Q-2, Q-6, Q-7, DM-1, DM-9) and the Level 4 module design of 5 October 2026. Owner:
-Test Engineer. Gate: G2. The shared test harness and all twenty M1 unit tests are written; the unit
-tests for M2 to M10 follow, on the same harness, before each module's Implementer starts. None of
-the JavaScript tests has yet been run under Node, because no Node runtime is installed on the build
-machine (F-9); they have been run in the browser runner, in headless Chrome, from a local static
-server (see "What has been run so far").**
+4 October 2026 (Q-2, Q-6, Q-7, DM-1, DM-9), his decisions of 5 October 2026 (F5 ships as the static
+screen `F5-ST`; DM-11 not needed; F-9 resolved) and the Level 4 module design as revised on
+5 October 2026 for the Red-team Reviewer's G2 findings B1, B2, B4, B5 and N3 to N8. Owner: Test
+Engineer. Gate: G2. The shared test harness and the unit tests of all ten modules, M1 to M10, are
+written. On 5 October 2026 the whole suite was run under `node --test` (Node v24.21.0) against the
+repository as it stands; the result, and the cause of every failure, are below ("Tests expected to
+fail at G2, and why").**
 
 Each level of testing verifies its mirror on the left arm of the V, and every test is written from
 the specification before the artefact it tests is built. This document says what is tested at each
@@ -17,7 +18,7 @@ been run.
 |---|---|---|---|
 | Unit | Level 4 module design (M1 to M10) | One test file per module in `tests/unit/`, written from the unit-test tables of `04-module-design.md`, each test named by its identifier | Every test passes, or is skipped for a reason the plan names |
 | Integration | Level 3 architecture | The content (synthetic fixtures before G3, `data/` after) is loaded into every screen and validated against the contracts; the NF1 matrix of browsers and origins | Every module validates; every screen renders without an error state; the NF1 matrix holds |
-| System | Level 2 requirements | A scripted walk of F1 to F5 at the four Q-7 viewports, and the six-point invariant audit | The walk completes at every viewport; all six audit points hold |
+| System | Level 2 requirements | A scripted walk of F1 to F4 and the static `F5-ST` at the four Q-7 viewports, and the six-point invariant audit | The walk completes at every viewport; all six audit points hold |
 | Rehearsal (before acceptance) | Level 1 requirements | An agent reviews the demo as a hiring manager would | Findings fixed or consciously accepted before G5 |
 | Acceptance (G5) | Level 1 requirements | Two to three people unfamiliar with the project walk the demo unaided; NF4 timed as in Q-6 | Within the time budget, each can say in one sentence what makes the demo different from a signal digest, and each reaches a committed judgement within eight minutes of opening a trend card |
 
@@ -39,30 +40,44 @@ the browser runner `tests/run.html`. This is the "write once, run in both" contr
 - **Needs and skips.** A test declares what it cannot run without: `dom` (a real DOM, browser
   only), `fs` (Node: directory listings, child processes), `data` (`CONTENT_FROZEN` is true in
   `tests/lib/stage.mjs`, from the G3 freeze commit), `verified` (the frozen readiness profile is
-  verified, D-1) and `questions` (`SCENARIO_FLOW` is `'interactive'`, O-1). An unmet need turns the
-  test into a skip whose reason is printed: "needs data/ (G3)", "maturity unverified (D-1)",
-  "SCENARIO_FLOW is static (O-1)", "needs Node: directory listing or child process", or "needs a
-  real DOM". A skip is never counted as a pass; both runners show it with its reason.
+  verified, D-1) and `deferred` (never met in this release). An unmet need turns the test into a
+  skip whose reason is printed: "needs data/ (G3)", "maturity unverified (D-1)", "Deferred (F5
+  static, decision of 5 Oct 2026)", "needs Node: directory listing or child process", or "needs a
+  real DOM". A skip is never counted as a pass; both runners show it with its reason. The earlier
+  need `questions` and its reason "SCENARIO_FLOW is static (O-1)" are retired with the Q status: the
+  harness now refuses `questions` as an unknown need.
+- **Deferred tests.** F5 ships in this release as the static screen `F5-ST`; the interactive F5 is
+  designed but not built. Its tests stay in their files, written from `04-module-design.md`, and
+  are skipped with exactly "Deferred (F5 static, decision of 5 Oct 2026)", so that they neither fail
+  on modules that will not exist nor pass silently. Whole tests: M1-U19, M4-U10, M4-U11, M6-U18 to
+  M6-U23, M6-U25 and M6-U26 (M6-U21 includes the B4 refusal case, written although deferred).
+  Deferred parts, registered as separate tests with the same identifier: the `loadConversation`
+  part of M1-U12, the validator half of the conversation and scenario-record mutants of M1-U6, and
+  the pure `scenarioMode` part of M6-U24. M7-U6 treats any deferred test named in a `verifiedBy`
+  list as unknown, because a deferred test verifies nothing in this release.
 - **Code under test is imported inside the test.** A test file imports only `tests/lib/` statically.
   It imports the module under test with `importUnderTest(repoUrl('assets/js/…'))` inside the test
   body, so that a missing module fails that test with "module under test could not be imported:
   <path> … expected before implementation (test-first rule)" while the file's other tests still run.
   `tests/unit/index.mjs` lists every test file and the browser runner imports each one separately,
   so one file that cannot load is reported as a failed row instead of blanking the run.
-- **No `fetch()`, no XMLHttpRequest, anywhere.** `CLAUDE.md` forbids network calls at runtime and
-  DM-11, which would let test tooling read files by same-origin requests, is still open. Until
-  Miguel decides it, the tests load JSON (the schemas, the pipeline fixtures) with ES import
-  attributes, `import … with { type: 'json' }`, and JavaScript modules with `import()`; neither is a
-  request of the tests' own making and both work in current Node and Chromium. A test that must read
-  a file's raw text (static audits, byte-for-byte comparisons) reads it through `readText()` in
-  `tests/lib/env.mjs`, which uses `node:fs` under Node and, in the browser, skips with "needs Node or
-  DM-11". Such a test therefore runs in full only under Node until DM-11 is decided.
-- **Versions.** Node 22.7 or later is needed: the repository has no `package.json` (there is no
-  package manager), so Node must recognise the `.js` fixtures and data modules as ES modules by
-  their syntax, which it does by default from 22.7; JSON import attributes are also needed. In the
-  browser, a current Chromium or Firefox. `tests/run.html` is a module page: it needs a static origin
-  (a local static server, or the published site, which serves `tests/`), and from `file://` in
-  Chromium it shows a notice that it has not started. No demo page links to it.
+- **No `fetch()`, no XMLHttpRequest, anywhere.** `CLAUDE.md` forbids network calls at runtime, and
+  the tests keep to the same rule: DM-11, which would have let the test tooling read files by
+  same-origin requests, was recorded as not needed on 5 October 2026, so there is no `fetch()` in
+  `tests/` either. The tests load JSON (the schemas, the pipeline fixtures) with ES import
+  attributes, `import … with { type: 'json' }`, and JavaScript modules with `import()`. A test that
+  must read a file's raw text (static audits, the Markdown briefs, byte-for-byte comparisons, the
+  module design itself) reads it through `readText()` in `tests/lib/env.mjs`, which uses `node:fs`
+  under Node and, in the browser, skips with the reason "needs Node". Such a test runs in full only
+  under Node, which is the primary runner.
+- **Node.** Node is installed on the build machine (v24.21.0, checked on 5 October 2026; F-9
+  resolved) and `node --test` from the repository root is the primary runner. Node 22.7 or later is
+  needed: the repository has no `package.json` (there is no package manager), so Node must recognise
+  the `.js` fixtures and data modules as ES modules by their syntax, which it does by default from
+  22.7, and must load JSON through import attributes. The DOM tests still need a real browser.
+- **Browser.** A current Chromium or Firefox. `tests/run.html` is a module page: it needs a static
+  origin (a local static server, or the published site, which serves `tests/`), and from `file://`
+  in Chromium it shows a notice that it has not started. No demo page links to it.
 - **Running.** `node --test` from the repository root finds `tests/unit/*.test.mjs` by Node's
   default pattern and never loads a `*.browser.mjs` DOM test. In the browser, open
   `tests/run.html`; `?filter=M1-U6` runs only the tests whose names begin with that text. The
@@ -75,20 +90,25 @@ the browser runner `tests/run.html`. This is the "write once, run in both" contr
 | `harness.mjs` | `test`, `skip`, `Skip`, `REASONS`, `unmetNeed`; the browser registry and `runRegistered` |
 | `assert.mjs` | The project's own assertions (above) |
 | `env.mjs` | `IS_NODE`, `IS_BROWSER`, `REPO_ROOT`, `repoUrl`, `repoPath`, `importUnderTest`, `importJson`, `readText`, `listFiles`, `exists`, `nodeBuiltin` |
-| `skip.mjs` | The `Skip` signal and the standard skip reasons |
+| `skip.mjs` | The `Skip` signal and the standard skip reasons, including "Deferred (F5 static, decision of 5 Oct 2026)" and "needs Node" |
 | `stage.mjs` | `CONTENT_FROZEN`, false until the G3 freeze commit |
 | `mini-schema.mjs` | The dependency-free JSON Schema interpreter for the keywords `schemas/` uses; throws on any other keyword (M1-U7) |
 | `schemas.mjs` | Every contract in `schemas/`, loaded by import attributes; `contractValidator()`; which schema validates which `data/` module |
 | `content.mjs` | The content source: `loadContent({ from: 'fixtures' \| 'data' })`, `loadSession()`, `clone()` |
-| `contract-rules.mjs` | The banned name tokens of M1-U2, name tokenising, walkers over schemas and values |
+| `contract-rules.mjs` | The core banned name tokens of M1-U2, name tokenising, walkers over schemas and values (M1-U2's extended N3 tokens live in the test file itself, as the design requires) |
+| `text-rules.mjs` | The C-6 terms, relevance levels, lens words and advice words of M3 and M4; whole-word matching; the six-word shared-run check |
+| `briefs-md.mjs` | Reading and parsing the Markdown briefs of M2 (Named entities tables, the Window line, replay candidates) |
+| `strip-comments.mjs` | The comment scanner of the static audits (M10-U1, M10-U2, M10-U4), aware of string literals |
 | `canonical.mjs` | Canonical JSON and its SHA-256, as the freeze step and the Verifier define them |
 | `seeded-random.mjs` | `seededRandom(seed)` (Mulberry32), `permute`, `permutations` |
 | `candidate-level-names.mjs` | The three unverified candidate level names, their only home outside the docs (M1-U18) |
-| `files.mjs` | The file inventory of `assets/`, `schemas/` and `index.html`, for audits the browser runs (M10-U9 keeps it complete) |
+| `files.mjs` | The file inventory of `assets/`, `schemas/` and `index.html`, for audits the browser runs (M10-U9 keeps it complete, ignoring paths with a segment that begins with a dot) |
+| `dom.mjs` | `mount()`, `appFrame()`, storage stubs and DOM queries for the screen and whole-app tests |
+| `screens.mjs` | The fixture loader with spies, the screen context, the DOM-hook vocabulary and the F1 walk helpers |
 
-Still to be written, by whoever writes the first test that needs them: `dom.mjs` (`mount()`,
-`appFrame()`, storage stubs) and `tests/app-host.html` for the screen and whole-app tests of M5 to
-M10, and `tests/fixtures/briefs/scanning-brief.md` for M3-U3.
+`tests/app-host.html` (the app host for whole-app tests, with the same static elements as
+`index.html`), `tests/run.html` (the browser runner) and `tests/fixtures/briefs/scanning-brief.md`
+(the synthetic scanning brief for M3-U3) exist.
 
 ### Fixtures
 
@@ -102,17 +122,26 @@ the page.`
 - `content/` mirrors `data/`: a manifest, six signals (two on the same date, one German-language
   source, one outside the scanning window, one quote of exactly fifteen words), two trends
   (`trend-fixture-alpha`, `trend-fixture-beta`) sharing one signal, their reveal bundles and
-  conversation modules, the brief, an unverified and a verified readiness profile (with the
-  synthetic level names "Fixture level one" to "Fixture level three"), the governance container,
-  and three log entries (one with two original signals; original signals on both replay-window
-  boundary dates).
+  conversation modules (kept as contract samples for M1-U1 and M1-U9, although `data/` has none in
+  this release), the brief, an unverified and a verified readiness profile (with the synthetic
+  level names "Fixture level one" to "Fixture level three"; every maturity explanation is
+  `{ text, label: 'ai-generated' }`, B1), the governance container (every item of both lists with
+  a non-empty `verifiedBy` naming only tests that are not deferred, N5), and three log entries (one
+  with two original signals; original signals on both replay-window boundary dates).
 - `session/`: a valid Judgement and ScenarioRecord.
 - `pipeline/`: the same entities as raw pipeline output, with a verification record whose hashes
   are the entities' canonical SHA-256; `expected-data/`: the exact files the freeze core must
   produce from it. These two are JSON and frozen-module text, so they cannot carry the fixture
-  header line; their content is the same synthetic data.
-- `invalid/bad-schema.json`: a schema using `exclusiveMinimum`, for M1-U7. Each later test that
-  needs a named invalid case adds its own module here.
+  header line; their content is the same synthetic data. The pipeline and expected readiness
+  profiles are unverified (`explanation: null`), so B1 left them unchanged. On 5 October 2026 the
+  governance container gained its not-implemented `verifiedBy` in all three places; the
+  expected-data module was regenerated (canonical key order, two-space JSON, the fixed header line,
+  one trailing newline), not hand-edited, and the governance hash in `verification.json` was
+  recomputed with `tests/lib/canonical.mjs`. All 24 recorded hashes were then checked against
+  their entities and match.
+- `invalid/`: one module per named invalid case, used by the tests that name it, and
+  `bad-schema.json`, a schema using `exclusiveMinimum`, for M1-U7.
+- `briefs/`: the synthetic scanning brief for M3-U3.
 
 ## Unit level
 
@@ -122,14 +151,34 @@ The unit tests are those of `04-module-design.md`, by identifier, in `tests/unit
 | Module | Tests | Files | Written |
 |---|---|---|---|
 | M1 Data contracts | M1-U1 to M1-U20 | `m1-contracts.test.mjs` (U1 to U10, U12, U15, U17 to U20), `m1-freeze.test.mjs` (U11, U13, U14, U16) | 5 Oct 2026 |
-| M2 to M10 | As in `04-module-design.md` | As named there | Not yet: each before its module's Implementer starts |
+| M2 Persona and scanning brief | M2-U1 to M2-U5 | `m2-briefs.test.mjs` | 5 Oct 2026 |
+| M3 Scan pipeline | M3-U1 to M3-U6 | `m3-signals.test.mjs` | 5 Oct 2026 |
+| M4 Interpretation pipeline | M4-U1 to M4-U11 | `m4-interpretation.test.mjs` | 5 Oct 2026 |
+| M5 Brief composer | M5-U1 to M5-U11 | `m5-brief.test.mjs`, `m5-brief.browser.mjs` | 5 Oct 2026 |
+| M6 Judgement and scenario capture | M6-U1 to M6-U26 | `m6-judgement.test.mjs`, `m6-judgement.browser.mjs`, `m6-scenario.test.mjs`, `m6-scenario.browser.mjs` | 5 Oct 2026 |
+| M7 Readiness and maturity | M7-U1 to M7-U11 | `m7-readiness.test.mjs`, `m7-readiness.browser.mjs` | 5 Oct 2026 |
+| M8 Decision log and replay | M8-U1 to M8-U10 | `m8-log.test.mjs`, `m8-log.browser.mjs` | 5 Oct 2026 |
+| M9 Honesty and provenance layer | M9-U1 to M9-U9 | `m9-honesty.test.mjs`, `m9-honesty.browser.mjs` | 5 Oct 2026 |
+| M10 UI shell and navigation | M10-U1 to M10-U9 | `m10-shell.test.mjs`, `m10-shell.browser.mjs` | 5 Oct 2026 |
+
+All were brought in line with the Level 4 revision of 5 October 2026 on the same day: the N3
+extended tokens in M1-U2; the B1 and N5 mutants in M1-U6; `SCENARIO_FLOW` exactly `'static'` in
+M1-U15; the B1 cases in M1-U20; the N4 lens words in relevance notes in M3-U6; the B4 state-level
+refusals in M6-U3, M6-U5 and (deferred) M6-U21; the static `F5-ST` test M6-U24, with the Level 2
+sentence "In this build the scenario step is described only: there is nothing to write here, and
+no conversation questions were prepared for this release."; `verifiedBy` on both lists in M7-U5
+and M7-U6; the B1 explanation label in M7-U8, M7-U10 and M9-U6; the two B5 phrases and the four
+forbidden phrases in M8-U4; the walk through `F5-ST` in M9-U1; M10-U4's rule that
+`loadConversation` is named nowhere and `assets/js/state/scenario.js` does not exist; and, for the
+Red-team finding B3, M10-U9's rule that paths with a segment beginning with a dot are ignored.
 
 Where a test has a part that runs on the synthetic fixtures and a part that asserts on `data/`, the
 two are registered as separate tests with the same identifier, the second with `needs: ['data']`.
 The fixture part keeps running after G3, so the fixtures stay valid; the data part is reported as
 skipped before G3 and fails after G3 if `data/` is missing or wrong. In the same way, M1-U6, M1-U8
 and M1-U17 register their schema side and their `validate.js` side separately, so that the schema
-side, which depends only on `schemas/`, is proved at G2.
+side, which depends only on `schemas/`, is proved at G2; and a test with a deferred part registers
+that part separately with `needs: ['deferred']`.
 
 ## Integration level
 
@@ -146,9 +195,9 @@ browsers. They will live in `tests/integration/`, named `INT-…`.
 
 | Origin | Browser | Expected result |
 |---|---|---|
-| Local static server, offline | Current Chromium (Chrome or Edge) | F1 to F5 complete; every entry in `performance.getEntriesByType('resource')` is a file of the site itself |
+| Local static server, offline | Current Chromium (Chrome or Edge) | F1 to F4 and `F5-ST` complete; every entry in `performance.getEntriesByType('resource')` is a file of the site itself |
 | Local static server, offline | Current Firefox | The same |
-| `file://` | Current Firefox | F1 to F5 complete; no network request |
+| `file://` | Current Firefox | F1 to F4 and `F5-ST` complete; no network request |
 | `file://` | Current Chromium | `G-E1` shown with its `file://` sentence; nothing else renders; no network request |
 | `file://` | Safari | Not covered: no macOS machine in the toolchain |
 
@@ -159,12 +208,13 @@ The result of each row is recorded in `03-architecture.md`, section 9, once it h
 System tests verify the Level 2 requirements end to end on the built page. They will live in
 `tests/system/`, named `SYS-…` and `AUDIT-<n>`.
 
-- **Scripted walk of F1 to F5 at the four Q-7 viewports**: 360 × 640 and 390 × 844 in portrait,
-  1280 × 800 and 1440 × 900 in landscape. At each viewport: the brief, a signal's trend link, a trend
-  card, a gut reading recorded, the three readings, the interrogation (one question answered, the
-  rest skipped), a judgement committed with a rationale, the scenario route (interactive or the
-  static `F5-ST`, whichever the build has), readiness, governance and the decision log. Pass: every
-  step reachable by clicking, no horizontal scrolling, every control within the viewport.
+- **Scripted walk of F1 to F4 and `F5-ST` at the four Q-7 viewports**: 360 × 640 and 390 × 844 in
+  portrait, 1280 × 800 and 1440 × 900 in landscape. At each viewport: the brief, a signal's trend
+  link, a trend card, a gut reading recorded, the three readings, the interrogation (one question
+  answered, the rest skipped), a judgement committed with a rationale, the scenario route (the
+  static `F5-ST`, the only F5 screen in this release), readiness, governance and the decision log.
+  Pass: every step reachable by clicking, no horizontal scrolling, every control within the
+  viewport.
 - **Q-2, the readings' order.** In the app host the order is fixed by a seed:
   `start({ random: seededRandom(seed) })` makes the gut-reading options, the three readings and the
   judgement options follow `drawLensOrder(seededRandom(seed))`; with seeds 1 to 200 all six orders
@@ -177,7 +227,7 @@ System tests verify the Level 2 requirements end to end on the built page. They 
 ## Invariant audit — run at every gate from G3
 
 A gate fails if any of these is false. Each point is a test, `AUDIT-1` to `AUDIT-6`, and the
-governance screen's "implemented" statements may cite them.
+governance screen's "implemented" and "not implemented" statements may cite them.
 
 1. **No ranking.** No `score`, `rank`, `confidence` or `priority` field, nor any near synonym from
    M1-U2, exists in any schema, fixture or rendered element; no schema declares a number, integer
@@ -185,10 +235,10 @@ governance screen's "implemented" statements may cite them.
    appear in a random order with identical templates.
 2. **Intuition before AI.** No AI reading is reachable in the DOM or in module state before the
    intuition step is recorded. Checked on the page by reading `performance.getEntriesByType('resource')`
-   in `F1-S1`, which must hold no `data/reveal/` entry; the same for F5, where `F5-S1` must hold no
-   `data/conversation/` entry.
+   in `F1-S1`, which must hold no `data/reveal/` entry; and on `F5-ST`, which must hold no
+   `data/conversation/` entry. (The earlier check in `F5-S1` is deferred with the interactive F5.)
 3. **A judgement requires a rationale.** "Commit judgement" is disabled until the rationale holds a
-   non-whitespace character.
+   non-whitespace character, and `commitJudgement` itself refuses a draft without one (B4).
 4. **Every factual claim is sourced.** Every claim resolves to a dated source, and no unverifiable
    claim survives (every shipped entity has a `pass` verdict whose hash matches, M1-U16).
 5. **Honest labelling.** Every content element carries a label from the six-value vocabulary,
@@ -210,60 +260,81 @@ viewers is timed. Pass: every viewer reaches `F1-S4` within eight minutes of fir
 
 At G2 no page or pipeline code exists, so every test that imports it fails. That is the test-first
 rule working, not a defect, and no such test may be weakened to pass. Each failure names its cause;
-the list below says which cause to expect, so that an open dependency is never mistaken for a
-defect and a real defect is never mistaken for an open dependency. A test not listed here is
-expected to pass at G2 (status T), or to be skipped with a named reason.
+the lists below say which cause to expect, so that an open dependency is never mistaken for a
+defect and a real defect is never mistaken for an open dependency. A test registration not listed
+here passes at G2 or is skipped with a named reason.
 
-**M1 (written).**
+### Under `node --test` (run on 5 October 2026)
 
-| Test | Expected at G2 | Named cause |
-|---|---|---|
-| M1-U5 | Fail | `assets/js/contracts/vocabulary.js` and `constants.js` not implemented |
-| M1-U6, `validate.js` side | Fail | `assets/js/contracts/validate.js` not implemented |
-| M1-U8, `checkTrend` side | Fail | `validate.js` not implemented |
-| M1-U10 | Fail | `validate.js` not implemented |
-| M1-U11, core | Fail | `pipeline/freeze-core.mjs` not implemented |
-| M1-U11, Node driver | Fail under Node; skipped in the browser ("needs Node") | `pipeline/freeze.mjs` not implemented |
-| M1-U12 | Fail | `assets/js/contracts/load.js` not implemented |
-| M1-U13, both fixture parts | Fail | `pipeline/freeze-core.mjs` not implemented |
-| M1-U15 | Fail | `constants.js` not implemented |
-| M1-U17, `checkGovernance` side | Fail | `validate.js` not implemented |
-| M1-U18, `MATURITY_LEVEL_NAMES` | Fail | `vocabulary.js` not implemented |
-| M1-U19 | Fail | `validate.js` not implemented |
-| M1-U20 | Fail | `validate.js` not implemented |
-| Every M1 part with `needs: ['data']`, and M1-U16 | Skipped | "needs data/ (G3)" |
-| M1-U7 listing, M1-U13 byte comparison, M1-U14 | Pass under Node; skipped in the browser | "needs Node" or "needs Node or DM-11" |
+137 test registrations: **50 pass, 38 fail, 49 skipped** (37 "needs data/ (G3)", 12 "Deferred (F5
+static, decision of 5 Oct 2026)"). Every one of the 38 failures is listed here with the cause it
+reports; no other test fails.
 
-**M2 to M10 (to be written; expected status once written, from `04-module-design.md`).**
+| Test registration | Named cause |
+|---|---|
+| M1-U5 | `assets/js/contracts/vocabulary.js` not implemented |
+| M1-U6, `validate.js` side | `assets/js/contracts/validate.js` not implemented |
+| M1-U8, `checkTrend` side | `validate.js` not implemented |
+| M1-U10 | `validate.js` not implemented |
+| M1-U11, core | `pipeline/freeze-core.mjs` not implemented |
+| M1-U11, Node driver | `pipeline/freeze.mjs` not implemented ("module under test is missing") |
+| M1-U12, `loadReveal` part | `assets/js/contracts/load.js` not implemented |
+| M1-U13, deterministic output against the expected values | `pipeline/freeze-core.mjs` not implemented |
+| M1-U13, byte-for-byte against `tests/fixtures/expected-data/` | `pipeline/freeze-core.mjs` not implemented |
+| M1-U15 | `assets/js/contracts/constants.js` not implemented |
+| M1-U17, `checkGovernance` side | `validate.js` not implemented |
+| M1-U18, `MATURITY_LEVEL_NAMES` | `vocabulary.js` not implemented |
+| M1-U20 | `validate.js` not implemented |
+| M2-U1, M2-U3 | `pipeline/briefs/persona-dossier.md` does not exist: the Cowork briefs are not yet delivered (D-2) |
+| M2-U4 | `pipeline/briefs/scanning-brief.md` does not exist (D-2) |
+| M2-U5 | `pipeline/briefs/replay-candidates.md` does not exist (D-2) |
+| M3-U4, M4-U8, M5-U1, M8-U2 (each its fixture part) | `constants.js` not implemented |
+| M5-U3 | `assets/js/screens/brief.js` not implemented |
+| M6-U3 (three registrations: `canCommit`, `whatIsMissing`, the B4 refusals), M6-U5 (two: the B4 refusals, the frozen record), M6-U6, M6-U8, M6-U13 | `assets/js/state/session.js` not implemented |
+| M6-U7 (four registrations) | `assets/js/state/lens-order.js` not implemented |
+| M8-U3 | `assets/js/screens/log.js` not implemented |
+| M9-U2, `formatDate` part | `assets/js/honesty/sources.js` not implemented |
+| M10-U3, static part | The seeded placeholder `index.html` has no element `id="startup-failure"` |
+| M10-U4 | `assets/js/shell/router.js`, `shell/routes.js` and `shell/nav.js` not implemented (the test refuses to pass on the placeholder) |
 
-| Tests | Expected at G2 | Named cause |
-|---|---|---|
-| M2-U1 to M2-U5 | Fail | The Cowork briefs (`persona-dossier.md`, `scanning-brief.md`, `replay-candidates.md`) are not yet in `pipeline/briefs/` (D-2) |
-| M3-U4, M4-U8, M8-U2 | Fail | `constants.js` not implemented |
-| M5-U1 to M5-U3, M5-U5 to M5-U11 | Fail | `assets/js/screens/brief.js` and M1, M9, M10 not implemented |
-| M6-U1 to M6-U26 | Fail | `assets/js/screens/trend*.js`, `scenario.js` and `assets/js/state/*` not implemented |
-| M7-U1 (screen part), M7-U2 to M7-U5, M7-U7, M7-U8, M7-U11 | Fail | `assets/js/screens/readiness.js` and `governance.js` not implemented |
-| M8-U3 to M8-U6, M8-U9, M8-U10 | Fail | `assets/js/screens/log.js` not implemented |
-| M9-U1 to M9-U9 | Fail | `assets/js/honesty/*` not implemented |
-| M10-U1 | Fail | The seeded placeholder `index.html` contains `fetch()` in its explanatory comment ("no fetch() or XHR at runtime"), which the literal audit matches. The comment goes when M10 replaces the placeholder; the audit is not to be relaxed |
-| M10-U3, M10-U5 to M10-U8 | Fail | `assets/js/main.js` is a placeholder and `tests/app-host.html` does not exist |
-| M10-U4 | Fail | `assets/js/shell/*` not implemented; also, the placeholder `assets/js/main.js` mentions `data/` in a comment, which only `contracts/load.js` may do |
-| Every G3, V and Q part | Skipped | "needs data/ (G3)", "maturity unverified (D-1)", "SCENARIO_FLOW is static (O-1)" |
+Passing at G2, as status T and the seeded audits require: among others every schema-side test of
+M1 (U1, U2, U3, U4, U6 schema side, U7, U8 schema side, U9, U17 schema side, U18 schema and file
+parts), M1-U14 on the expected data, the fixture parts of M3, M4, M5-U4, M7-U1, U6, U9, U10 and
+M8-U1, U7 and U8, and M10-U1, M10-U2 and M10-U9. M10-U1 passes on the seeded placeholder files:
+their comments mention `fetch()`, and the audit removes comments before matching, as Level 4
+specifies. M10-U9 passes because `schemas/.gitkeep`, a path with a segment that begins with a dot,
+is ignored (B3).
+
+### In the browser runner (`tests/run.html`)
+
+Not run since this revision. Expected: every `*.browser.mjs` test that is not deferred fails with
+"module under test could not be imported", naming the missing screen, state, honesty, shell or M1
+module (M5-U2, M5-U5 to M5-U11; M6-U1, U2, U4, U9 to U12, U14 to U17 and the page parts of U3 to
+U7; the built part of M6-U24; M7-U1 screen part to M7-U5, M7-U7, M7-U8, M7-U11; M8-U4 to M8-U6,
+M8-U9, M8-U10; M9-U1 to M9-U9; M10-U3 start-up part and M10-U5 to M10-U8). The deferred browser
+tests (M6-U18 to M6-U23, M6-U25, M6-U26) are skipped with the deferred reason. The pure tests behave
+as under Node, except that every test reading raw file text (M1-U13 byte comparison, M1-U14, M1-U18
+file part, M2, M3-U3, M7-U6 design-document part, M8-U8 page-code part, M10-U1, M10-U2, M10-U3
+static part, M10-U4) is skipped with "needs Node", and the `fs` tests (M1-U7 listing, M1-U11
+driver, M1-U14 listing, M10-U9) with "needs Node: directory listing or child process".
 
 Integration and system tests cannot run before the page exists (L5, after G2), so none is expected
 to run at G2.
 
 ## What has been run so far
 
-No Node runtime is installed on the build machine, so nothing has run under `node --test`. On
-5 October 2026 the browser runner was run in headless Chrome, from a local static server, against
-the repository as committed: of the 42 M1 test registrations, 14 passed, 13 failed, each naming the
-missing M1 or pipeline module, and 15 were skipped, each with its reason. The same run against
-throwaway reference implementations of the M1 modules, served from outside the repository, passed
-every test that the browser can run; and against deliberately broken implementations (a validator
-that accepts everything, a loader that imports any identifier, wrong constants, a freeze core that
-always succeeds, a schema with a `rankScore` integer and an open object) every corresponding test
-failed with a specific message. The expected-data fixtures were checked byte for byte against the
-reference freeze core's output, and the fixtures' SHA-256 hashes against the browser's Web Crypto.
-The Node-only parts (directory listings, the freeze driver, raw-text reads) are unexecuted until
-Node is installed (F-9) or DM-11 is decided.
+On 5 October 2026 the browser runner was run in headless Chrome, from a local static server, against
+the M1 tests as then committed, and against throwaway reference implementations of the M1 modules
+served from outside the repository, which passed every test the browser could run; deliberately
+broken implementations (a validator that accepts everything, a loader that imports any identifier,
+wrong constants, a freeze core that always succeeds, a schema with a `rankScore` integer and an open
+object) made every corresponding test fail with a specific message.
+
+Later on 5 October 2026, after this revision, the whole suite was run under `node --test` from the
+repository root with Node v24.21.0: 137 registrations, 50 passed, 38 failed and 49 were skipped.
+Every failure reports exactly the cause listed in the table above, and every cause in that table
+was observed. The Node-only parts ran for the first time: the directory listings (M1-U7, M1-U14,
+M10-U9) pass; the freeze driver test (M1-U11) fails on the missing `pipeline/freeze.mjs`; the
+raw-text audits (M10-U1, M10-U2, M1-U18) pass on the seeded files. The regenerated governance
+fixtures were checked by recomputing every canonical SHA-256 in `tests/fixtures/pipeline/verification.json`
+against its entity (24 of 24 match) and by a byte-for-byte round trip of the expected-data module.

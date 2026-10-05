@@ -367,7 +367,7 @@ test('M6-U15 F1-E0: with loadTrends failing, the index, the trend and the scenar
   const I = await load('trendIndex');
   const T = await load('trend');
   const Sc = await load('scenario');
-  const { ctx, calls } = await screenContext({ fail: ['loadTrends'], flow: 'interactive' });
+  const { ctx, calls } = await screenContext({ fail: ['loadTrends'] });
   const page = await mount(root);
   const notice = 'Trend cards could not be loaded in this build.';
   await show(page, I.renderTrendIndex, ctx);
@@ -377,7 +377,6 @@ test('M6-U15 F1-E0: with loadTrends failing, the index, the trend and the scenar
   await show(page, Sc.renderScenario, ctx, ALPHA);
   assert.includes(textOf(page.root), notice, '#/scenario/trend-fixture-alpha');
   assert.equal(calls.loadReveal.length, 0, 'loadReveal calls');
-  assert.equal(calls.loadConversation.length, 0, 'loadConversation calls');
   assert.ok(calls.loadTrends.length >= 1, 'the screens did ask for the trends (the stub was reached)');
 });
 

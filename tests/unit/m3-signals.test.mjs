@@ -8,7 +8,7 @@
 //
 // Status at G2: M3-U1, U2, U5 and U6 (fixture parts) pass. M3-U4 fails until
 // assets/js/contracts/constants.js exists. M3-U3 reads the scanning brief's raw Markdown, so it runs
-// under Node only and is skipped in the browser ("needs Node or DM-11").
+// under Node only and is skipped in the browser ("needs Node").
 //
 // INTERPRETATIONS, reported to the Orchestrator:
 //   - M3-U2: "frozenOn" is the Signal's own provenance.frozenOn.
@@ -21,7 +21,7 @@ import { assert } from '../lib/assert.mjs';
 import { importUnderTest, repoUrl } from '../lib/env.mjs';
 import { loadContent } from '../lib/content.mjs';
 import { readBrief, windowLine } from '../lib/briefs-md.mjs';
-import { C6_TERMS, RELEVANCE_LEVELS, wholeWordHits, isIsoDate } from '../lib/text-rules.mjs';
+import { C6_TERMS, RELEVANCE_LEVELS, LENS_WORDS, wholeWordHits, isIsoDate } from '../lib/text-rules.mjs';
 
 const CONSTANTS = repoUrl('assets/js/contracts/constants.js');
 const HTTPS = /^https:\/\/\S+$/;
@@ -203,7 +203,10 @@ function rankingWordProblems(signals) {
       ['windowNote', s.windowNote],
     ];
     for (const [name, text] of fields) {
-      const hits = wholeWordHits(text, [...C6_TERMS, ...RELEVANCE_LEVELS]);
+      // N4: the relevance note is read before the gut reading, so it may not use a lens word
+      // (M4-U5's list) either; summaries may, since a published item can itself use such words.
+      const terms = name === 'relevanceNote.text' ? [...C6_TERMS, ...RELEVANCE_LEVELS, ...LENS_WORDS] : [...C6_TERMS, ...RELEVANCE_LEVELS];
+      const hits = wholeWordHits(text, terms);
       if (hits.length) problems.push(`${s.id} ${name}: ${hits.join(', ')}`);
     }
     if (typeof s.quote === 'string') quotes.push(`${s.id}: ${s.quote}`);
@@ -216,19 +219,24 @@ function reportQuotes(where, quotes) {
   for (const q of quotes) console.log(`M3-U6 quote for Red-team review (${where}): ${q}`);
 }
 
-test('M3-U6 no synthetic summary, relevance note or window note uses a C-6 term or a relevance level', async () => {
+test('M3-U6 no synthetic summary, relevance note or window note uses a C-6 term or a relevance level, nor a relevance note a lens word', async () => {
   const signals = signalsOf(await loadContent({ from: 'fixtures' }));
   // Guard: phrases, hyphenated terms and levels are caught as whole words; substrings are not.
   const guard = rankingWordProblems([
     { id: 'g1', summary: { text: 'A Must-Read item of HIGH interest.' }, relevanceNote: { text: 'The most  important one.' }, windowNote: 'Topical, follow-up, lowered.' },
   ]);
   assert.deepEqual(guard.problems, ['g1 summary.text: must-read, high', 'g1 relevanceNote.text: most important']);
+  // Guard (N4): a lens word fails a relevance note but not a summary.
+  const lens = rankingWordProblems([
+    { id: 'g2', summary: { text: 'Vendors call it an opportunity.' }, relevanceNote: { text: 'A Threat to incumbents; mostly hype.' } },
+  ]);
+  assert.deepEqual(lens.problems, ['g2 relevanceNote.text: threat, hype']);
   const { problems, quotes } = rankingWordProblems(signals);
   reportQuotes('fixtures', quotes);
   assert.none(problems, 'C-6 terms or relevance levels');
 });
 
-test('M3-U6 no summary, relevance note or window note in data/ uses a C-6 term or a relevance level', { needs: ['data'] }, async () => {
+test('M3-U6 no summary, relevance note or window note in data/ uses a C-6 term or a relevance level, nor a relevance note a lens word', { needs: ['data'] }, async () => {
   const { problems, quotes } = rankingWordProblems(signalsOf(await loadContent({ from: 'data' })));
   reportQuotes('data/', quotes);
   assert.none(problems, 'C-6 terms or relevance levels in data/');

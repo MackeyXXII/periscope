@@ -6,7 +6,7 @@
 // Status at G2: the fixture parts of M8-U1, U7 and U8 depend only on fixtures and should pass;
 // M8-U2 fails until constants.js exists, M8-U3 until screens/log.js exists; every data/ part is
 // skipped with "needs data/ (G3)". The page-code part of M8-U8 reads raw file text, so in the
-// browser runner it is skipped with "needs Node or DM-11".
+// browser runner it is skipped with "needs Node".
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';

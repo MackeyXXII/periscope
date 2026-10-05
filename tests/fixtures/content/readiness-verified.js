@@ -101,7 +101,10 @@ export default {
           "upperLevelName": "Fixture level two"
         },
         "explanation": {
-          "text": "zebra-scanning-explanation: the synthetic account falls between two levels, so the lower level is assigned.",
+          "text": {
+            "text": "zebra-scanning-explanation: the synthetic account falls between two levels, so the lower level is assigned.",
+            "label": "ai-generated"
+          },
           "citation": {
             "url": "https://doi.org/10.1787/aa573076-en",
             "publisher": "Fixture report publisher",
@@ -133,7 +136,10 @@ export default {
         "levelName": "Fixture level two",
         "betweenLevels": null,
         "explanation": {
-          "text": "zebra-trend-analysis-explanation: the synthetic account matches the second level.",
+          "text": {
+            "text": "zebra-trend-analysis-explanation: the synthetic account matches the second level.",
+            "label": "ai-generated"
+          },
           "citation": {
             "url": "https://doi.org/10.1787/aa573076-en",
             "publisher": "Fixture report publisher",
@@ -165,7 +171,10 @@ export default {
         "levelName": "Fixture level three",
         "betweenLevels": null,
         "explanation": {
-          "text": "zebra-scenario-work-explanation: the synthetic account matches the third level.",
+          "text": {
+            "text": "zebra-scenario-work-explanation: the synthetic account matches the third level.",
+            "label": "ai-generated"
+          },
           "citation": {
             "url": "https://doi.org/10.1787/aa573076-en",
             "publisher": "Fixture report publisher",

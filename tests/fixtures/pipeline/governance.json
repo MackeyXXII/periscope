@@ -35,15 +35,26 @@
   "notImplemented": [
     {
       "id": "own-data-ingestion",
-      "text": "zebra-governance-own-data: synthetic statement for tests."
+      "text": "zebra-governance-own-data: synthetic statement for tests.",
+      "verifiedBy": [
+        "M10-U1",
+        "M10-U4"
+      ]
     },
     {
       "id": "cross-session-persistence",
-      "text": "zebra-governance-persistence: synthetic statement for tests."
+      "text": "zebra-governance-persistence: synthetic statement for tests.",
+      "verifiedBy": [
+        "M10-U2",
+        "M6-U9"
+      ]
     },
     {
       "id": "role-aware-model",
-      "text": "zebra-governance-roles: synthetic statement for tests."
+      "text": "zebra-governance-roles: synthetic statement for tests.",
+      "verifiedBy": [
+        "M8-U8"
+      ]
     }
   ],
   "argument": [

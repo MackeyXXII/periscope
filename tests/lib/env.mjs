@@ -4,15 +4,16 @@
 // in the browser runner tests/run.html, and the only place that touches Node built-ins.
 //
 // The rule that shapes this file: no fetch() and no XMLHttpRequest anywhere in the repository,
-// tests included, unless Miguel approves DM-11 (docs/03-architecture.md, section 15). So:
+// tests included (DM-11 was recorded as not needed on 5 Oct 2026; docs/03-architecture.md,
+// section 15). So:
 //
 // - JSON is loaded with ES import attributes (`with { type: 'json' }`), which works in current Node
 //   and Chromium without any request of the test's own making: see importJson() and
 //   tests/lib/schemas.mjs.
 // - JavaScript modules (fixtures, data/, code under test) are loaded with import().
 // - Raw file text (static audits, byte-for-byte comparisons) is read with node:fs only. In the
-//   browser, readText() throws a Skip whose reason names "Node or DM-11", so such a test is
-//   reported as skipped and never passes silently.
+//   browser, readText() throws a Skip with the reason "needs Node", so such a test is reported as
+//   skipped and never passes silently.
 // - Directory listings and child processes are Node only; in the browser they skip.
 //
 // Test files import from here; they never import node:* themselves, and never touch document,
@@ -44,7 +45,7 @@ export async function nodeBuiltin(name, reason = REASONS.fs) {
   return import(name);
 }
 
-/** Reads a file as UTF-8 text. Node only; in the browser it skips with the DM-11 reason. */
+/** Reads a file as UTF-8 text. Node only; in the browser it skips with the reason "needs Node". */
 export async function readText(url) {
   const fs = await nodeBuiltin('node:fs/promises', REASONS.text);
   return fs.readFile(toUrl(url), 'utf8');

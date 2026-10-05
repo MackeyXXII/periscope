@@ -16,7 +16,7 @@ export const ENTITY_KINDS = Object.freeze(['competitor', 'incumbent', 'technolog
 export const BRIEF_FILES = Object.freeze(['persona-dossier.md', 'scanning-brief.md', 'replay-candidates.md']);
 
 /**
- * Reads a briefs file. In the browser it skips (readText's DM-11 reason); under Node a missing file
+ * Reads a briefs file. In the browser it skips (readText's "needs Node" reason); under Node a missing file
  * fails with a message naming it and the open dependency, so it is never mistaken for a defect.
  */
 export async function readBrief(url, missingCause) {

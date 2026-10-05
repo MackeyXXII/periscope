@@ -213,6 +213,8 @@ test('M7-U5 the governance screen shows both lists, verifying tests, sourced and
     }
     if (labelChain(el)[0] !== 'real') problems.push(`item ${item.id}: covered by label ${JSON.stringify(labelChain(el)[0])}, expected "real"`);
     const ids = item.verifiedBy || [];
+    // N5: every item of either list names its verifying tests.
+    if (ids.length === 0) problems.push(`item ${item.id}: no verifiedBy in the content to show`);
     let scope = el;
     while (scope && !ids.every((id) => scope.textContent.includes(id))) {
       const parent = scope.parentElement;
@@ -278,9 +280,13 @@ test('M7-U8 the verified view shows levels, explanations, the next-level block a
     if (!own) problems.push(`${p.key}: ${els.length} elements data-practice="${p.key}" in the maturity view outside the next-level area, expected 1`);
     const pScope = own || scope;
     if (!pScope.textContent.includes(p.levelName)) problems.push(`${p.key}: level name not shown`);
-    const [ex] = smallestContaining(pScope, p.explanation.text);
+    // B1: the explanation's prose is explanation.text.text and carries its own ai-generated label.
+    const [ex] = smallestContaining(pScope, p.explanation.text.text);
     if (!ex) problems.push(`${p.key}: explanation not shown`);
-    else if (!citedAfter(ex, p.explanation.citation.page)) problems.push(`${p.key}: explanation has no report citation with page ${p.explanation.citation.page}`);
+    else {
+      if (labelChain(ex)[0] !== 'ai-generated') problems.push(`${p.key}: explanation label ${JSON.stringify(labelChain(ex)[0])}, expected its own "ai-generated"`);
+      if (!citedAfter(ex, p.explanation.citation.page)) problems.push(`${p.key}: explanation has no report citation with page ${p.explanation.citation.page}`);
+    }
   }
   const [heading] = Array.from(nextScope.querySelectorAll('h1, h2, h3, h4, h5, h6')).filter((h) => textOf(h) === NEXT_HEADING);
   if (!heading) problems.push(`no heading "${NEXT_HEADING}" in the next-level area`);
@@ -311,6 +317,9 @@ test('M7-U8 the verified view shows levels, explanations, the next-level block a
 });
 
 // ------------------------------------------------------------------------------------------ M7-U11
+// F3-E2 is a defence, not a shipping state: under the default proposed for Miguel to confirm at G2
+// (Red-team finding N6), a build whose governance content cannot be frozen is a G4 no-go. This test
+// proves the defence works; it does not make F3-E2 acceptable in a shipped build.
 
 test('M7-U11 with loadGovernance failing, governance shows F3-E2 and readiness still renders', { needs: ['dom'], timeout: 15000 }, async ({ root }) => {
   const { loader } = await fixtureLoader({ fail: ['loadGovernance'] });

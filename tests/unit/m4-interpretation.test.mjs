@@ -2,8 +2,9 @@
 // Written from docs/04-module-design.md (M4) before the pipeline has run (test-first rule).
 //
 // Every test is split as tests/lib/content.mjs recommends: a fixture part on the synthetic content
-// and a data/ part with needs: ['data'] (for M4-U10 and M4-U11, the Q tests, needs: ['data',
-// 'questions'], skipped with "SCENARIO_FLOW is static (O-1)" while the switch is 'static').
+// and a data/ part with needs: ['data']. M4-U10 and M4-U11 test the conversation questions of the
+// interactive F5 and are Deferred (F5 static, decision of 5 Oct 2026): both their parts carry
+// needs: ['deferred'] and are skipped with exactly that reason for this release.
 //
 // Status at G2: every fixture part passes except M4-U8, which fails until
 // assets/js/contracts/constants.js exists; every data/ part is skipped.
@@ -60,13 +61,13 @@ function readingsOf(content) {
 /** The fixture part and the data/ part of a content test, registered together. */
 // `guard` runs on the synthetic content only: it mutates copies of fixture items by identifier and
 // proves that the check reports each planted defect, so that a check that cannot fail is caught.
-function contentTest(id, sentence, { guard, check, questions = false }) {
-  test(`${id} ${sentence} (synthetic content)`, async () => {
+function contentTest(id, sentence, { guard, check, deferred = false }) {
+  test(`${id} ${sentence} (synthetic content)`, { needs: deferred ? ['deferred'] : [] }, async () => {
     const content = await loadContent({ from: 'fixtures' });
     await guard(content);
     await check(content);
   });
-  test(`${id} ${sentence} (data/)`, { needs: questions ? ['data', 'questions'] : ['data'] }, async () => {
+  test(`${id} ${sentence} (data/)`, { needs: deferred ? ['deferred', 'data'] : ['data'] }, async () => {
     const content = await loadContent({ from: 'data' });
     await check(content);
   });
@@ -414,7 +415,7 @@ function conversationProblems(content) {
 }
 
 contentTest('M4-U10', 'conversation questions are one to three lens-free questions, not advice, of a known trend', {
-  questions: true,
+  deferred: true,
   guard(content) {
     assert.ok(Object.keys(content.conversation).length >= 2, 'the fixture has two conversation modules');
     const g = clone({ trends: content.trends, conversation: content.conversation });
@@ -453,7 +454,7 @@ function conversationRunProblems(content) {
 }
 
 contentTest('M4-U11', 'no conversation question shares a run of six words with its trend reading texts or disconfirming conditions', {
-  questions: true,
+  deferred: true,
   guard(content) {
     const g = clone({ reveal: content.reveal, conversation: content.conversation });
     const set = Object.values(g.conversation)[0];

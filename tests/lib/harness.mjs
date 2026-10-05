@@ -33,7 +33,8 @@
 //   fs         Node: directory listings, child processes
 //   data       CONTENT_FROZEN in tests/lib/stage.mjs, i.e. data/ exists from G3
 //   verified   the frozen readiness profile in data/ has maturity.status "verified" (D-1)
-//   questions  SCENARIO_FLOW in assets/js/contracts/constants.js is 'interactive' (O-1)
+//   deferred   never met in this release: the test belongs to the interactive F5, which is designed
+//              but not built (F5 static, decision of 5 Oct 2026). Replaces the retired `questions`.
 // A test may also skip from inside its body with `skip(reason)`; readText() does so in the browser.
 //
 // Context. The test function receives `{ root }`: a fresh, empty element in the browser runner
@@ -46,7 +47,7 @@ import { CONTENT_FROZEN } from './stage.mjs';
 export { Skip, skip, REASONS };
 
 export const NAME_PATTERN = /^(M([1-9]|10)-U[1-9][0-9]?|AUDIT-[1-6]|INT-[A-Za-z0-9-]+|SYS-[A-Za-z0-9-]+) \S/;
-export const KNOWN_NEEDS = Object.freeze(['dom', 'fs', 'data', 'verified', 'questions']);
+export const KNOWN_NEEDS = Object.freeze(['dom', 'fs', 'data', 'verified', 'deferred']);
 export const DEFAULT_TIMEOUT_MS = 5000;
 
 const nodeTest = IS_NODE ? (await import('node:test')).test : null;
@@ -104,11 +105,7 @@ export async function unmetNeed(needs) {
         return REASONS.verified;
       }
     }
-    if (need === 'questions') {
-      if (!CONTENT_FROZEN) return `${REASONS.data}; ${REASONS.questions}`;
-      const constants = await importUnderTest(repoUrl('assets/js/contracts/constants.js'));
-      if (constants.SCENARIO_FLOW !== 'interactive') return REASONS.questions;
-    }
+    if (need === 'deferred') return REASONS.deferred;
   }
   return null;
 }

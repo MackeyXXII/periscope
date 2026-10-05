@@ -3,13 +3,14 @@
 // Written from docs/04-module-design.md (M10) before the shell is implemented (test-first rule).
 //
 // The static audits read raw file text through readText(), so in the browser runner they are
-// skipped with "needs Node or DM-11"; their self-checks (the scanner and the patterns recognise
+// skipped with "needs Node"; their self-checks (the scanner and the patterns recognise
 // what they must) run in both runners. Comments are removed before matching by the scanner in
 // tests/lib/strip-comments.mjs, as the module design specifies.
 //
 // Status at G2: M10-U1 and M10-U2 pass on the seeded placeholder files under Node (their comments
 // mention fetch() and data/, which the comment rule ignores); M10-U3 fails because the placeholder
-// index.html has no #startup-failure; M10-U4 fails because assets/js/shell/* does not exist yet.
+// index.html has no element #startup-failure; M10-U4 fails because assets/js/shell/router.js,
+// routes.js and nav.js do not exist yet. M10-U9 passes.
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -72,6 +73,9 @@ function auditText(file, code, patterns) {
 }
 
 // ------------------------------------------------------------------------------------------ M10-U1
+// Scope: the shipped files, index.html, assets/ and data/. tests/ and pipeline/ are not shipped
+// files and are out of scope here; they contain no fetch() either (DM-11 recorded as not needed,
+// 5 Oct 2026).
 
 const REMOTE = String.raw`(?:https?:|\/\/)`;
 const Q = String.raw`["'\x60]`;
@@ -421,8 +425,14 @@ export function importGraphProblems(files) {
     if (/\bloadReveal\b/.test(code) && !['assets/js/contracts/load.js', 'assets/js/screens/trend.js'].includes(path)) {
       problems.push(`${path}: names loadReveal (only contracts/load.js and screens/trend.js may)`);
     }
-    if (/\bloadConversation\b/.test(code) && !['assets/js/contracts/load.js', 'assets/js/screens/scenario.js'].includes(path)) {
-      problems.push(`${path}: names loadConversation (only contracts/load.js and screens/scenario.js may)`);
+    // The interactive F5 is deferred (F5 static, decision of 5 Oct 2026) and must not be half-built:
+    // loadConversation is named nowhere and state/scenario.js does not exist. (When F5 is built,
+    // loadConversation may be named only in contracts/load.js and screens/scenario.js.)
+    if (/\bloadConversation\b/.test(code)) {
+      problems.push(`${path}: names loadConversation (deferred with the interactive F5; named nowhere in this release)`);
+    }
+    if (path === 'assets/js/state/scenario.js') {
+      problems.push(`${path}: exists, but the interactive F5 is deferred and state/scenario.js is not written in this release`);
     }
   }
   // Cycles, by depth-first search.
@@ -453,7 +463,7 @@ test('M10-U4 the import-graph check recognises every forbidden edge, string and 
     ['assets/js/state/lens-order.js', "import { LENSES } from '../contracts/vocabulary.js';"],
     ['assets/js/honesty/labels.js', "import { LABELS } from '../contracts/vocabulary.js';"],
     ['assets/js/honesty/sources.js', "import { renderLabel } from './labels.js';"],
-    ['assets/js/contracts/load.js', "import { X } from './constants.js';\nimport { checkTrend } from './validate.js';\nconst p = `../../data/${name}.js`; await import(p); loadReveal; loadConversation;"],
+    ['assets/js/contracts/load.js', "import { X } from './constants.js';\nimport { checkTrend } from './validate.js';\nconst p = `../../data/${name}.js`; await import(p); loadReveal;"],
     ['assets/js/contracts/validate.js', "import { LABELS } from './vocabulary.js';\nimport { QUOTE_MAX_WORDS } from './constants.js';"],
     ['assets/js/shell/routes.js', 'export const routes = {};'],
   ]);
@@ -475,6 +485,9 @@ test('M10-U4 the import-graph check recognises every forbidden edge, string and 
     ['assets/js/screens/brief.js', "const m = await import('./x.js');"],
     ['assets/js/screens/brief.js', 'loader.loadReveal(id);'],
     ['assets/js/screens/trend.js', 'loader.loadConversation(id);'],
+    ['assets/js/contracts/load.js', 'export function loadConversation(id) {}'],
+    ['assets/js/screens/scenario.js', 'loader.loadConversation(id);'],
+    ['assets/js/state/scenario.js', 'export const canRecordScenario = () => false;'],
     ['assets/js/main.js', "import { x } from '../../tests/lib/env.mjs';"],
     ['assets/js/main.js', "export * from '../../schemas/x.js';"],
     ['index.html', '<link rel="modulepreload" href="assets/js/main.js">'],
@@ -506,9 +519,14 @@ test('M10-U4 the import graph of assets/js/ has only permitted edges, no cycles 
 
 // ------------------------------------------------------------------------------------------ M10-U9
 
+/** Paths with a segment that begins with a dot (schemas/.gitkeep) are housekeeping, not files. */
+const notDotted = (f) => !f.split('/').some((s) => s.startsWith('.'));
+
 test('M10-U9 tests/lib/files.mjs lists exactly the files under assets/ and schemas/ plus index.html', { needs: ['fs'] }, async () => {
-  const assets = (await listFiles(repoUrl('assets/'))).map((f) => `assets/${f}`);
-  const schemas = (await listFiles(repoUrl('schemas/'))).map((f) => `schemas/${f}`);
+  // Guard: the dot rule ignores dot segments at any depth and nothing else.
+  assert.deepEqual(['.gitkeep', 'a/.b/c.js', 'a/b.js', 'x.json'].filter(notDotted), ['a/b.js', 'x.json']);
+  const assets = (await listFiles(repoUrl('assets/'))).filter(notDotted).map((f) => `assets/${f}`);
+  const schemas = (await listFiles(repoUrl('schemas/'))).filter(notDotted).map((f) => `schemas/${f}`);
   assert.deepEqual([...SHIPPED_FILES].sort(), ['index.html', ...assets].sort(), 'SHIPPED_FILES against index.html and assets/');
   assert.deepEqual([...SCHEMA_FILES].sort(), schemas.sort(), 'SCHEMA_FILES against schemas/');
   assert.equal(FILES.length, SHIPPED_FILES.length + SCHEMA_FILES.length, 'FILES is the union of both lists');

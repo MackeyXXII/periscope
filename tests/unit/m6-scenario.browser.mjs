@@ -2,7 +2,12 @@
 // The pure parts of M6-U19, U21 and U24 are in m6-scenario.test.mjs.
 // Written from docs/04-module-design.md (M6), docs/02-system-requirements.md (F5) and
 // docs/03-architecture.md (section 6.4) before any M6 module exists (test-first rule). Browser
-// runner only. At G2 every test fails with "module under test could not be imported".
+// runner only.
+//
+// In this release F5 ships as the static screen F5-ST (decision of 5 Oct 2026). Only the built,
+// page part of M6-U24 runs; at G2 it fails with "module under test could not be imported". Every
+// other test here (M6-U18 to M6-U23, M6-U25, M6-U26) belongs to the interactive F5 and is skipped
+// with "Deferred (F5 static, decision of 5 Oct 2026)"; it is kept so that F5 can be built later.
 //
 // A "committed fixture session" is produced the way a viewer produces it: the F1 walk on
 // renderTrend, then renderScenario(root, ctx, trendId) with the same ctx. ctx.flow is
@@ -27,6 +32,7 @@ import {
 
 const ALPHA = 'trend-fixture-alpha';
 const DOM = { needs: ['dom'] };
+const DEFERRED = { needs: ['deferred', 'dom'] };
 const EVALUATIVE = ['match', 'mismatch', 'correct', 'wrong', 'agree', 'disagree', 'changed your mind'];
 const F5_S0 =
   'Scenario work on this trend starts from a judgement you have committed in this session. Open the trend card and commit a judgement first.';
@@ -36,7 +42,7 @@ const QUESTIONS_NOTE =
   'These questions were written offline, before you arrived, and are the same for every visitor. They do not respond to what you wrote.';
 const ST_HEADING = 'Scenario work from your own conversations';
 const ST_NOTICE =
-  'In this build the scenario step is described only. No questions are shown, because this screen cannot first record your own scenario.';
+  'In this build the scenario step is described only: there is nothing to write here, and no conversation questions were prepared for this release.';
 
 async function conversationTexts(trendId = ALPHA) {
   return (await loadContent({ from: 'fixtures' })).conversation[trendId].questions.map((q) => q.text);
@@ -68,7 +74,7 @@ function notSavedProblems(text) {
 
 // ------------------------------------------------------------------------------------------ M6-U18
 
-test('M6-U18 F5-S0: without a committed Judgement the scenario route asks for one and loads no question', DOM, async ({ root }) => {
+test('M6-U18 F5-S0: without a committed Judgement the scenario route asks for one and loads no question', DEFERRED, async ({ root }) => {
   const Sc = await load('scenario');
   const { ctx, calls } = await screenContext({ flow: 'interactive' });
   const page = await mount(root);
@@ -82,7 +88,7 @@ test('M6-U18 F5-S0: without a committed Judgement the scenario route asks for on
 
 // ------------------------------------------------------------------------------------------ M6-U19
 
-test('M6-U19 in the page, Record my scenario is disabled and a line names the empty field', DOM, async ({ root }) => {
+test('M6-U19 in the page, Record my scenario is disabled and a line names the empty field', DEFERRED, async ({ root }) => {
   const { page } = await committedScenarioPage(root);
   const r = page.root;
   const button = () => theButton(r, RECORD_SCENARIO);
@@ -119,7 +125,7 @@ test('M6-U19 in the page, Record my scenario is disabled and a line names the em
 
 // ------------------------------------------------------------------------------------------ M6-U20
 
-test('M6-U20 in F5-S1 no conversation question is in the page or loaded; after the record all appear', DOM, async ({ root }) => {
+test('M6-U20 in F5-S1 no conversation question is in the page or loaded; after the record all appear', DEFERRED, async ({ root }) => {
   const { page, calls, importerCalls } = await committedScenarioPage(root);
   const questions = await conversationTexts();
   assert.ok(field(page.root, 'heard') && field(page.root, 'playout'), 'F5-S1 is showing: both fields');
@@ -136,7 +142,7 @@ test('M6-U20 in F5-S1 no conversation question is in the page or loaded; after t
 
 // ------------------------------------------------------------------------------------------ M6-U21
 
-test('M6-U21 in F5-S2 both recorded fields are read-only and every note field stays editable', DOM, async ({ root }) => {
+test('M6-U21 in F5-S2 both recorded fields are read-only and every note field stays editable', DEFERRED, async ({ root }) => {
   const { page } = await committedScenarioPage(root);
   await recordScenarioInPage(page);
   const r = page.root;
@@ -166,7 +172,7 @@ function area(root, name) {
   return found.length === 1 ? found[0] : null;
 }
 
-test('M6-U22 F5-S2: "What you wrote" precedes the questions; labels, captions and statements are in place', DOM, async ({ root }) => {
+test('M6-U22 F5-S2: "What you wrote" precedes the questions; labels, captions and statements are in place', DEFERRED, async ({ root }) => {
   const { page } = await committedScenarioPage(root);
   await recordScenarioInPage(page);
   const { LABEL_DISPLAY } = await load('vocabulary');
@@ -234,7 +240,7 @@ test('M6-U22 F5-S2: "What you wrote" precedes the questions; labels, captions an
 
 // ------------------------------------------------------------------------------------------ M6-U23
 
-test('M6-U23 F5-E2: questions that fail validation are withheld and the recorded text is kept read-only', DOM, async ({ root }) => {
+test('M6-U23 F5-E2: questions that fail validation are withheld and the recorded text is kept read-only', DEFERRED, async ({ root }) => {
   const invalid = await fixtureModule('invalid/conversation-no-question-mark.js');
   const { page } = await committedScenarioPage(root, { overrides: { [`data/conversation/${ALPHA}.js`]: invalid } });
   await recordScenarioInPage(page);
@@ -250,29 +256,48 @@ test('M6-U23 F5-E2: questions that fail validation are withheld and the recorded
 
 // ------------------------------------------------------------------------------------------ M6-U24
 
-test('M6-U24 in the page, the static fallback F5-ST describes the step and shows no field, no AI content, no load', DOM, async ({ root }) => {
+test('M6-U24 F5-ST, the static screen that ships: heading, three sentences, the notice; no field, no AI or viewer element, no load, no stage change', DOM, async ({ root }) => {
   const T = await load('trend');
   const Sc = await load('scenario');
+  const S = await load('session');
+  const { SCENARIO_FLOW } = await load('constants');
+  assert.equal(SCENARIO_FLOW, 'static', "the build's SCENARIO_FLOW");
   const problems = [];
   for (const committed of [false, true]) {
-    const { ctx, calls } = await screenContext({ random: seededRandom(24), flow: 'static' });
+    const { ctx, importerCalls } = await screenContext({ random: seededRandom(24), flow: SCENARIO_FLOW });
     const page = await mount(root);
     if (committed) await walkToCommitted(page, T, ctx, ALPHA);
+    const stageBefore = S.stageOf(ctx.session, ALPHA);
+    importerCalls.length = 0;
     await show(page, Sc.renderScenario, ctx, ALPHA);
-    const where = committed ? 'with a committed Judgement' : 'without a committed Judgement';
+    const where = committed ? 'after a committed Judgement' : 'in a fresh session';
     const r = page.root;
     const heading = elementsByText(r, ST_HEADING, 'h1, h2, h3, h4, h5, h6');
     if (heading.length !== 1) problems.push(`${where}: ${heading.length} headings "${ST_HEADING}"`);
     const text = textOf(r);
-    if (!text.includes(ST_NOTICE)) problems.push(`${where}: the static notice is missing`);
+    if (!text.includes(ST_NOTICE)) problems.push(`${where}: the static notice of Level 2 is missing`);
     if (heading.length === 1 && text.includes(ST_NOTICE)) {
       const between = text.slice(text.indexOf(ST_HEADING) + ST_HEADING.length, text.indexOf(ST_NOTICE)).trim();
       const sentences = between.split(/(?<=[.!?])\s+/).filter((s) => /[.!?]$/.test(s.trim()));
       if (sentences.length !== 3) problems.push(`${where}: ${sentences.length} sentences of description between the heading and the notice, expected 3`);
     }
-    if (r.querySelectorAll('input, textarea').length) problems.push(`${where}: an input or textarea is present`);
-    if (r.querySelectorAll('[data-label="ai-generated"]').length) problems.push(`${where}: an element labelled ai-generated is present`);
-    if (calls.loadConversation.length) problems.push(`${where}: loadConversation was called`);
+    const forbidden = [
+      ['input, textarea, select', 'a form field'],
+      ['[contenteditable]', 'a contenteditable element'],
+      ['[data-label="ai-generated"]', 'an element labelled ai-generated'],
+      ['[data-label="yours"]', 'an element labelled yours'],
+      ['[data-area="conversation-questions"]', 'a conversation-questions area'],
+      ['[data-question]', 'a data-question element'],
+      ['[data-content]', 'a content element (F5-ST is interface copy, M9-U8)'],
+    ];
+    for (const [selector, what] of forbidden) {
+      const n = r.querySelectorAll(selector).length;
+      if (n) problems.push(`${where}: ${n} × ${what} (${selector})`);
+    }
+    const conversationImports = importerCalls.filter((p) => p.includes('conversation/'));
+    if (conversationImports.length) problems.push(`${where}: the importer was called with ${conversationImports.join(', ')}`);
+    const stageAfter = S.stageOf(ctx.session, ALPHA);
+    if (stageAfter !== stageBefore) problems.push(`${where}: the visit changed the stage from ${stageBefore} to ${stageAfter}`);
     page.frame.remove();
   }
   assert.none(problems, 'F5-ST problems');
@@ -280,7 +305,7 @@ test('M6-U24 in the page, the static fallback F5-ST describes the step and shows
 
 // ------------------------------------------------------------------------------------------ M6-U25
 
-test('M6-U25 F5 touches no storage, puts nothing in the URL, and every F5 text field has autocomplete="off"', DOM, async ({ root }) => {
+test('M6-U25 F5 touches no storage, puts nothing in the URL, and every F5 text field has autocomplete="off"', DEFERRED, async ({ root }) => {
   const { page } = await committedScenarioPage(root);
   const r = page.root;
   const problems = [];
@@ -314,7 +339,7 @@ test('M6-U25 F5 touches no storage, puts nothing in the URL, and every F5 text f
 
 // ------------------------------------------------------------------------------------------ M6-U26
 
-test('M6-U26 after recording, returning to the scenario route (directly or from F1-S4) resumes F5-S2 unchanged', DOM, async ({ root }) => {
+test('M6-U26 after recording, returning to the scenario route (directly or from F1-S4) resumes F5-S2 unchanged', DEFERRED, async ({ root }) => {
   const { page, T, Sc, ctx } = await committedScenarioPage(root);
   await recordScenarioInPage(page);
   await type(fields(page.root, 'note')[0], 'zebra-test-note');
