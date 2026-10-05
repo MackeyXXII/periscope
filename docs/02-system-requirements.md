@@ -1,14 +1,17 @@
 # Level 2 — System requirements
 
 **Status: expanded by the Requirements Engineer on 19 September 2026; revised on 5 October 2026 to
-apply Miguel's G2 decisions of 4 October 2026, recorded in `gates.md`. Awaiting G2. Owner:
-Requirements Engineer. Every conflict and question raised on 19 September has been decided; the
-record of how each was resolved is at the end of this document, together with the few items that
-remain open. Those open items do not block G2: each names the agent who closes it and the state the
-demo shows until then.**
+apply Miguel's G2 decisions of 4 October 2026, and again on 5 October 2026 to apply his decisions
+of that day and the Red-team Reviewer's G2 findings B4, B5 and N2, all recorded in `gates.md`.
+Awaiting G2. Owner: Requirements Engineer. Every conflict and question raised on 19 September has
+been decided; the record of how each was resolved is at the end of this document. Two proposals in
+it await Miguel's confirmation at G2: the exemption of R7 from a flow, and the `fictional` label on
+the readiness category findings.**
 
-Five demo flows, in build order, plus six non-functional requirements. If budget runs short, F3,
-F4 and F5 become static screens rather than being cut; F1 and F2 are never reduced.
+Five demo flows, in build order, plus six non-functional requirements. If budget runs short, F3
+and F4 become static screens rather than being cut; F1 and F2 are never reduced. **F5 ships in this
+release as the static screen `F5-ST`** (Miguel, 5 October 2026); its interactive form is specified
+below as a design and is not built.
 
 ## Functional requirements
 
@@ -20,8 +23,19 @@ F4 and F5 become static screens rather than being cut; F1 and F2 are never reduc
 | F4 | Decision log with replay | Reviews past judgements against real outcomes, with a calibration note such as "threat reading held; timing was early" | R5 |
 | F5 | Scenario work from the founder's own conversations | After committing a judgement on a trend, writes what they have heard in their own external conversations and how the trend could play out, then sees questions to take into their next conversations | R2 |
 
-F5 was added on 4 October 2026 by Miguel's decision K-6. The rows for F1 to F4 are unchanged from
-the seeded scope except F3, whose wording now follows decisions K-2 and D-1.
+F5 was added on 4 October 2026 by Miguel's decision K-6. On 5 October 2026 Miguel decided that it
+ships as the static screen `F5-ST`: in this release the viewer reads a description of the scenario
+step and writes nothing. The rows for F1 to F4 are unchanged from the seeded scope except F3, whose
+wording now follows decisions K-2 and D-1.
+
+**R7 has no flow, by a reasoned exemption (proposed, Miguel to confirm at G2).** R7 asks for a
+role-aware model. It is designed, not built: the architecture gives `Judgement` and `LogEntry` an
+optional `role` field and sets out the role-aware data model (`03-architecture.md`, section 11),
+and the governance screen lists the role-aware model under "Not implemented" (F3). No flow uses
+the field, so no F is assigned. R7's Level 1 acceptance is met by that documentation, checked by
+review and by the unit test that no fixture or page code uses `role`. A flow is not added because
+it would need viewer roles, and the demo has no accounts and stores nothing (C-1). If Miguel does
+not confirm the exemption, R7 is a gap that must be closed before G2 is recorded.
 
 ## Non-functional requirements
 
@@ -84,8 +98,8 @@ writes; names, types and nesting are the Architect's. No entity may carry a `sco
 | Judgement | **In-session only**, created by the viewer | The trend it concerns; the intuition record (gut call as one lens, optional one-line reason); optional answers to interrogation prompts; the lens the viewer commits to; the rationale; label `yours`; optional `role` (R7, designed for, not used in the demo) |
 | ReadinessProfile | Frozen; answers from the persona dossier | Tracewell's answers in each of the five readiness categories; a prose finding per category; for each foresight practice, the maturity level (placeholder until verified), the explanation and the report's description of the next level; honesty labels; provenance for both frameworks |
 | LogEntry | Frozen replay | The original signal or signals (real, dated); the past judgement (lens, rationale, the date it is presented as of, and the date and authors of its writing); the outcome (paraphrase with a dated, real source); a calibration note; honesty labels |
-| ScenarioRecord | **In-session only**, created by the viewer (F5) | The trend it concerns; what the viewer has heard; how they think it could play out; when it was recorded; optional per-question notes; label `yours` |
-| ConversationQuestions | Frozen, from the Interrogator (F5) | For one trend: one to three questions to take into external conversations; honesty label. Shipped one module per trend, in `data/conversation/<trendId>.js` (`03-architecture.md`, section 6.4) |
+| ScenarioRecord | **In-session only**, created by the viewer (interactive F5; designed, not built in this release) | The trend it concerns; what the viewer has heard; how they think it could play out; when it was recorded; optional per-question notes; label `yours` |
+| ConversationQuestions | Frozen, from the Interrogator (interactive F5; out of scope for this release, none shipped) | For one trend: one to three questions to take into external conversations; honesty label. Shipped one module per trend, in `data/conversation/<trendId>.js` (`03-architecture.md`, section 6.4) |
 
 The containers for the weekly brief and the governance content are schemas (`Brief`,
 `Governance`), decided by the Architect in `03-architecture.md`, section 5.5.
@@ -251,11 +265,11 @@ machine did the scanning and the readings; the founder does the intuition and th
 | # | Viewer action | System response | Reads | Writes |
 |---|---|---|---|---|
 | 1 | Opens a trend card, either from a signal's trend link in F2 or from the trend index | Runs the checks in precondition 2. If this is the first time the trend is opened in this page load, draws the random lens order (C-4). If no Judgement exists for this trend in session state, shows `F1-S1`. If one exists, resumes at the state it had reached (`F1-S2`, `F1-S3` or `F1-S4`) | Trend (title, summary, signal list, intuition prompt, reading references, label); Signal (title, publisher, publication date, URL, label) for each signal on the trend | The trend's lens order, the first time only |
-| 2 | Chooses a gut call: one of the three lens options, none pre-selected. Optionally types a one-line reason | "Record my gut reading" becomes enabled once a lens is chosen. The readings area still contains only the placeholder sentence | Nothing further | Draft gut call and reason, held in memory, not yet recorded |
+| 2 | Chooses a gut call: one of the three lens options, none pre-selected. Optionally types a one-line reason | "Record my gut reading" becomes enabled once a lens is chosen; without a lens the record is refused by the recording function as well as by the disabled control (rules below). The readings area still contains only the placeholder sentence | Nothing further | Draft gut call and reason, held in memory, not yet recorded |
 | 3 | Activates "Record my gut reading" | Writes the intuition record and locks it read-only for the rest of the session; **only then** loads this trend's readings and interrogation, and runs the checks in precondition 3. While they load (a matter of milliseconds from the same site) the placeholder stays. If the checks pass, records the time the readings were revealed, creates the reading elements and shows `F1-S2`; if not, shows `F1-E3` | The trend's readings and interrogation, loaded now and not before | Judgement: trend reference and intuition record (gut call, optional reason, time recorded); time the readings were revealed |
 | 4 | Reads the three readings | Each reading shows its lens, its text, its evidence and counter-evidence (each item with a source link and publication date) and its disconfirming condition, with equal visual weight, in the trend's random lens order | Reading ×3 | Nothing |
 | 5 | Reads the interrogation prompts and either answers any of them in free text or skips them | Prompts shown grouped as provenance checks, assumption probes and pre-mortem, each with its own answer field. Answering is the primary action and skipping the secondary one (Q-1, rules below). Answers are optional and gate nothing | Interrogation (provenance checks, assumption probes, pre-mortem) | Judgement: prompt answers, if any |
-| 6 | Chooses the lens they commit to (none pre-selected; in particular the gut call is **not** pre-selected) and writes a rationale | "Commit judgement" stays disabled until a lens is chosen **and** the rationale contains at least one non-whitespace character after trimming. While disabled, a line of text says what is missing. When both are present, shows `F1-S3` | Nothing further | Draft committed lens and rationale, in memory |
+| 6 | Chooses the lens they commit to (none pre-selected; in particular the gut call is **not** pre-selected) and writes a rationale | "Commit judgement" stays disabled until a lens is chosen **and** the rationale contains at least one non-whitespace character after trimming. While disabled, a line of text says what is missing, and a commit attempted by any other path is refused by the commit function (rules below). When both are present, shows `F1-S3` | Nothing further | Draft committed lens and rationale, in memory |
 | 7 | Activates "Commit judgement" | Records the judgement, locks it read-only, and shows `F1-S4` | Nothing further | Judgement: committed lens, rationale, time committed |
 
 **Rules that hold throughout F1.**
@@ -273,6 +287,13 @@ machine did the scanning and the readings; the founder does the intuition and th
   judgement, no feedback on the choice, no comparison with other people.
 - The only interactive controls that write data are the gut-reading control, the optional prompt
   answers, and the judgement control. Nothing is sent anywhere.
+- **A disabled control is not the only guard (invariants 2 and 3).** The function that records the
+  intuition refuses, by throwing and writing nothing, a call without one of the three lenses; the
+  function that commits the judgement refuses, in the same way, a call without a lens or with a
+  rationale that is empty or whitespace-only after trimming. No path can record an empty intuition
+  or commit without a lens and a rationale: not a click on a disabled control, not a keyboard
+  submit (Enter in a field), not a form submission, not a direct call. The page never relies on the
+  `disabled` attribute alone.
 
 **Rules for answering and skipping the interrogation (Q-1).** These make "answering is primary,
 skipping is secondary" observable by a test.
@@ -326,7 +347,10 @@ F1 is satisfied for a trend when all of the following hold and can be observed b
    readings; and a snapshot taken **once the readings have loaded after step 3** contains all three
    readings.
 3. In `F1-S2`, "Commit judgement" was disabled for an empty or whitespace-only rationale and for a
-   missing lens.
+   missing lens, and in each of those cases the commit function, called directly and through a
+   keyboard submit, refused and left the Judgement uncommitted. Likewise, the intuition-record
+   function refused a call without a lens, and "Record my gut reading" was disabled until a lens
+   was chosen.
 4. With a seeded random source, the readings and both lens controls appear in the order that seed
    determines; across seeds, each of the six orders can occur.
 5. The Q-1 rules above hold in `F1-S2`.
@@ -423,8 +447,13 @@ recorded here only so that the Verifier knows what to check.
 foresight practice, not one level to the venture. The practices are the three foresight methods R2
 names: scanning, trend analysis and scenario work. Where Tracewell's account of a practice falls
 between two levels, the lower level is assigned, and the explanation says that this rule was
-applied. The list of practices is to be confirmed against the thesis by the Verifier when p. 9 is
-re-opened; if the thesis uses a different list, this paragraph changes before G3.
+applied. Miguel confirmed this list of three practices on 5 October 2026 (O-3, closed); the
+Verifier still checks it against the thesis when it re-opens p. 9.
+
+**Who writes the maturity text (O-2, decided 5 October 2026).** The Trend Analyst writes each
+practice's explanation and next-level description in a short G3 pass after the main run, and the
+Verifier checks them. Each practice's level assignment is part of the fictional Tracewell account;
+the explanation and the next-level description are agent-written prose about it.
 
 **The next level is the report's description, never the demo's advice (K-2).** For each practice,
 F3 shows what the WEF/OECD report describes for the level above the one assigned, cited to the
@@ -485,18 +514,19 @@ role-aware data model (R7), which is designed in the architecture and not built.
 
 The argument that follows the two lists states what own-data ingestion would require before it
 could be built. Every factual claim in it about GDPR or other EU regulation carries a dated source
-under NF2 and passes the Verifier. Who writes the argument is decided under Q-5 by a structured
-debate, and the outcome and its reasoning are recorded in `gates.md` (as a proposal until Miguel
-confirms it at G2). That outcome assigns the argument to a build agent, so it is agent-written text.
+under NF2 and passes the Verifier. The Architect writes the argument, drafting only from the
+Scout's frozen regulatory sources; any sentence it cannot tie to a listed source is cut (Q-5,
+decided by structured debate and confirmed by Miguel on 5 October 2026; `gates.md`).
 
-**Expected labels.** The readiness profile, Tracewell's answers and findings, and each practice's
-verified level assignment and explanation: `fictional`. The framework citations (Jöhnk et al. and
-the WEF/OECD report): `real`. The next-level descriptions: labelled by origin, `ai-generated` if
-written by a pipeline agent, as signal summaries are (who writes them is open item O-2). The
-maturity placeholder: no label, since it is not content. The two governance lists: `real`, since
-each implemented item is a statement about the demo verified by a named test (DM-2). The governance
-argument paragraphs: `ai-generated`, since the Q-5 outcome assigns them to an agent; each claim in
-them carries its own `real`, dated source.
+**Expected labels.** The readiness profile, Tracewell's answers, and each practice's level
+assignment: `fictional`. The category findings: `fictional`, as part of the persona dossier about
+the fictional company (a proposed default, pending Miguel at G2). The framework citations (Jöhnk et
+al. and the WEF/OECD report): `real`. Each practice's maturity explanation and next-level
+description: `ai-generated`, since the Trend Analyst writes them (O-2), each shown with its own
+label as signal summaries are. The maturity placeholder: no label, since it is not content. The two
+governance lists: `real`, since each implemented item is a statement about the demo verified by a
+named test (DM-2). The governance argument paragraphs: `ai-generated`, since the Architect writes
+them (Q-5); each claim in them carries its own `real`, dated source.
 
 ### Screen states
 
@@ -522,8 +552,9 @@ the implemented and not-implemented lists; and either
 
 - **unverified:** `F3-S2` shows `LEVEL_NAME_UNVERIFIED` for every practice, and no other level name
   appears anywhere in `index.html`, `assets/` or `data/`; or
-- **verified:** `F3-S2v` shows, for every practice, a verified level, an explanation citing the
-  report with a page, and a next-level block that meets all six wording constraints, followed by
+- **verified:** `F3-S2v` shows, for every practice, a verified level labelled `fictional`, an
+  explanation labelled `ai-generated` and citing the report with a page, and a next-level block,
+  each description labelled `ai-generated`, that meets all six wording constraints, followed by
   the sentence saying these are the report's descriptions and not advice.
 
 R6's full acceptance test ("a viewer sees why the team sits at its level and the next complement to
@@ -535,16 +566,25 @@ build") is met only in the verified case.
 
 **Purpose.** R5: capability accumulates when past judgements are reviewed against what happened.
 The demo shows this with a retrospective replay: real signals published between 1 January and 31
-March 2026, a judgement written from those signals alone on behalf of the fictional Tracewell team,
-and what actually happened by September 2026, from a dated real source. F4 is read-only; the viewer
+March 2026, a judgement written from those signals on behalf of the fictional Tracewell team with
+the outcomes withheld, and what actually happened by September 2026, from a dated real source. F4 is read-only; the viewer
 writes nothing, and the viewer's own F1 judgements are not part of it (C-1, K-5).
 
 **How the replay judgements are produced (K-7, decided 4 October 2026).** The past judgements are
 written by the Rival Readers and the Interrogator from the early-2026 signals only, with the
-outcomes withheld from them. Only afterwards does the Verifier attach each dated outcome. A
-calibration note is then written against the outcome and is labelled `ai-generated` (DM-10). The
-set must include at least one judgement that did not hold, and it is shown exactly as it was
-written. The replay statement names who wrote the judgements and when.
+outcomes withheld from them. Only afterwards does the Verifier attach each dated outcome. The
+Trend Analyst then writes a calibration note against the outcome (O-2, decided 5 October 2026),
+labelled `ai-generated` (DM-10). The set must include at least one judgement that did not hold,
+and it is shown exactly as it was written. The replay statement names who wrote the judgements and
+when.
+
+**What "outcomes withheld" can and cannot claim (Red-team finding B5, invariant 4).** Withholding
+removes the outcomes from the agents' inputs. It cannot remove them from the model: the agents run
+on Opus 5.5, whose general knowledge extends to June 2026 and may include outcomes that occurred
+between April and June 2026. The demo therefore never says the judgements were written from the
+signals alone or without knowledge of what happened. The replay statement says what was done and
+names the limit, and the Verifier records, for each entry, whether its outcome predates June 2026,
+so that a reviewer can see which judgements the model could in principle have been informed about.
 
 ### Preconditions
 
@@ -559,7 +599,8 @@ written. The replay statement names who wrote the judgements and when.
    present.
 3. Content constraints enforced at G3 by the Verifier and checked by the Red-team Reviewer: every
    outcome is real and dated (an invented outcome is a project-ending defect); the judgements were
-   written before the outcomes were attached, as recorded in the verification record; at least one
+   written before the outcomes were attached, as recorded in the verification record; the
+   verification record states, for each entry, whether its outcome predates June 2026; at least one
    entry's outcome shows that its judgement did not hold; calibration notes are qualitative prose.
    Because the contracts hold no verdict field, the "did not hold" constraint is a review check, not
    a data check.
@@ -568,7 +609,7 @@ written. The replay statement names who wrote the judgements and when.
 
 | # | Viewer action | System response | Reads | Writes |
 |---|---|---|---|---|
-| 1 | Opens the decision log | Shows `F4-S1`. A replay statement, the first content on the screen and visible without scrolling at every NF5 viewport, says: this is a retrospective replay; the signals are real and were published between 1 January and 31 March 2026; the judgements were written for this demo on behalf of the fictional Tracewell team by the demo's Rival Reader and Interrogator agents, on the date or dates they were written, using those signals only, with the outcomes withheld; the outcomes are real and dated, and were attached afterwards by the Verifier agent; some judgements did not hold, and they are shown as written; the calibration notes are AI-generated; the judgements are not the viewer's, and judgements committed in this session are not stored and do not appear here | Log container; LogEntry list (including each past judgement's writing date) | Nothing |
+| 1 | Opens the decision log | Shows `F4-S1`. A replay statement, the first content on the screen and visible without scrolling at every NF5 viewport, says: this is a retrospective replay; the signals are real and were published between 1 January and 31 March 2026; the judgements were written for this demo on behalf of the fictional Tracewell team by the demo's Rival Reader and Interrogator agents, on the date or dates they were written, from those signals; the outcomes were withheld from the agents' inputs, but the agents run on a language model, and the model's general knowledge extends to mid-2026 and may include some of these outcomes; the outcomes are real and dated, and were attached afterwards by the Verifier agent; some judgements did not hold, and they are shown as written; the calibration notes are AI-generated; the judgements are not the viewer's, and judgements committed in this session are not stored and do not appear here | Log container; LogEntry list (including each past judgement's writing date) | Nothing |
 | 2 | Reads an entry | The entry shows, in this fixed sequence: the original signal(s) with source link and publication date; the past judgement (lens and rationale), with a line giving the date it is presented as of, stating that the Tracewell team is fictional, and naming the agents who wrote it and the date it was written; the outcome with its source link and publication date; the calibration note | LogEntry | Nothing |
 | 3 | Optionally activates a source link | Opens the source in a new browser tab, as in F2 step 4 | Source URL | Nothing |
 
@@ -600,9 +641,12 @@ F4 is satisfied when `F4-S1` shows at least one entry; every shown entry has an 
 inside the replay window with a working, dated source, a past judgement with its as-of date,
 writing date and authors, an outcome with a working source dated after the signal, and a
 calibration note labelled `ai-generated`; the replay statement contains every element listed in
-step 1 and is visible on arrival at every NF5 viewport; entries follow the C-4 order; no aggregate
-or verdict icon appears; and the G3 verification record shows at least one entry whose judgement
-did not hold.
+step 1, including the two phrases "the outcomes were withheld from the agents' inputs" and "the
+model's general knowledge extends to mid-2026 and may include some of these outcomes", and none of
+the phrases "signals only", "signals alone" or "without knowledge of the outcome", and is visible on
+arrival at every NF5 viewport; entries follow the C-4 order; no aggregate or verdict icon appears;
+and the G3 verification record shows at least one entry whose judgement did not hold and states,
+for every entry, whether its outcome predates June 2026.
 
 ---
 
@@ -618,19 +662,21 @@ writes no scenario, so there is nothing to rank and nothing for the founder to c
 F5 follows a committed judgement on the same trend. It is reached from the link on `F1-S4`, so the
 readings for that trend have already been revealed and nothing in F5 can pre-empt the gut reading.
 
-**Dependency flag.** The contract and shipping question are settled: the questions are
-`ConversationQuestions` records, one module per trend in `data/conversation/<trendId>.js`, loaded
-only after the scenario is recorded (`03-architecture.md`, section 6.4; A-11 answered). The
-questions themselves do not exist yet: the Interrogator's instructions need an addition so that it
-writes one to three conversation questions per trend in the same offline run (no new agent is
-needed, since writing questions, not advice, is already the Interrogator's job; O-1). F5 lives in
-module M6.
+**F5 ships as `F5-ST` in this release (decided by Miguel, 5 October 2026).** The build switch
+`SCENARIO_FLOW` stays `"static"`, and every scenario route that passes the trend checks shows the
+static screen `F5-ST`. The conversation questions (O-1) are out of scope for this release: no
+`data/conversation/` module is written or shipped. The interactive flow below (`F5-S0`, `F5-S1`,
+`F5-S2`, `F5-E2`, steps 1 to 4 and the interactive exit criteria 1 to 6) is **designed, not built**: it is kept as
+the specification of a later release, its contract is settled (`ConversationQuestions`, one module
+per trend in `data/conversation/<trendId>.js`, loaded only after the scenario is recorded;
+`03-architecture.md`, section 6.4; A-11), and its tests are deferred, not deleted. F5 lives in
+module M6. What ships, and what this release is verified against, is `F5-ST` and the exit criterion
+for it at the end of this section.
 
-**When F5 is static.** Every scenario route that passes the trend checks shows the static screen
-`F5-ST` when the build switch `SCENARIO_FLOW` is `"static"`, or when the build does not contain a
-conversation module for every trend. `SCENARIO_FLOW` starts as `"static"`; the Orchestrator sets it
-to `"interactive"` at the G3 freeze if the questions passed the Verifier, and back to `"static"` if
-the build is behind on 6 October.
+**When F5 is static (the switch rule, kept for a later release).** A scenario route shows `F5-ST`
+when `SCENARIO_FLOW` is `"static"`, or when the build does not contain a conversation module for
+every trend. Only a later release, with conversation questions that have passed the Verifier, may
+set the switch to `"interactive"`.
 
 ### Preconditions
 
@@ -651,7 +697,7 @@ the build is behind on 6 October.
 | # | Viewer action | System response | Reads | Writes |
 |---|---|---|---|---|
 | 1 | Activates "Take this trend into your conversations" on `F1-S4` | Shows `F5-S1`, or resumes at `F5-S2` if a ScenarioRecord for this trend already exists in the session | Trend (title); the session's Judgement for this trend (committed lens and rationale, shown read-only as context) | Nothing |
-| 2 | Writes into two fields: "What have you heard in your own conversations, with customers, partners, investors or others outside the company, that bears on this trend?" and "In your own words, how could this trend play out over the next twelve months?" | "Record my scenario" becomes enabled once both fields contain at least one non-whitespace character after trimming. While disabled, a line says which field is still empty | Nothing further | Drafts of both fields, in memory |
+| 2 | Writes into two fields: "What have you heard in your own conversations, with customers, partners, investors or others outside the company, that bears on this trend?" and "In your own words, how could this trend play out over the next twelve months?" | "Record my scenario" becomes enabled once both fields contain at least one non-whitespace character after trimming. While disabled, a line says which field is still empty; a record attempted by any other path, including a keyboard submit, is refused by the recording function, which throws and writes nothing | Nothing further | Drafts of both fields, in memory |
 | 3 | Activates "Record my scenario" | Writes the ScenarioRecord and locks both fields read-only for the rest of the session; **only then** renders the conversation questions, after checking them (precondition 3). Shows `F5-S2`, or `F5-E2` if the check fails | Conversation questions for this trend | ScenarioRecord: trend reference, what was heard, how it could play out, time recorded |
 | 4 | Optionally, beside any question, notes whom they would ask | Each question has one optional field captioned "Who you would ask (optional)". The notes gate nothing and stay editable while the screen is open | Nothing further | ScenarioRecord: per-question notes, if any |
 
@@ -692,7 +738,15 @@ recording the founder's own scenario would put machine content before the founde
 
 ### Exit criterion
 
-F5 is satisfied for a trend when all of the following hold and can be observed by a test:
+**For this release (`F5-ST`).** F5 is satisfied when every scenario route that passes the trend
+checks, with or without a committed Judgement, shows `F5-ST` with its heading and sentences, with no
+input field and no `ai-generated` element anywhere in the page, and with no request for a
+conversation module; `SCENARIO_FLOW` is `"static"`; and `data/` contains no conversation module.
+R2's scenario method is then described rather than demonstrated, and the traceability matrix says
+so.
+
+**For the interactive design (deferred, not verified in this release).** F5 is satisfied for a
+trend when all of the following hold and can be observed by a test:
 
 1. Opening the scenario route with no committed Judgement for the trend shows `F5-S0`.
 2. Session state holds a ScenarioRecord for the trend with both fields containing at least one
@@ -704,20 +758,21 @@ F5 is satisfied for a trend when all of the following hold and can be observed b
    `ai-generated`, the two sit in separately headed regions, and the statement about the questions
    is present.
 5. Nothing was written to any browser storage or sent over the network.
-
-If F5 ships as `F5-ST` (see "When F5 is static"), the exit criterion is instead: the scenario
-route shows `F5-ST`, with no
-input field and no AI-generated question anywhere in the page. In that case R2's scenario method is
-described rather than demonstrated, and the traceability matrix says so.
+6. "Record my scenario" was disabled while either field was empty or whitespace-only, and in those
+   cases the recording function refused the record, called directly and through a keyboard submit.
 
 ---
 
 ## Verification of the non-functional requirements
 
 Test levels follow `test-plan.md`. Tooling has no package manager, so unit tests are plain ES
-modules run under `node --test` or in the browser; integration and system checks that need a real
-browser are scripted walks run by the Test Engineer or the Red-team Reviewer. Module references
-follow `04-module-design.md`; F5 lives in M6.
+modules run under `node --test` from the repository root or in the browser; Node is installed on
+the build machine (F-9, v24.21.0, checked 5 October 2026), so no test needs a same-origin request
+and no `fetch()` exists anywhere in the repository, tests included (DM-11 not needed). Integration
+and system checks that need a real browser are scripted walks run by the Test Engineer or the
+Red-team Reviewer. Module references follow `04-module-design.md`; F5 lives in M6. Where a row
+below mentions F5, this release verifies it in its static state `F5-ST`; checks of F5's viewer
+text and questions apply to the interactive design and are deferred with it.
 
 | NF | How it is verified | Test level | Modules | Pass criterion |
 |---|---|---|---|---|
@@ -736,10 +791,13 @@ follow `04-module-design.md`; F5 lives in M6.
 **Invariant checks that are not NFs but must be verified.** Invariant audits 1, 2 and 3 in
 `test-plan.md` verify F1's rules: M4 and M1 unit tests assert exactly three peer readings and no
 forbidden field; M6 unit tests assert that no reading element exists, and no reading has been
-requested, before the intuition record, and that commit is disabled for an empty or
-whitespace-only rationale; the C-6 language audit runs over interface copy and fixture text as part
-of the system test, including F3's next-level wording constraints and F5's questions. F5's own
-ordering rule (no question before the scenario is recorded) is verified by its exit criterion 3.
+requested, before the intuition record, that commit is disabled for an empty or whitespace-only
+rationale or a missing lens, and that the module functions themselves refuse an intuition record
+without a lens and a commit without a lens and rationale, whatever the path (B4); the C-6 language
+audit runs over interface copy and fixture text as part of the system test, including F3's
+next-level wording constraints. In this release F5 shows no machine content at all (`F5-ST`), which
+its release exit criterion verifies; the interactive ordering rule (no question before the
+scenario is recorded, interactive exit criterion 3) is deferred with the interactive flow.
 
 ### Future requirement recorded under NF6
 
@@ -792,14 +850,16 @@ Written into C-1.
 
 **K-6. R2's scenario work had no flow.** *Resolved, 4 Oct 2026:* a flow is added, structured around
 the founder's own external conversations, respecting every invariant, and shipping as a static
-screen if time runs short. Specified as F5. A-11 is answered (C-R4, C-R6); its content depends
-on O-1.
+screen if time runs short. Specified as F5. A-11 is answered (C-R4, C-R6). *Decided, 5 Oct 2026:*
+F5 ships as the static screen `F5-ST`; `SCENARIO_FLOW` stays `"static"`; the interactive flow is
+designed, not built, and its tests are deferred.
 
 **K-7. Who writes the replay judgements, and how hindsight is kept out.** *Resolved, 4 Oct 2026:*
 the Rival Readers and the Interrogator write them from the early-2026 signals only, outcomes
 withheld; the Verifier attaches the dated outcomes afterwards; the set includes at least one
 judgement that did not hold; the replay statement names who wrote them and when. DM-10 labels the
-calibration notes `ai-generated`. Written into F4.
+calibration notes `ai-generated`; O-2 (5 Oct 2026) assigns them to the Trend Analyst. Written into
+F4, with the B5 limit on what "withheld" can claim.
 
 ### Smaller questions
 
@@ -818,8 +878,8 @@ replay window (1 January to 31 March 2026) and three questions per interrogation
 
 **Q-5. Governance content.** *Resolved, 4 Oct 2026, as to process:* the author is decided by a
 structured debate between agents before G3, with the outcome and reasoning recorded in `gates.md`;
-every regulatory claim still passes the Verifier. The debate's outcome, recorded in `gates.md` on
-5 October 2026, assigns the argument to a build agent; Miguel confirms it at G2.
+every regulatory claim still passes the Verifier. *Confirmed by Miguel, 5 Oct 2026:* the debate's
+outcome stands; the Architect writes the argument, and its paragraphs are labelled `ai-generated`.
 
 **Q-6. What NF4's eight minutes measure.** *Resolved, 4 Oct 2026:* only the core loop, from opening
 a trend card to a committed judgement. DM-7 confirmed the brief as the entry screen. In the NF4 row.
@@ -846,30 +906,47 @@ for unknown routes, and the `file://` sentence in `G-E1`) were requested in `03-
 section 13. None touches an invariant. All three are applied, on 5 October 2026.
 
 **C-R4** (F5's `ConversationQuestions` contract in `data/conversation/<trendId>.js`, the
-`SCENARIO_FLOW` switch and the condition for `F5-ST`), **C-R5** (O-4 answered by the Q-5 outcome),
+`SCENARIO_FLOW` switch and the condition for `F5-ST`; the contract now serves the deferred
+interactive design), **C-R5** (O-4 answered by the Q-5 outcome),
 **C-R6** (F5 lives in M6) and **C-R7** (F4 precondition 2 names the past judgement's authors and the
 date the outcome was attached) were requested after the Architect's revision of 5 October 2026.
 None touches an invariant. All four are applied, on 5 October 2026.
 
-### Items still open
+### Items opened at Level 2, and their closure
 
-These do not block G2. Each says who closes it and what the demo does until then.
+Miguel closed each of these on 5 October 2026 (`gates.md`).
 
-- **O-1. Conversation questions for F5** (Orchestrator). The contract exists (A-11, C-R4); what
-  remains is a section in the Interrogator's instructions for one to three conversation questions
-  per trend. Until the questions exist and pass the Verifier, `SCENARIO_FLOW` stays `"static"` and
-  F5 ships as `F5-ST`.
+- **O-1. Conversation questions for F5.** *Out of scope for this release.* F5 ships as `F5-ST`, so
+  no conversation questions are written; the Interrogator's instructions are not extended now.
 - **O-2. Who writes the maturity explanations, the next-level descriptions and the replay
-  calibration notes** (Orchestrator). No agent definition covers them. Whoever writes them, the
-  Verifier checks them; a pipeline agent's text is labelled `ai-generated`. Until assigned, F3
-  ships as `F3-S2`, and F4 cannot pass its exit criterion.
-- **O-3. The list of foresight practices** (Verifier, with p. 9). F3 assumes the three methods R2
-  names; the thesis is the authority.
-- **O-4. The label of the governance argument.** *Closed, pending Miguel's confirmation of the Q-5
-  outcome at G2.* The outcome recorded in `gates.md` assigns the argument to a build agent, so its
-  paragraphs are `ai-generated` and no seventh label is needed. If Miguel assigns a person instead,
-  this item reopens, because the six-value vocabulary has no value for human-written prose about
-  the demo.
+  calibration notes.** *Closed:* the Trend Analyst, in a short G3 pass after the main run, all three
+  labelled `ai-generated` and checked by the Verifier. The maturity explanations were labelled
+  `fictional` in the earlier draft; they are now `ai-generated`, while each practice's level
+  assignment stays `fictional`. Written into F3 and F4.
+- **O-3. The list of foresight practices.** *Closed:* the three practices R2 names stay (scanning,
+  trend analysis, scenario work). The Verifier still checks them against the thesis at p. 9.
+- **O-4. The label of the governance argument.** *Closed* with Miguel's confirmation of Q-5: the
+  Architect writes it, so its paragraphs are `ai-generated` and no seventh label is needed.
+- **F-9 and DM-11.** *Resolved:* Node is installed on the build machine, and DM-11 is not needed.
+
+Two proposals still await Miguel at G2: the **R7 exemption** (no flow for R7; designed, not built;
+acceptance met by documentation), stated under the functional requirements above, and the
+**proposed default that the category findings are labelled `fictional`** (F3, expected labels).
+
+### Red-team findings applied at Level 2, 5 October 2026
+
+The Red-team Reviewer blocked G2 on these findings. None is resolved by softening an invariant.
+
+- **B4 (invariants 2 and 3).** A disabled control alone does not enforce intuition-first or the
+  rationale. The intuition-record, commit and scenario-record functions now refuse an incomplete
+  call by any path, including a keyboard submit (F1 rules and exit criterion 3; F5 step 2 and
+  interactive exit criterion 6).
+- **B5 (invariant 4).** "Using those signals only" was an unverifiable claim, because the model's
+  general knowledge extends to mid-2026. The replay statement now says what was withheld and names
+  the limit, in two fixed phrases, and the Verifier records per entry whether the outcome predates
+  June 2026 (F4).
+- **N2.** R7 had no F and no recorded reason. The exemption is now stated and reasoned, as a
+  proposal for Miguel.
 
 ---
 
