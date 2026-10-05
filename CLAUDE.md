@@ -42,13 +42,13 @@ than working around it.**
 | Level | Artefact | Status |
 |---|---|---|
 | L1 | User requirements R1–R8 | **Approved at G1, 16 Sept 2026** — frozen, do not edit |
-| L2 | System requirements F1–F4, NF1–NF6 | Drafted 19 Sept; Miguel's G2 decisions of 4 Oct to be applied (adds F5) |
-| L3 | Architecture, data contracts | Drafted 19 Sept; DM-1 to DM-10 to be applied |
-| L4 | Module design M1–M10, unit tests | Drafted 19 Sept; unit tests not yet written |
-| L5 | Implementation | Not started — begins after G2 |
+| L2 | System requirements F1–F5, NF1–NF6 | **Approved at G2, 5 Oct 2026** (F5 ships static as `F5-ST`) |
+| L3 | Architecture, data contracts | **Approved at G2, 5 Oct 2026** |
+| L4 | Module design M1–M10, unit tests | **Approved at G2, 5 Oct 2026**; unit tests written (interactive-F5 tests deferred) |
+| L5 | Implementation | Started 5 Oct 2026, tests first, alongside the G3 content run |
 
 **Re-planned 4 Oct 2026. Hard deadline: demo live on GitHub Pages by the morning of 7 Oct 2026.**
-**Next gate: G2**, 4 Oct; G3 content freeze 5 Oct; G4 system pass 6 Oct. Decisions and the
+**Next gate: G3** content freeze, 6 Oct morning; G4 system pass and deploy, 6 Oct evening. Decisions and the
 proposed defaults are in `docs/gates.md`; the day-by-day plan is in `docs/00-operating-manual.md`.
 
 Gate rule: no level starts before the level above it is approved by Miguel. Gates are decided by
