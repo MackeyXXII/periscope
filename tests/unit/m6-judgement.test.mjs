@@ -1,0 +1,237 @@
+// M6 Judgement and scenario capture, F1: the pure parts of M6-U3, M6-U5 to M6-U8 and M6-U13.
+// The page parts, and M6-U1, U2, U4, U9 to U12 and U14 to U17, are in m6-judgement.browser.mjs.
+// Written from docs/04-module-design.md (M6) and docs/03-architecture.md (sections 6.3, 7) before
+// any M6 module exists (test-first rule). At G2 every test here fails with "module under test could
+// not be imported" (assets/js/state/*.js not implemented).
+//
+// ASSUMPTIONS, reported to the Orchestrator as specification gaps (change here if the Architect
+// fixes them differently):
+//   - Drafts use the Judgement's field names: canRecord({ gutCall, reason }),
+//     canCommit({ committedLens, rationale }); "no lens" is committedLens: null.
+//   - recordIntuition(...) returns the intuition record { gutCall, reason, recordedAt };
+//     commitJudgement(...) returns the Judgement. `now` is an ISO timestamp string.
+//   - The interface names no function that stamps readingsRevealedAt (the screen does it after
+//     loadReveal, section 6.3). The pure walks below therefore go recordIntuition -> commitJudgement
+//     and require the committed Judgement to carry a readingsRevealedAt between the two timestamps.
+//     If the Architect adds a stamping function, these walks gain that one call.
+
+import { test } from '../lib/harness.mjs';
+import { assert } from '../lib/assert.mjs';
+import { loadContent, loadSession, clone } from '../lib/content.mjs';
+import { seededRandom, permutations } from '../lib/seeded-random.mjs';
+import { load, makeClock } from '../lib/screens.mjs';
+
+const ALPHA = 'trend-fixture-alpha';
+const BETA = 'trend-fixture-beta';
+const ORDERS = Object.freeze([
+  ['opportunity', 'threat', 'noise'],
+  ['threat', 'opportunity', 'noise'],
+  ['threat', 'noise', 'opportunity'],
+  ['noise', 'threat', 'opportunity'],
+  ['opportunity', 'noise', 'threat'],
+  ['noise', 'opportunity', 'threat'],
+]);
+const STUBS = Object.freeze([[0, 0], [0, 0.5], [0.34, 0], [0.34, 0.5], [0.67, 0], [0.67, 0.5]]);
+
+/** A random source returning the given values in turn, counting its calls. */
+function stub(values) {
+  const fn = () => {
+    fn.calls += 1;
+    return values[(fn.calls - 1) % values.length];
+  };
+  fn.calls = 0;
+  return fn;
+}
+
+/** Records and commits on one trend through the pure interface; returns { intuition, judgement }. */
+function pureWalk(S, session, trendId, clock, { gutCall = 'threat', reason = 'zebra-test-reason', committedLens = 'noise', rationale = 'zebra-test-rationale' } = {}) {
+  S.lensOrderFor(session, trendId);
+  const intuition = S.recordIntuition(session, trendId, { gutCall, reason }, clock());
+  clock(); // the second between record and reveal
+  const judgement = S.commitJudgement(session, trendId, { committedLens, rationale, promptAnswers: [] }, clock());
+  return { intuition, judgement };
+}
+
+// ------------------------------------------------------------------------------------------ M6-U3
+
+test('M6-U3 canCommit is false without a lens or with a whitespace-only rationale, true with both', async () => {
+  const S = await load('session');
+  const cases = [
+    { draft: { committedLens: 'threat', rationale: '' }, want: false },
+    { draft: { committedLens: 'threat', rationale: ' ' }, want: false },
+    { draft: { committedLens: 'threat', rationale: '\n\t ' }, want: false },
+    { draft: { committedLens: null, rationale: 'x' }, want: false },
+    { draft: { committedLens: 'threat', rationale: 'x' }, want: true },
+  ];
+  const problems = [];
+  for (const { draft, want } of cases) {
+    let got;
+    try {
+      got = S.canCommit(draft);
+    } catch (error) {
+      problems.push(`canCommit(${JSON.stringify(draft)}) threw: ${error.message}`);
+      continue;
+    }
+    if (got !== want) problems.push(`canCommit(${JSON.stringify(draft)}) returned ${JSON.stringify(got)}, expected ${want}`);
+  }
+  assert.none(problems, 'canCommit errors');
+});
+
+// ------------------------------------------------------------------------------------------ M6-U5
+
+test('M6-U5 the recorded intuition is frozen and a second record for the trend throws', async () => {
+  const S = await load('session');
+  const session = S.createSession({ random: seededRandom(5) });
+  const clock = makeClock();
+  S.lensOrderFor(session, ALPHA);
+  const record = S.recordIntuition(session, ALPHA, { gutCall: 'threat', reason: 'zebra-test-reason' }, clock());
+  assert.ok(record && typeof record === 'object', 'recordIntuition returns the intuition record');
+  assert.ok(Object.isFrozen(record), 'the intuition record satisfies Object.isFrozen');
+  assert.equal(record.gutCall, 'threat', 'the record holds the gut call');
+  try {
+    record.gutCall = 'noise';
+  } catch {
+    // strict mode: assigning to a frozen property throws, which is also a pass
+  }
+  assert.equal(record.gutCall, 'threat', 'assigning to gutCall leaves it unchanged');
+  assert.throws(
+    () => S.recordIntuition(session, ALPHA, { gutCall: 'noise', reason: null }, clock()),
+    undefined,
+    'a second recordIntuition for the same trend must throw',
+  );
+});
+
+// ------------------------------------------------------------------------------------------ M6-U6
+
+test('M6-U6 the committed Judgement is frozen and a second commit throws', async () => {
+  const S = await load('session');
+  const session = S.createSession({ random: seededRandom(6) });
+  const clock = makeClock();
+  const { judgement } = pureWalk(S, session, ALPHA, clock);
+  assert.ok(judgement && typeof judgement === 'object', 'commitJudgement returns the Judgement');
+  assert.ok(Object.isFrozen(judgement), 'the Judgement satisfies Object.isFrozen');
+  try {
+    judgement.rationale = 'changed';
+  } catch {
+    // strict mode: throws on a frozen object
+  }
+  assert.equal(judgement.rationale, 'zebra-test-rationale', 'the rationale cannot be changed');
+  assert.throws(
+    () => S.commitJudgement(session, ALPHA, { committedLens: 'threat', rationale: 'again', promptAnswers: [] }, clock()),
+    undefined,
+    'a second commitJudgement for the same trend must throw',
+  );
+});
+
+// ------------------------------------------------------------------------------------------ M6-U7
+
+test('M6-U7 drawLensOrder maps the six stub sequences to the six orders, twice-called and frozen', async () => {
+  const LO = await load('lensOrder');
+  const problems = [];
+  STUBS.forEach((values, i) => {
+    const random = stub(values);
+    let order;
+    try {
+      order = LO.drawLensOrder(random);
+    } catch (error) {
+      problems.push(`stub ${JSON.stringify(values)}: threw ${error.message}`);
+      return;
+    }
+    if (JSON.stringify(Array.from(order || [])) !== JSON.stringify(ORDERS[i])) {
+      problems.push(`stub ${JSON.stringify(values)}: got ${JSON.stringify(order)}, expected ${JSON.stringify(ORDERS[i])}`);
+    }
+    if (random.calls !== 2) problems.push(`stub ${JSON.stringify(values)}: random called ${random.calls} times, expected exactly 2`);
+    if (!Object.isFrozen(order)) problems.push(`stub ${JSON.stringify(values)}: the returned array is not frozen`);
+  });
+  assert.none(problems, 'drawLensOrder errors');
+});
+
+test('M6-U7 drawLensOrder throws RangeError for a random value of 1, -0.1 or NaN', async () => {
+  const LO = await load('lensOrder');
+  for (const bad of [1, -0.1, NaN]) {
+    assert.throws(() => LO.drawLensOrder(() => bad), RangeError, `random() returning ${bad}`);
+  }
+  // A value outside [0, 1) on the second call must be caught as well.
+  assert.throws(() => LO.drawLensOrder(stub([0.5, 1])), RangeError, 'random() returning 1 on its second call');
+});
+
+test('M6-U7 with seededRandom seeds 1 to 200 all six orders occur', async () => {
+  const LO = await load('lensOrder');
+  const seen = new Set();
+  for (let seed = 1; seed <= 200; seed += 1) seen.add(JSON.stringify(Array.from(LO.drawLensOrder(seededRandom(seed)))));
+  const missing = ORDERS.map((o) => JSON.stringify(o)).filter((o) => !seen.has(o));
+  assert.none(missing, 'orders never drawn with seeds 1 to 200');
+  assert.equal(seen.size, 6, 'exactly the six orders of the three lenses are drawn');
+});
+
+test('M6-U7 orderReadings follows lensOrder for every permutation of the input and throws for two readings', async () => {
+  const LO = await load('lensOrder');
+  const content = await loadContent({ from: 'fixtures' });
+  const readings = clone(content.reveal[ALPHA].readings);
+  const problems = [];
+  for (const lensOrder of ORDERS) {
+    for (const input of permutations(readings)) {
+      let out;
+      try {
+        out = LO.orderReadings(input, Object.freeze(lensOrder.slice()));
+      } catch (error) {
+        problems.push(`lensOrder ${lensOrder}, input ${input.map((r) => r.lens)}: threw ${error.message}`);
+        continue;
+      }
+      const got = Array.from(out).map((r) => r.lens);
+      if (JSON.stringify(got) !== JSON.stringify(lensOrder)) {
+        problems.push(`lensOrder ${lensOrder}, input ${input.map((r) => r.lens)}: got ${got}`);
+      }
+      if (out === input) problems.push('orderReadings returned its input array instead of a new array');
+    }
+  }
+  assert.none(problems, 'orderReadings errors');
+  assert.throws(() => LO.orderReadings(readings.slice(0, 2), ORDERS[0]), undefined, 'orderReadings with two readings must throw');
+});
+
+// ------------------------------------------------------------------------------------------ M6-U8
+
+test('M6-U8 one lens order per trend per session; trend B untouched by work on trend A', async () => {
+  const S = await load('session');
+  const LO = await load('lensOrder');
+  const session = S.createSession({ random: stub([0, 0]) });
+  const clock = makeClock();
+  const first = S.lensOrderFor(session, ALPHA);
+  const second = S.lensOrderFor(session, ALPHA);
+  assert.ok(first === second, 'lensOrderFor returns the same array (===) on a second call');
+  assert.deepEqual(Array.from(first), ORDERS[0], 'the order is the one the session random source draws');
+  pureWalk(S, session, ALPHA, clock);
+  assert.ok(S.lensOrderFor(session, ALPHA) === first, 'the order of A is unchanged after recording and committing');
+  // B is still awaiting its intuition: its first record succeeds and is B's own.
+  const bRecord = S.recordIntuition(session, BETA, { gutCall: 'opportunity', reason: null }, clock());
+  assert.equal(bRecord.gutCall, 'opportunity', 'trend B accepts its own first intuition record after A was committed');
+  // A new session with a different source draws a different order.
+  const other = S.createSession({ random: stub([0.67, 0.5]) });
+  assert.deepEqual(Array.from(S.lensOrderFor(other, ALPHA)), ORDERS[5], 'a new session draws with its own source');
+  assert.deepEqual(Array.from(LO.drawLensOrder(stub([0.67, 0.5]))), ORDERS[5], 'and agrees with drawLensOrder');
+});
+
+// ------------------------------------------------------------------------------------------ M6-U13
+
+test('M6-U13 the Judgement of a full walk passes checkJudgement with ordered timestamps and viewer provenance', async () => {
+  const S = await load('session');
+  const V = await load('validate');
+  const session = S.createSession({ random: seededRandom(13) });
+  const clock = makeClock();
+  const { judgement } = pureWalk(S, session, ALPHA, clock);
+  const verdict = V.checkJudgement(judgement);
+  assert.ok(verdict && verdict.ok === true, `checkJudgement accepts the Judgement (${JSON.stringify(verdict && verdict.errors)})`);
+  assert.equal(judgement.trendId, ALPHA, 'trendId');
+  assert.ok(judgement.intuition && typeof judgement.intuition.recordedAt === 'string', 'intuition.recordedAt is set');
+  assert.ok(typeof judgement.readingsRevealedAt === 'string', 'readingsRevealedAt is set');
+  const t1 = Date.parse(judgement.intuition.recordedAt);
+  const t2 = Date.parse(judgement.readingsRevealedAt);
+  const t3 = Date.parse(judgement.committedAt);
+  assert.ok(t1 <= t2 && t2 <= t3, `recordedAt ${judgement.intuition.recordedAt} <= readingsRevealedAt ${judgement.readingsRevealedAt} <= committedAt ${judgement.committedAt}`);
+  assert.equal(judgement.label, 'yours', 'label');
+  assert.deepEqual(Array.from(judgement.provenance.producedBy), ['viewer'], 'provenance.producedBy');
+  assert.equal(judgement.provenance.frozenOn, null, 'provenance.frozenOn');
+  // The session sample has the same shape, so the two agree on what a Judgement is.
+  const { judgement: sample } = await loadSession();
+  assert.deepEqual(Object.keys(judgement).sort(), Object.keys(sample).sort(), 'the Judgement has exactly the fields of the contract sample');
+});

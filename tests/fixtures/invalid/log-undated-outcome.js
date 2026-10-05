@@ -1,0 +1,203 @@
+// Fictional test data for Periscope unit tests. Never imported by the page.
+// Invalid case for M8-U6: the second entry (replay-2026-02-14-zebra-log-two) has an outcome source without publishedOn, so it is withheld (F4-W1); the other two entries are valid.
+export default [
+  {
+    "id": "replay-2026-01-01-zebra-log-one",
+    "originalSignals": [
+      {
+        "title": "Zebra replay one-a fixture headline",
+        "summary": {
+          "text": "zebra-replay-one-a-summary: a synthetic paraphrase for tests.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://example.org/fixture/replay-one-a",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-01-01",
+          "retrievedOn": "2026-10-01"
+        },
+        "label": "real"
+      },
+      {
+        "title": "Zebra replay one-b fixture headline",
+        "summary": {
+          "text": "zebra-replay-one-b-summary: a synthetic paraphrase for tests.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://example.org/fixture/replay-one-b",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-01-20",
+          "retrievedOn": "2026-10-01"
+        },
+        "label": "real"
+      }
+    ],
+    "pastJudgement": {
+      "lens": "threat",
+      "rationale": "zebra-replay-2026-01-01-zebra-log-one-rationale: a synthetic past judgement for tests.",
+      "asOfDate": "2026-01-25",
+      "authoredOn": "2026-10-03",
+      "authoredBy": [
+        "rival-reader",
+        "interrogator"
+      ],
+      "label": "replay"
+    },
+    "outcome": {
+      "summary": {
+        "text": "zebra-replay-2026-01-01-zebra-log-one-outcome: a synthetic outcome paraphrase for tests.",
+        "label": "ai-generated"
+      },
+      "source": {
+        "url": "https://example.org/fixture/replay-2026-01-01-zebra-log-one-outcome",
+        "publisher": "Example Fixture Publisher",
+        "publishedOn": "2026-06-10",
+        "retrievedOn": "2026-10-01"
+      },
+      "attachedOn": "2026-10-04",
+      "label": "real"
+    },
+    "calibrationNote": {
+      "text": "zebra-replay-2026-01-01-zebra-log-one-calibration: a synthetic qualitative note for tests.",
+      "label": "ai-generated"
+    },
+    "label": "replay",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "rival-reader",
+        "interrogator",
+        "verifier"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  },
+  {
+    "id": "replay-2026-02-14-zebra-log-two",
+    "originalSignals": [
+      {
+        "title": "Zebra replay two fixture headline",
+        "summary": {
+          "text": "zebra-replay-two-summary: a synthetic paraphrase for tests.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://example.org/fixture/replay-two",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-02-14",
+          "retrievedOn": "2026-10-01"
+        },
+        "label": "real"
+      }
+    ],
+    "pastJudgement": {
+      "lens": "opportunity",
+      "rationale": "zebra-replay-2026-02-14-zebra-log-two-rationale: a synthetic past judgement for tests.",
+      "asOfDate": "2026-02-20",
+      "authoredOn": "2026-10-03",
+      "authoredBy": [
+        "rival-reader",
+        "interrogator"
+      ],
+      "label": "replay"
+    },
+    "outcome": {
+      "summary": {
+        "text": "zebra-replay-2026-02-14-zebra-log-two-outcome: a synthetic outcome paraphrase for tests.",
+        "label": "ai-generated"
+      },
+      "source": {
+        "url": "https://example.org/fixture/replay-2026-02-14-zebra-log-two-outcome",
+        "publisher": "Example Fixture Publisher",
+        "retrievedOn": "2026-10-01"
+      },
+      "attachedOn": "2026-10-04",
+      "label": "real"
+    },
+    "calibrationNote": {
+      "text": "zebra-replay-2026-02-14-zebra-log-two-calibration: a synthetic qualitative note for tests.",
+      "label": "ai-generated"
+    },
+    "label": "replay",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "rival-reader",
+        "interrogator",
+        "verifier"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  },
+  {
+    "id": "replay-2026-03-31-zebra-log-three",
+    "originalSignals": [
+      {
+        "title": "Zebra replay three fixture headline",
+        "summary": {
+          "text": "zebra-replay-three-summary: a synthetic paraphrase for tests.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://example.org/fixture/replay-three",
+          "publisher": "Example Fixture Publisher",
+          "publishedOn": "2026-03-31",
+          "retrievedOn": "2026-10-01"
+        },
+        "label": "real"
+      }
+    ],
+    "pastJudgement": {
+      "lens": "noise",
+      "rationale": "zebra-replay-2026-03-31-zebra-log-three-rationale: a synthetic past judgement for tests.",
+      "asOfDate": "2026-03-31",
+      "authoredOn": "2026-10-03",
+      "authoredBy": [
+        "rival-reader",
+        "interrogator"
+      ],
+      "label": "replay"
+    },
+    "outcome": {
+      "summary": {
+        "text": "zebra-replay-2026-03-31-zebra-log-three-outcome: a synthetic outcome paraphrase for tests.",
+        "label": "ai-generated"
+      },
+      "source": {
+        "url": "https://example.org/fixture/replay-2026-03-31-zebra-log-three-outcome",
+        "publisher": "Example Fixture Publisher",
+        "publishedOn": "2026-09-01",
+        "retrievedOn": "2026-10-01"
+      },
+      "attachedOn": "2026-10-04",
+      "label": "real"
+    },
+    "calibrationNote": {
+      "text": "zebra-replay-2026-03-31-zebra-log-three-calibration: a synthetic qualitative note for tests.",
+      "label": "ai-generated"
+    },
+    "label": "replay",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "rival-reader",
+        "interrogator",
+        "verifier"
+      ],
+      "producedOn": "2026-10-04",
+      "frozenOn": "2026-10-05"
+    }
+  }
+];
