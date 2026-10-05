@@ -3,13 +3,16 @@
 Gates are decided by Miguel in claude.ai chat, in the Internships and Applications project. Agents
 propose; the Red-team Reviewer may block; Miguel approves. Record every outcome here, with a date.
 
-| Gate | Covers | Date | Outcome |
-|---|---|---|---|
-| G1 | Level 1 user requirements R1–R8 and the four working assumptions | 16 Sept 2026 | **Approved** |
-| G2 | Level 2 system requirements, Level 3 architecture, Level 4 module design, test plan | 19 Sept 2026 | Open |
-| G3 | Content freeze: runtime pipeline output verified and frozen | 20 Sept 2026 | Not started |
-| G4 | System test pass | — | Not started |
-| G5 | Acceptance by real viewers | — | Not started |
+| Gate | Covers | Target date | Outcome | What has to happen now |
+|---|---|---|---|---|
+| G1 | Level 1 user requirements R1–R8 and the four working assumptions | 16 Sept 2026 | **Approved** | Nothing. L1 is frozen. |
+| G2 | Level 2 system requirements, Level 3 architecture, Level 4 module design, test plan | 5 Oct 2026 | **Open.** All decision items are taken (4 and 5 Oct, below); the Red-team review started on 5 Oct | The Red-team Reviewer signs off or blocks. The Requirements Engineer and the Architect apply the 5 Oct decisions and any blocking findings. Miguel decides G2 in chat. |
+| G3 | Content freeze: runtime pipeline output verified and frozen into `data/` | 6 Oct 2026, morning | Not started | After G2: write the persona dossier, scanning brief and replay candidates; update the runtime agents' instructions (F-1 to F-5, F-8, O-2); run the pipeline once; the Verifier re-opens p. 9 of the WEF/OECD report; Red-team review of the content; Miguel decides G3 and the D-1 level-name status. M1, M9 and the M10 shell are built in parallel. |
+| G4 | System test pass at the four Q-7 viewports, Red-team audit, deploy to GitHub Pages | 6 Oct 2026, evening | Not started | After G3: build M5 to M8 tests-first, then integration and system tests. Miguel pushes to `main`, because agents may not push. |
+| G5 | Acceptance by real viewers | From 7 Oct 2026 (Wels career fair, 7 and 8 Oct) | Not started | A rehearsal walk as a hiring manager on the morning of 7 Oct, then two to three unfamiliar viewers. |
+
+If the build is behind at midday on 6 Oct, F3 and F4 ship as static screens; F5 is static already
+(decision of 5 Oct); F1 and F2 stay fully interactive.
 
 ## Standing entry requirements for G2
 
@@ -57,13 +60,46 @@ recommendation where one existed, and confirmed by Miguel in chat on 4 October 2
 | K-7 | The replay judgements are written by the Rival Readers and the Interrogator from the early-2026 signals only, with outcomes withheld; the Verifier attaches the dated outcomes afterwards. The set includes at least one judgement that did not hold. The replay statement names who wrote the judgements and when. |
 | DM-10 | Calibration notes are labelled `ai-generated`, following K-7. |
 
-### Q-5 outcome: who writes the governance argument (debated 5 October 2026, Miguel to confirm)
+## G2 decisions, 5 October 2026
+
+Miguel decided the following in chat on 5 October 2026. They are binding on Levels 2 to 4 and are
+to be written into the documents, and into `traceability.md`, before G2 is recorded as approved.
+
+| Item | Decision |
+|---|---|
+| Q-5 | **Confirmed.** The Architect writes the governance argument, as in the outcome below. O-4 is closed. |
+| O-2 | **The Trend Analyst** writes the maturity explanations, the next-level descriptions and the replay calibration notes, in a short G3 pass after the main run, as the Architect recommended (architecture, section 14). All three are labelled `ai-generated` and checked by the Verifier. |
+| O-3 | The three foresight practices stay as R2 names them: scanning, trend analysis and scenario work. The Verifier still checks them against the thesis when it re-opens p. 9. |
+| F-9 | Node is installed on the build machine (v24.21.0, checked on 5 Oct). `node --test` runs from the repository root. |
+| DM-11 | **Not needed. The architecture's default stands:** with Node installed, the text-based tests run under Node, and no `fetch()` exists anywhere in the repository, tests included. |
+| F5 | **F5 ships as the static screen `F5-ST`.** `SCENARIO_FLOW` stays `"static"`. The conversation questions (O-1, F-7) are out of scope for this release. |
+
+**Can F3 and F4 now be dynamic? (Orchestrator's check, 5 October 2026.)** Yes, both. Neither has
+any viewer input; "dynamic" here means rendered in full from frozen data rather than as a static
+fallback. With O-2 assigned, the design has no gap left. What remains is content, on the G3 path:
+
+- **F3 in its verified state (`F3-S2v`)** needs four things before G3:
+  - the Verifier confirms the level names on p. 9 (D-1);
+  - the Trend Analyst writes an explanation and a next-level description for each of the three
+    practices;
+  - each of those passes the Verifier and the six K-2 wording constraints;
+  - Miguel sets the readiness status to `verified` at G3.
+
+  If any one is missing, F3 still ships data-driven, in its honest unverified state `F3-S2`, which
+  L2 accepts as complete. R6's full acceptance test is met only in the verified state.
+- **F4 (`F4-S1`)** needs the replay candidates (Cowork brief), past judgements by the Rival Readers
+  and the Interrogator with the outcomes withheld (K-7), dated outcomes attached by the Verifier,
+  and calibration notes by the Trend Analyst. At least one judgement must not have held, and the
+  entries must be transcribed into `log.json` (F-4). If no entry survives verification, F4 shows
+  `F4-S0`, which fails its exit criterion. F4 is the flow most at risk on the content path.
+
+### Q-5 outcome: who writes the governance argument (debated 5 October 2026, confirmed by Miguel 5 October 2026)
 
 The question was settled by a structured debate. Three advocate agents each made the strongest case
 for one author, independently and without seeing the others: the Architect, a runtime-pipeline
 pass, and Miguel himself. A neutral adjudicator agent then read all three arguments against the
-invariants and the deadline. All four ran on Opus 5.5. The outcome below is the adjudicator's. It
-stands as a proposal until Miguel confirms it at G2.
+invariants and the deadline. All four ran on Opus 5.5. The outcome below is the adjudicator's. Miguel
+confirmed it on 5 October 2026.
 
 **Decision.** The Architect writes the governance argument and is accountable for it. The Scout
 gathers the regulatory sources in the same one-off offline run as the signals. Each argument
