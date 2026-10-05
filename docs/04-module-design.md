@@ -37,7 +37,10 @@ before G3.
   browser runner `tests/run.html`. *browser* means it needs a real DOM and runs only from
   `tests/run.html`. *node* means it needs a file-system listing or a child process and runs only
   under Node; in the browser runner it is reported as skipped with that reason. The contract that
-  lets one file run in both is at the end of this document.
+  lets one file run in both is at the end of this document. A *both* test that reads a file as raw
+  text (the static audits, the Markdown briefs, byte-for-byte comparisons, this document) is
+  reported in the browser as skipped with the reason "needs Node or DM-11" until Miguel decides
+  DM-11; JSON and modules load in both runners without that restriction.
 - **Fixtures.** Synthetic content lives in `tests/fixtures/`, each file headed
   `// Fictional test data for Periscope unit tests. Never imported by the page.` It contains
   distinctive marker strings (for example `zebra-alpha-opportunity-text`) so that leak tests can
@@ -99,10 +102,25 @@ before G3.
 `LENSES` (alphabetical), `PRODUCERS`, `MATURITY_STATUSES`, `READINESS_CATEGORY_KEYS`,
 `PRACTICE_KEYS`, `BANNED_NAME_TOKENS`, `ID_PATTERNS`, `LEVEL_NAME_PLACEHOLDER`
 (`'LEVEL_NAME_UNVERIFIED'`) and `MATURITY_LEVEL_NAMES`. `validate.js` exports one check per entity
-and container, each returning `{ ok: true }` or `{ ok: false, errors }` and never throwing:
-`checkSignal`, `checkBrief`, `checkTrend`, `checkRevealBundle`, `checkConversation`,
-`checkReadiness(profile, { levelNames })`, `checkGovernance`, `checkLogEntry`, `checkLog`,
-`checkJudgement`, `checkScenarioRecord(record, judgement)`, and `findBannedKeys(value)`.
+and container, each returning `{ ok: true }` or `{ ok: false, errors }` (`errors` an array of
+messages) and never throwing, even on `undefined` or a value of the wrong type. The signatures
+adopt the provisional ones the Test Engineer used in `tests/unit/m1-contracts.test.mjs`, which are
+sound: a check takes the record and, where a rule spans two records, the record it must agree with.
+
+| Function | Checks, beyond the record's own shape, labels and banned keys |
+|---|---|
+| `checkSignal(signal)` | URL, publisher, both dates, summary, relevance note; quote within `QUOTE_MAX_WORDS` |
+| `checkBrief(brief)` | Container shape; at most `BRIEF_SIGNAL_CAP` identifiers. Per-signal checks are `checkSignal`'s; resolution of identifiers is the screen's (`F2-S2`) |
+| `checkTrend(trend, signals)` | Three references, one per lens; non-empty title, summary, intuition prompt; every `signalId` resolves in `signals` (the Signal array) |
+| `checkRevealBundle(bundle, trend)` | Three Readings whose lenses and identifiers match `trend`'s references; `trendId`s equal `trend.id`; evidence, counter-evidence, disconfirming condition; one to three questions per group |
+| `checkConversation(set, trend)` | `trendId` equals `trend.id`; one to three questions, each ending with "?" |
+| `checkReadiness(profile, { levelNames = MATURITY_LEVEL_NAMES } = {})` | Five categories, three practices, the placeholder rule; once verified, names in `levelNames`, the lower-level and next-level rules |
+| `checkGovernance(container)` | Required items, `verifiedBy` present, argument labels `ai-generated`, container label `real` |
+| `checkLogEntry(entry)` and `checkLog(log)` | Per entry: replay window, outcome after signals, K-7 date order; for the log, an array |
+| `checkJudgement(judgement)` | Intuition present, timestamp order, rationale, label `yours`, session provenance |
+| `checkScenarioRecord(record, judgement)` | Both fields, `recordedAt` after `judgement.committedAt`, same `trendId`, label `yours` |
+| `checkFreezeManifest(manifest)` | `frozenOn` and `pipelineRunOn` are ISO dates; `modules` is a non-empty, duplicate-free list of paths matching the manifest pattern and includes `data/freeze.js`. A failure is treated by `loadFreeze` like a failed import: `G-E1` |
+| `findBannedKeys(value)` | Returns the paths of every key, at any depth, containing a banned token |
 `load.js` exports `createLoader({ importer })`, returning `loadFreeze()`, `loadSignals()`,
 `loadTrends()`, `loadBrief()`, `loadReadiness()`, `loadGovernance()`, `loadLog()`,
 `loadReveal(trendId)` and `loadConversation(trendId)`. Each resolves to `{ ok: true, value }` with a
@@ -111,7 +129,11 @@ withhold single items (signals in F2, entries in F4) return the valid items plus
 withheld ones. `loadReveal` and `loadConversation` build a path only from an identifier that matches
 the trend identifier pattern and appears in the loaded trend list. `freeze-core.mjs` exports
 `freeze({ inputs, verification, schemas, frozenOn, pipelineRunOn })`, resolving to
-`{ ok: true, files }` (a `Map` from repository path to file text) or `{ ok: false, errors }`.
+`{ ok: true, files }` (a `Map` from repository path to file text) or `{ ok: false, errors }`. The
+shape of each argument, the order of arrays in the output, the manifest's order and the driver's
+command line (`node pipeline/freeze.mjs [--frozen-on YYYY-MM-DD] [--pipeline-run-on YYYY-MM-DD]`,
+run from the repository root) are fixed in `03-architecture.md`, section 4, adopting the
+provisional interface of `tests/unit/m1-freeze.test.mjs`.
 
 | ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
 |---|---|---|---|---|
@@ -120,7 +142,7 @@ the trend identifier pattern and appears in the loaded trend list. `freeze-core.
 | M1-U3 | No schema declares `type` `number`, `integer` or `boolean`, alone or in a type array, at any depth. Fails on any such declaration. | `schemas/` | both | T |
 | M1-U4 | Every subschema in `schemas/` that declares `type: "object"` also declares `additionalProperties: false`. Fails otherwise. | `schemas/` | both | T |
 | M1-U5 | Every `enum` in `schemas/` equals, or is a subset of, one of the six allowlists in `vocabulary.js` (`LABELS`, `LENSES`, `PRODUCERS`, `MATURITY_STATUSES`, `READINESS_CATEGORY_KEYS`, `PRACTICE_KEYS`); the `label`, `lens`, `producer` and `practiceKey` enumerations in `common.schema.json` equal their constants exactly, `label` having the six values including `yours`; each identifier pattern in `common.schema.json` equals its `ID_PATTERNS` counterpart; `LABEL_DISPLAY` has exactly the six keys; `brief.schema.json` `signalIds.maxItems` equals `BRIEF_SIGNAL_CAP`; the `maxItems` of `provenanceChecks`, `assumptionProbes`, `preMortem` and `questions` equal `QUESTIONS_PER_GROUP_MAX`. Fails on any other enumeration or any mismatch. | `schemas/`; `vocabulary.js`; `constants.js` | both | I |
-| M1-U6 | Mutation agreement. For a valid sample of each entity and container, the test generates mutants: each required property removed in turn; `score: "x"` added to every object at every depth; a reading reference's lens duplicated; a fourth reading reference added; one removed; rationale set to `""`, `" "` and `"\n\t"`; intuition removed; an evidence item's `publishedOn` removed; a Signal's `provenance.sourceUrl` set to null; any `label` set to `"verified"`; a Signal's label set to `"yours"`; a Judgement's label set to `"ai-generated"`; a governance argument item's `label` removed and set to `"real"`; a conversation question's text without `?`; four conversation questions; four pre-mortem questions; an unverified practice with `levelName` other than the placeholder; a ScenarioRecord with `whatWasHeard` `" "`. Every mutant is rejected by both `mini-schema.mjs` and the matching `validate.js` check. Fails if either accepts any mutant. | `tests/fixtures/content/`; `tests/fixtures/session/` | both | I |
+| M1-U6 | Mutation agreement. For a valid sample of each entity and container, the test generates mutants: each required property removed in turn; `score: "x"` added to every object at every depth; a reading reference's lens duplicated; a fourth reading reference added; one removed; rationale set to `""`, `" "` and `"\n\t"`; intuition removed; an evidence item's `publishedOn` removed; a Signal's `provenance.sourceUrl` set to null; any `label` set to `"verified"`; a Signal's label set to `"yours"`; a Judgement's label set to `"ai-generated"`; a governance argument item's `label` removed and set to `"real"`; a conversation question's text without `?`; four conversation questions; four pre-mortem questions; an unverified practice with `levelName` other than the placeholder; a ScenarioRecord with `whatWasHeard` `" "`; a freeze manifest with a module path `"data/../x.js"`, with a duplicated path, and with `frozenOn` `"5 Oct 2026"`. Every mutant is rejected by both `mini-schema.mjs` and the matching `validate.js` check, called with the signatures above. Fails if either accepts any mutant. | `tests/fixtures/content/` (including `freeze.js`); `tests/fixtures/session/` | both | I |
 | M1-U7 | `mini-schema.mjs` supports every keyword used in `schemas/`, and throws on a schema that uses a keyword outside its list. Fails if a keyword in `schemas/` is unsupported, or if the bad schema validates without throwing. | `schemas/`; `tests/fixtures/invalid/bad-schema.json` (uses `exclusiveMinimum`) | both | T |
 | M1-U8 | A Trend whose reading references have lenses `[opportunity, opportunity, noise]`, or `[opportunity, threat]`, or four references, is rejected by the schema and by `checkTrend`; all six orderings of a valid set of three are accepted by both. Fails if any invalid set is accepted or any valid ordering rejected. | A valid fixture Trend, mutated in memory | both | I |
 | M1-U9 | Referential integrity across modules. Every `Trend.signalIds` entry resolves to a Signal; every Trend has exactly one reveal bundle with its `trendId`; in each bundle each Reading's `trendId` equals the bundle's, its `id` equals the `readingId` the Trend holds for its lens and equals `reading-<trend slug>-<lens>`; the Interrogation's `trendId` equals the bundle's; either every Trend has exactly one conversation module whose `trendId` equals it and whose `id` is `conversation-<trend slug>`, or no conversation module exists; every `Brief.signalIds` entry resolves; no two Signals share `provenance.sourceUrl`. Fails on any dangling reference or disagreeing identifier, or on a partial set of conversation modules. | Content source | both | T, G3, Q |
@@ -128,7 +150,7 @@ the trend identifier pattern and appears in the loaded trend list. `freeze-core.
 | M1-U11 | The freeze core returns `{ ok: false }`, with an error naming the entity and no files, when an entity has no `pass` verdict, when its canonical-JSON SHA-256 differs from the recorded hash, or when it fails its schema. Under Node, the driver run against a temporary copy exits non-zero and leaves the output directory byte-identical. Fails if any file is produced or written, or the driver exits zero, in any case. | `tests/fixtures/pipeline/`, mutated in memory | both (driver part: node) | I |
 | M1-U12 | `loadReveal` and `loadConversation` each refuse `"../x"`, `"trend-unknown"` (well-formed but not in the trend list) and `"Trend-A"` without calling the injected importer, and resolve to `{ ok: false }`. Fails if the importer is called for any of the six cases or the loader throws. | Injected importer spy; fixture trend list | both | I |
 | M1-U13 | Freeze determinism. The core on `tests/fixtures/pipeline/` produces exactly the files in `tests/fixtures/expected-data/`, byte for byte, including the header line and trailing newline; running it twice gives identical output; from G3, the core on `pipeline/output/` reproduces the committed `data/` byte for byte. Fails on any byte difference or any extra or missing file. | Fixture pipeline and expected data; from G3, `pipeline/output/`, `data/` | both | I, G3 |
-| M1-U14 | Inert data modules and a truthful manifest. Every module listed in the manifest consists of the fixed header line, then exactly one `export default` of a literal, and contains no `import`, `function`, `=>`, `new ` or backtick. The manifest's `modules` list equals the set of files in `data/` (listing part under Node only). Fails on any code in a data module or any disagreement. | `tests/fixtures/expected-data/`; from G3, `data/` | both (listing: node) | T, G3 |
+| M1-U14 | Inert data modules and a truthful manifest. Every module listed in the manifest consists of the fixed header line, then `export default `, a JSON literal, `;` and one newline. With every JSON string literal blanked out, the text contains exactly one `export` and no `import`, `function`, `=>`, `new ` or backtick; words inside string literals are prose, cannot execute, and are not checked (a summary may say "a new standard"). The manifest's `modules` list equals the set of files in the directory, ignoring any path with a segment that begins with a dot (`data/.gitkeep` is housekeeping, not a module). Fails on any code outside string literals, a literal that does not parse as JSON, or any disagreement. | `tests/fixtures/expected-data/`; from G3, `data/` | both (listing: node) | T, G3 |
 | M1-U15 | `constants.js` exports exactly `BRIEF_SIGNAL_CAP` 5, `READING_WPM` 200, `QUOTE_MAX_WORDS` 15, `REPLAY_WINDOW_START` `'2026-01-01'`, `REPLAY_WINDOW_END` `'2026-03-31'`, `QUESTIONS_PER_GROUP_MAX` 3, and `SCENARIO_FLOW` equal to `'static'` or `'interactive'`. Fails if any is missing, null or different. | `constants.js` | both | I |
 | M1-U16 | Nothing unverified ships. Every entity in `data/` (each signal, trend, reading, interrogation, conversation set, log entry, the readiness profile, the governance container and the brief) has a `pass` verdict in `pipeline/output/verification.json` whose hash equals the SHA-256 of the entity's canonical JSON. Fails on any entity without a matching `pass`. | `data/`; `pipeline/output/verification.json` | both | G3 |
 | M1-U17 | Q-5: governance argument labels. Every `argument` item in the governance content has `label` `"ai-generated"`; the container's `label` is `"real"`; the schema and `checkGovernance` both reject an argument item with no `label`, with `"real"` and with `"yours"`. Fails on any other label or any accepted mutant. | Content source governance; mutants in memory | both | T, G3 (checker part: I) |
@@ -331,7 +353,7 @@ trendId)`, where `ctx` holds `session`, `loader` (so a test can inject spies for
 | M7-U3 | `F3-S1` and the maturity view contain no `<meter>`, `<progress>`, `<svg>` or `<canvas>`, no element with `role="meter"` or `role="progressbar"`, and no inline style setting `width` in `%`. Fails if any is present. | Both readiness fixtures | browser | I |
 | M7-U4 | `F3-E1`: a profile with four categories, and separately a profile with two practices, shows "The readiness profile was withheld because its content failed validation." and renders no category name, answer, finding or practice. Fails on any partial rendering. | `tests/fixtures/invalid/readiness-four-categories.js`, `readiness-two-practices.js` | browser | I |
 | M7-U5 | Governance screen (`F3-S3`): headings "Implemented in this demo" and "Not implemented"; every item of each list; for each implemented item, the test identifiers in its `verifiedBy`; every argument paragraph with at least one source link showing its date and its own `ai-generated` label; the lists covered by the container's `real` label. Fails on any missing heading, item, identifier, source or label. | Content source governance | browser | I |
-| M7-U6 | The governance content holds the required items by identifier (implemented: `open-web-sources-frozen`, `no-viewer-data-stored-or-sent`, `no-live-ai`, `no-accounts-cookies-analytics`; not implemented: `own-data-ingestion`, `cross-session-persistence`, `role-aware-model`), and every test identifier in any `verifiedBy` is a row identifier in this document. Fails on a missing item or an unknown test. | Content source governance; this document | both | T, G3 |
+| M7-U6 | The governance content holds the required items by identifier (implemented: `open-web-sources-frozen`, `no-viewer-data-stored-or-sent`, `no-live-ai`, `no-accounts-cookies-analytics`; not implemented: `own-data-ingestion`, `cross-session-persistence`, `role-aware-model`), and every identifier in any `verifiedBy` is either a row identifier `M<n>-U<k>` in this document or an invariant audit `AUDIT-1` to `AUDIT-6` from `test-plan.md`. The `testId` pattern in `common.schema.json` admits both on purpose: a claim such as `no-live-ai` is verified by a unit test and by an audit, and the screen may name either. Fails on a missing item, an unknown unit test or an audit number outside 1 to 6. | Content source governance; this document (raw text: in the browser, skipped with "needs Node or DM-11") | both | T, G3 |
 | M7-U7 | While unverified, the next-level area renders exactly "Pending: the next complement depends on the verified level definitions." and nothing else. Fails on any other text there. | `readiness-unverified.js` | browser | I |
 | M7-U8 | Verified view (`F3-S2v`), with the fixture level names injected: each practice shows its level name, its explanation and a citation with page; a block headed "What the WEF/OECD report describes for the next level" holds, per practice, the next level's name, its description with its own `ai-generated` label, and a citation showing the DOI link, the year and the page; the practice at the last level shows exactly "The report describes no level above this one."; after all practices, "These are the report's descriptions of the next level. They are not advice from this demo."; neither pending sentence appears. Fails on any. | `readiness-verified.js` with `levelNames` injected | browser | I, V |
 | M7-U9 | The K-2 wording constraints that a test can check, on every next-level description: it begins with "The report describes"; it contains none of the whole words, case-insensitive, you, your, we, our, should, must, need, needs, recommend, recommended, recommendation, advise, advice, Tracewell, team, nor the phrase "next step", nor any C-6 term; its citation's `url` is `https://doi.org/10.1787/aa573076-en`, its `publishedOn` year is 2025, and `title` and `page` are present. Fails on any violation. | `readiness-verified.js`; from verification, `data/` | both | T, V |
@@ -414,6 +436,19 @@ last). Render: `renderLog(root, ctx)`.
 `contracts/vocabulary.js` and `contracts/constants.js`; `screens/*` of M6 to `state/*`. No other
 edge. `state/*` belongs to M6 and no other screen module imports it.
 
+**How the static audits treat comments** (M10-U1, M10-U2, M10-U4). A comment executes nothing, so it
+can neither make a network call nor hide one. Before matching, each file is reduced to its code by
+removing comments with a scanner that understands string literals: in JavaScript, `//` line
+comments and `/* */` block comments, skipping over `'…'`, `"…"` and `` `…` `` literals so that
+`"https://…"` inside a string is not mistaken for a comment; in CSS, `/* */` comments; in HTML,
+`<!-- -->` comments. Everything else is audited, string literals included, because an import
+specifier, a `src` or a `url()` is a string. So the placeholder comments in today's `index.html`
+and `main.js`, which mention `fetch()` and `data/`, do not fail the audits, and a real call is
+still caught wherever it is written. A comment that is not terminated is treated as code to the
+end of the file, so a stray `/*` cannot blind the audit. M1-U18's search for level names is a plain
+text search over whole files, comments included, because a name must not appear anywhere in
+shipped files.
+
 | ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
 |---|---|---|---|---|
 | M10-U1 *(seeded)* | Static network audit of `index.html`, every file in `assets/` and every file in `data/`: no `fetch(`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `sendBeacon` or `<iframe>`; no `import` specifier, `<script src>`, `<link href>`, `<img src>`, `srcset`, CSS `@import`, `url()` or `@font-face` source pointing to an `http:`, `https:` or protocol-relative (`//`) address. Relative references and `<a href>` to any address are allowed. `tests/` and `pipeline/` are not shipped files and are out of scope (DM-11). Fails on any match. | File inventory | both | T at G2 on the seeded files; re-run on every change |
@@ -453,8 +488,9 @@ never "fixed" by weakening a test:
   M9-U1 failure on viewer entries expected before 4 October is gone: they carry `yours`.
 
 **No Node runtime is installed on the build machine.** Every test file must therefore run in two
-places: under `node --test` (Node 22 or later, once installed; F-9 in the architecture) and from
-`tests/run.html`, a dependency-free browser page. `tests/run.html` is a module page, so it needs a
+places: under `node --test` and from `tests/run.html`, a dependency-free browser page. Node must be
+**22.7 or later**: that is the minimum at which `node --test` loads JSON through import attributes
+in a repository with no `package.json` (F-9 in the architecture recommends installing it). `tests/run.html` is a module page, so it needs a
 static origin: a local static server, or the published GitHub Pages site, which serves the whole
 repository root, including `tests/`. It does not start from `file://` in Chromium. No demo page
 links to it.
@@ -492,13 +528,24 @@ links to it.
 4. *Assertions.* `tests/lib/assert.mjs`, the project's own: `ok`, `equal` (`Object.is`),
    `deepEqual` (structural), `match`, `includes`, `throws`, `rejects`. Not `node:assert`, so that
    both runners use the same code.
-5. *Files.* Paths are built with `new URL('../../schemas/trend.schema.json', import.meta.url)`, which
-   works in both. `tests/lib/env.mjs` provides `readText(url)` and `readJson(url)`: under Node it
-   imports `node:fs/promises` dynamically; in the browser it uses a same-origin `fetch()`. This is
-   the only `fetch()` in the repository outside `pipeline/freeze.html`, it never ships to the demo,
-   and it is open item DM-11 for Miguel. If DM-11 is refused, every test that reads a file declares
-   `needs: ['fs']` and runs under Node only. `listFiles(url)` is Node-only; in the browser, file sets
-   come from `tests/lib/files.mjs` and, for `data/`, from the freeze manifest.
+5. *Files.* There is no `fetch()` or XHR anywhere in the repository, tests included, unless Miguel
+   approves DM-11 (`03-architecture.md`, section 15). Paths are built with
+   `repoUrl('schemas/trend.schema.json')` (a `URL` relative to the repository root, from
+   `import.meta.url`), which works in both runners. `tests/lib/env.mjs` provides:
+   - `importJson(url)`: JSON through an import attribute,
+     `import(url, { with: { type: 'json' } })`, in both runners; `tests/lib/schemas.mjs` loads every
+     schema this way;
+   - `importUnderTest(url)`: a module under test, failing with a message that names the missing
+     file and the test-first rule;
+   - `readText(url)`: raw text, through `node:fs/promises` imported dynamically under Node; in the
+     browser it throws a skip with the reason "needs Node or DM-11", so such a test is reported as
+     skipped and never passes silently;
+   - `listFiles(url)` and `nodeBuiltin(name)`: Node only, skipping in the browser.
+
+   In the browser, file sets come from `tests/lib/files.mjs` and, for `data/`, from the freeze
+   manifest; M10-U9 keeps `files.mjs` complete. Listings include dotfiles, and every comparison of a
+   directory with a manifest ignores paths with a segment that begins with a dot. If DM-11 is
+   approved, `readText` gains a same-origin `fetch()` branch in `env.mjs` and nowhere else.
 6. *Randomness and time.* Never `Math.random` or `Date.now` in a test: use `seededRandom(seed)` from
    `tests/lib/seeded-random.mjs` (Mulberry32) and an injected clock. Seeds used by a test are
    written in the test.

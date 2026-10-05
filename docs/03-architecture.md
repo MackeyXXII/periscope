@@ -149,13 +149,50 @@ browser, and it is unit-tested with in-memory inputs. It uses only language buil
 Crypto API (`crypto.subtle.digest('SHA-256', …)`), which Node 22 and every current browser provide
 under the same name, and the project's own schema interpreter (section 6.2).
 
-- `pipeline/freeze.mjs` is the Node driver: it reads the files, calls the core, and writes `data/`
-  only if the core succeeded, all at once; on failure it writes nothing and exits non-zero.
+- `pipeline/freeze.mjs` is the Node driver (Node 22.7 or later): it reads the files, calls the
+  core, and writes `data/` only if the core succeeded, all at once; on failure it writes nothing,
+  prints every error (each naming the entity's identifier) and exits non-zero.
 - `pipeline/freeze.html` is the browser driver, for a build machine without Node (section 14,
-  F-9). Opened from a local static server or from the published site, it reads the same files by
-  same-origin requests (this is offline tooling, not the demo, and is never linked from it), calls
-  the same core, shows any errors, and otherwise offers each output file for download, to be placed
-  in `data/` unchanged.
+  F-9). Opened from a local static server or from the published site, it loads the same JSON files
+  with ES import attributes (`import(path, { with: { type: 'json' } })`), so it makes no `fetch()`
+  and needs no decision under DM-11; it calls the same core, shows any errors, and otherwise offers
+  each output file for download, to be placed in `data/` unchanged. It is offline tooling, never
+  linked from the demo.
+
+**The core's interface.** This adopts the provisional interface the Test Engineer wrote M1-U11 and
+M1-U13 against, which is sound.
+
+```js
+freeze({ inputs, verification, schemas, frozenOn, pipelineRunOn })
+  // resolves to { ok: true, files } or { ok: false, errors }; never throws
+```
+
+- `inputs`: an object keyed by the `pipeline/output/` file name, each value the parsed JSON:
+  `signals.json`, `trends.json`, `readings.json`, `interrogations.json` and `log.json` (arrays),
+  `conversations.json` (an array, possibly empty), `brief.json`, `readiness.json` and
+  `governance.json` (objects).
+- `verification`: the parsed `verification.json`, `{ entities: [{ type, id, hash, verdict, note }] }`
+  (F-3). An entity is matched to its verdict by `id`; identifiers are unique across types because
+  each type has its own prefix (`sig-`, `trend-`, `reading-`, `interrogation-`, `conversation-`,
+  `replay-`, `brief-`, `readiness-`, and the literal `governance`).
+- `schemas`: an object from schema file name to parsed schema, as `tests/lib/schemas.mjs` exports.
+- `frozenOn`, `pipelineRunOn`: ISO dates written into the manifest and the header line.
+- `files`: a `Map` from repository path (`data/…`) to file text. `errors`: an array of messages,
+  each naming the identifier of the entity concerned.
+
+**Order in the output.** Arrays keep their input order: `data/signals.js`, `data/trends.js` and
+`data/log.js` in the order of their input files; each reveal bundle holds its trend's readings in
+`readings.json` order. This order carries no meaning, because the page imposes its own orders
+(C-4), and keeping it makes the output a pure function of the input. The manifest's `modules` are
+sorted by code point and include `data/freeze.js` itself. Conversation modules are written only if
+`conversations.json` has entries, one per trend; partial coverage fails M1-U9.
+
+**The driver's command line.** From the repository root: `node pipeline/freeze.mjs`, reading
+`pipeline/output/` and writing `data/`. Two optional flags, `--frozen-on YYYY-MM-DD` and
+`--pipeline-run-on YYYY-MM-DD`, set the dates; without them, `frozenOn` is the current UTC date and
+`pipelineRunOn` is the latest `provenance.producedOn` among the input entities. At G3 the
+Orchestrator passes both flags explicitly, so a later re-run with the same flags reproduces `data/`
+byte for byte (M1-U13 passes the committed manifest's dates to the core).
 
 **Why this is not a build step.** The stack rule forbids a build step so that the repository as
 committed is exactly what GitHub Pages serves, with nothing generated between a commit and a
@@ -193,9 +230,13 @@ hand.
   two-space indentation, `;`, and one trailing newline. Re-running the core on the committed
   `pipeline/output/` must reproduce `data/` byte for byte (M1-U13).
 - *Data modules are inert.* Each output file contains the header comment and one `export default`
-  of a plain object or array literal. No imports, no functions, no expressions (M1-U14).
-- *The manifest tells the truth.* `data/freeze.js` lists exactly the files in `data/` (M1-U14),
-  and either every trend has a conversation module or none does (M1-U9).
+  of a plain JSON literal. Outside string literals there is no `import`, `function`, `=>`, `new`
+  or backtick; inside string literals such words are prose and cannot execute (M1-U14).
+- *The manifest tells the truth.* `data/freeze.js` lists exactly the module files in `data/`
+  (M1-U14), and either every trend has a conversation module or none does (M1-U9). Dotfiles, such
+  as `data/.gitkeep`, are repository housekeeping, not modules: the freeze never writes or lists
+  them, and every check that compares a directory with a manifest ignores any path with a segment
+  beginning with a dot.
 
 ## 5. Data contracts
 
@@ -537,9 +578,8 @@ CDN to load one from. The design has two validators with deliberately different 
   can never quietly use a rule that nothing enforces (M1-U7). The interpreter is tooling, used by
   the tests and the freeze drivers, and never ships to the page.
 - **In the browser: the invariant-guarding checks.** `assets/js/contracts/validate.js` is a
-  hand-written set of check functions, one per entity and container (`checkSignal`, `checkTrend`,
-  `checkRevealBundle`, `checkConversation`, `checkReadiness`, `checkJudgement`,
-  `checkScenarioRecord` and so on). It implements the structural checks Level 2 lists in each
+  hand-written set of check functions, one per entity and container, including the freeze manifest
+  (`checkFreezeManifest`); their signatures are fixed in `04-module-design.md`, M1. It implements the structural checks Level 2 lists in each
   flow's preconditions, plus a deep scan for banned field names at any depth, plus the rules JSON
   Schema cannot express (timestamp order, membership in `MATURITY_LEVEL_NAMES`). It is a deliberate
   subset of the schemas plus those extras: its job is to guard the invariants at the point of
@@ -810,9 +850,10 @@ hosted version."
 | `file://` | Safari | Not covered; no macOS machine in the toolchain is assumed |
 
 **The same limit applies to the tooling.** The browser test runner `tests/run.html` and the browser
-freeze driver `pipeline/freeze.html` are module pages too, and also read files, so they need a
-static origin: a local static server, or the published site itself, since GitHub Pages serves the
-whole repository root. From `file://` in Chromium they cannot start, and they say so.
+freeze driver `pipeline/freeze.html` are module pages too, and load JSON through import
+attributes, so they need a static origin: a local static server, or the published site itself,
+since GitHub Pages serves the whole repository root. From `file://` in Chromium they cannot start,
+and they say so.
 
 ## 10. Module boundaries and dependency direction
 
@@ -997,7 +1038,8 @@ which I may not edit, and two open items Level 2 hands to the Orchestrator.
 - **F-3. The verification record needs a machine-readable part** (open). For each entity,
   including each conversation-question set and the governance container: its type, identifier,
   the SHA-256 hash of its canonical JSON (keys sorted recursively, no whitespace, UTF-8), a verdict
-  (`pass` or `struck`) and a note.
+  (`pass` or `struck`) and a note, as `pipeline/output/verification.json` in the shape
+  `{ entities: [{ type, id, hash, verdict, note }] }` that the freeze core reads (section 4).
 - **F-4. Someone transcribes the readiness answers and the replay entries into JSON** (open). The
   Cowork outputs are Markdown; `readiness.json` and `log.json` must be written against the schemas
   and pass the Verifier. Under K-7, the replay judgements are written by the Rival Readers and the
@@ -1017,8 +1059,10 @@ which I may not edit, and two open items Level 2 hands to the Orchestrator.
 - **F-9. No Node runtime on the build machine.** Nothing in the design depends on Node: tests run
   from `tests/run.html` and the freeze from `pipeline/freeze.html`, both from a static origin. But
   without Node the build machine has no local static server either, so the browser runner can only
-  be used from the published site, after a push. **Recommendation:** install a current Node LTS
-  (22 or later) on the build machine. It adds no dependency to the project (still no package
+  be used from the published site, after a push, and every test that reads raw file text skips
+  there unless DM-11 is approved. **Recommendation:** install Node **22.7 or later** on the build
+  machine; that is the minimum for `node --test` to load JSON through import attributes with no
+  `package.json` in the repository. It adds no dependency to the project (still no package
   manager, nothing in the repository changes), gives `node --test` and a one-line static server,
   and removes a push from every test cycle. This needs Miguel's consent, since it is his machine.
 - **F-10. `test-plan.md`** (Test Engineer). Invariant audit 5 still lists five labels; it should
@@ -1072,12 +1116,16 @@ marked **open**.
 | DM-11 Test tooling reads files by same-origin requests | **Open, new on 5 Oct 2026** | See below | `04-module-design.md`, runner contract |
 | K-5 F1 judgements in F4 | 4 Oct 2026 | No; revisit only if G5 viewers miss them. **Open until G5** | C-1 in Level 2; F4 replay statement |
 
-**DM-11. May the test and freeze tooling read repository files by same-origin `fetch()` in the
-browser?** `CLAUDE.md` forbids `fetch()` "at runtime", which I read as the demo's runtime. The
-browser test runner must read schemas, briefs and source files to run the content tests and static
-audits, and a browser cannot read a file as text any other way. The proposal: `fetch()` is allowed
-only in `tests/lib/env.mjs` and `pipeline/freeze.html`, only for relative, same-origin paths; no
-file in `index.html`, `assets/` or `data/` may contain it (M10-U1 unchanged); no page of the demo
-links to the tooling. **Recommendation: allow.** The alternative is that every test needing a file
-runs only under Node, which, with no Node installed (F-9), leaves the content tests and static
-audits unrunnable until Node is installed.
+**DM-11. May the browser test runner read repository files as text by same-origin `fetch()`?**
+Until Miguel decides, the answer in the repository is no: there is no `fetch()` or XHR anywhere,
+tests and tooling included. JSON (schemas, pipeline output) and JavaScript modules (fixtures,
+`data/`, code under test) load in both runners through `import()`, JSON with import attributes, so
+neither needs `fetch()`, and nor does `pipeline/freeze.html`. What a browser cannot do without
+`fetch()` is read a file as raw text, which the static audits, the Markdown brief checks and the
+byte-for-byte comparisons need; in the browser runner those tests are reported as skipped with the
+reason "needs Node or DM-11", and they run under Node. `CLAUDE.md` forbids `fetch()` "at runtime",
+which I read as the demo's runtime, so the proposal is: allow `fetch()` only in `tests/lib/env.mjs`,
+only for relative, same-origin paths; no file in `index.html`, `assets/`, `data/` or `pipeline/`
+may contain it (M10-U1 unchanged); no demo page links to the runner. **Recommendation: allow**, if
+Node cannot be installed (F-9); if Node is installed, DM-11 matters only for running the text-based
+tests from the browser, and can be declined at no cost.
