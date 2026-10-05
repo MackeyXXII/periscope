@@ -12,8 +12,8 @@ run is finished, this line will say so.
 | Runtime agents' instructions updated (F-1 to F-4, F-8, K-7, B5, D-1) | Done, 5 Oct |
 | Briefs: persona dossier, scanning brief, replay candidates | Done, 5 Oct (M2 tests pass) |
 | M1 contracts and freeze | Done, 5 Oct (all runnable M1 tests pass) |
-| M9 honesty and M10 shell | In progress |
-| Pipeline: Scout → Trend Analyst → Rival Readers → Interrogator → replay judgements → Verifier outcomes → Trend Analyst second pass → Architect governance draft → Brief Editor → Verifier final pass | Not started |
+| M9 honesty and M10 shell | Started 5 Oct; stopped at the usage limit. Any partial, uncommitted files in assets/ and index.html are unfinished: check them with `node --test`, then finish or redo them. M10-U9 needs `SHIPPED_FILES` in tests/lib/files.mjs updated for M1 and M9/M10 files (Test Engineer) |
+| Pipeline (Scout started 5 Oct and stopped at the usage limit; partial files in pipeline/output/ are unverified and must be redone): Scout → Trend Analyst → Rival Readers → Interrogator → replay judgements → Verifier outcomes → Trend Analyst second pass → Architect governance draft → Brief Editor → Verifier final pass | Not started |
 | Red-team review of content and code | Not started |
 
 ## Items for Miguel collected so far
