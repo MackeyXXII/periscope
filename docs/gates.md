@@ -56,3 +56,70 @@ recommendation where one existed, and confirmed by Miguel in chat on 4 October 2
 | DM-9 | `BRIEF_SIGNAL_CAP` = 5, meaning no more than five; `READING_WPM` = 200; `QUOTE_MAX_WORDS` = 15; replay window 1 Jan to 31 Mar 2026; three questions per interrogation group. |
 | K-7 | The replay judgements are written by the Rival Readers and the Interrogator from the early-2026 signals only, with outcomes withheld; the Verifier attaches the dated outcomes afterwards. The set includes at least one judgement that did not hold. The replay statement names who wrote the judgements and when. |
 | DM-10 | Calibration notes are labelled `ai-generated`, following K-7. |
+
+### Q-5 outcome: who writes the governance argument (debated 5 October 2026, Miguel to confirm)
+
+The question was settled by a structured debate. Three advocate agents each made the strongest case
+for one author, independently and without seeing the others: the Architect, a runtime-pipeline
+pass, and Miguel himself. A neutral adjudicator agent then read all three arguments against the
+invariants and the deadline. All four ran on Opus 5.5. The outcome below is the adjudicator's. It
+stands as a proposal until Miguel confirms it at G2.
+
+**Decision.** The Architect writes the governance argument and is accountable for it. The Scout
+gathers the regulatory sources in the same one-off offline run as the signals. Each argument
+paragraph carries its own label, `ai-generated`. The two lists of what is and is not implemented
+stay `real`, as DM-2 decided, because each is a statement about the demo backed by a named test.
+The Architect changes `governance.schema.json` at G2, not on freeze day: every `argument` item gets
+a required `label` fixed to `ai-generated`, with a matching M1 unit test and a traceability entry.
+Miguel does not write the argument. He accepts or strikes it at G3, and records his reason here.
+
+**Reasoning.** Under DM-2 a label states where text came from, and the label vocabulary is closed.
+Prose written by Miguel would fit none of the labels:
+
+- `yours` means text the viewer types, and Miguel is not the viewer.
+- `real` would blur "a person wrote it" with "verifiable published fact", the confusion DM-1 was
+  decided to avoid.
+
+Miguel writing it would therefore need a seventh label, which means changing an invariant on
+freeze day. Machine-written prose carries `ai-generated` honestly, following K-7 and DM-10.
+
+The Architect is preferred over a new pipeline author for three reasons:
+
+- It is already defined.
+- It wrote architecture section 11, which sets out what own-data ingestion would need.
+- It is best placed to keep the argument consistent with what was actually built.
+
+It has no web tools and needs none. It drafts only from the Scout's frozen source list, and any
+sentence it cannot tie to a listed source is cut.
+
+Checked against each invariant:
+
+- **No ranking (invariant 1).** The prose states conditions, not advice, and passes the C-6
+  language check.
+- **Intuition before AI (invariant 2).** Does not apply; the screen shows no readings.
+- **Rationale (invariant 3).** Applies to Miguel's G3 decision, which he records with a reason.
+- **Sourcing (invariant 4).** The Verifier checks every paragraph against an opened, dated source,
+  or strikes it.
+- **Labelling (invariant 5).** Every label is honest, and there are no live calls.
+
+**Conditions and fallback.** The adjudicator set clock times on the assumption that G3 content work
+began on the morning of 5 October. G2 was still open that day, so the times are recorded here as
+offsets from the start of G3 content work:
+
+| Step | Due |
+|---|---|
+| Scout delivers the regulatory sources | start + 3 h |
+| Architect's draft ready | start + 5 h |
+| Verifier's pass or strike record complete | start + 7 h |
+
+Struck paragraphs are dropped, not softened. If no paragraph has passed at start + 7 h, the
+Architect cuts the argument to one paragraph. That paragraph states the system conditions from
+section 11 and makes a single regulatory claim, citing the GDPR's own definition of personal data.
+The Verifier checks it against EUR-Lex within two hours. If that paragraph is struck too, the
+governance argument stays out of the G3 freeze and Miguel decides go or no-go at G4.
+
+**Strongest dissent: Miguel writes it.** Taking a regulatory stance is itself an act of selection,
+and a hiring manager may want to see Miguel's own judgement. This did not prevail for two reasons.
+Labelling his prose honestly would have meant changing an invariant at the last minute, and it
+would have made Miguel's scarce G3 time a single point of failure. His judgement still shows: he
+accepts or strikes the argument, writes his reason, and that decision is recorded in this log.
