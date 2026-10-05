@@ -11,6 +11,11 @@
 export const TEST_FILES = Object.freeze([
   './m1-contracts.test.mjs',
   './m1-freeze.test.mjs',
+  './m2-briefs.test.mjs',
+  './m3-signals.test.mjs',
+  './m4-interpretation.test.mjs',
+  './m5-brief.test.mjs',
+  './m5-brief.browser.mjs',
 ]);
 
 /** Imports every listed file; calls onError(file, error) for each one that fails to load. */
