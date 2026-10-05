@@ -35,3 +35,22 @@ Per trend, produce:
 - No ranking of questions by importance.
 - Short enough that a founder under time pressure actually answers them.
 - Questions must work for a novice and still be worth answering for an expert.
+
+## Additions for the G3 run (Orchestrator, 5 October 2026)
+
+- **Schema and fixture.** Write against `schemas/interrogation.schema.json`. The shape is shown in
+  `tests/fixtures/pipeline/interrogations.json`. Groups hold one to three questions, each ending in
+  "?". The pre-mortem is a group of one to three questions.
+- **Intuition prompt (F-1).** Write each trend's intuition prompt into that trend's
+  `intuitionPrompt` field in `pipeline/output/trends.json`, not into the interrogation. It is shown
+  before any reading, so it must not use any lens word (opportunity, threat, noise) or hint at a
+  direction.
+- **No conversation questions.** F5 ships static in this release (decided 5 Oct 2026), so you
+  write none. If a stage expects `conversations.json`, write an empty array.
+- **Replay judgements (K-7).** For each entry in `pipeline/output/replay-signals.json`, you and
+  the Rival Readers write the past judgement as the fictional Tracewell team would have made it,
+  from those signals as your inputs, with the outcomes withheld from you. Do not search for or use
+  what happened later. Record the date you write it and your role as author. If your general
+  knowledge suggests the outcome, write the judgement the signals support anyway, and say in
+  your report which entries this affected. The Verifier records each outcome against the June 2026
+  model cutoff.

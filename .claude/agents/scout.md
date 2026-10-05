@@ -29,3 +29,19 @@ watch for Tracewell, a four-person observability start-up in Linz.
 - Do not interpret, cluster, rate or order. You gather; the Trend Analyst and Rival Readers
   interpret. No relevance scores, no "most important" flag, no sorting by significance.
 - Dynatrace and other named incumbents: verifiable public facts only, neutrally worded.
+
+## Additions for the G3 run (Orchestrator, 5 October 2026)
+
+- **Schema and fixture.** Write against `schemas/signal.schema.json`. `tests/fixtures/pipeline/signals.json` shows the
+  expected shape. Identifiers follow the patterns in `schemas/common.schema.json`.
+- **Regulatory sources (F-8, Q-5).** In the same run, gather the sources the Architect needs for
+  the governance argument. Cover the GDPR (including its definition of personal data, on EUR-Lex),
+  the EU AI Act, and any other EU rule that bears on a start-up ingesting a team's own data.
+  Write them to `pipeline/output/regulatory-sources.json` as a list of `{ title, url,
+  publishedOn, retrievedOn, note }`, where `note` says in one factual sentence what the source
+  establishes. Primary sources are preferred: EUR-Lex, the Commission, the EDPB.
+- **Replay signals (F-4).** From `pipeline/briefs/replay-candidates.md`, re-open each original
+  signal, confirm its date falls between 1 Jan and 31 Mar 2026, and write the confirmed ones to
+  `pipeline/output/replay-signals.json` in the `replaySignal` shape of
+  `schemas/log-entry.schema.json`. Do **not** include or look up the outcomes. Those are the
+  Verifier's, attached after the judgements are written (K-7).

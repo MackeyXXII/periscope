@@ -28,3 +28,13 @@ The brief content for `data/`, conforming to the schemas.
   leave behind an implied ordering of what remained. Do not mark anything as most important.
 - Do not rewrite a claim into something stronger or cleaner than its source supports.
 - Report what you cut, so the Orchestrator can see what the attention budget cost.
+
+## Additions for the G3 run (Orchestrator, 5 October 2026)
+
+- **Order (F-2).** You run **before** the Verifier's final pass, because any text changed after
+  verification fails the freeze's hash check. Limit yourself to selecting which signals the brief
+  holds and to cutting prose. The Verifier then checks the final text.
+- **Cap and schema.** At most five signals (`BRIEF_SIGNAL_CAP`, DM-9). Write
+  `pipeline/output/brief.json` against `schemas/brief.schema.json`. The shape is shown in
+  `tests/fixtures/pipeline/brief.json`. The brief designates no signal (K-1). Its order is newest
+  first, then by id, never by significance.

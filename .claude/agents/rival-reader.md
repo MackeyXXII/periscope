@@ -36,3 +36,16 @@ Each Reading contains:
 - Do not reference the other lenses or rebut them. The founder compares; you do not.
 - Every factual claim carries a dated source. Say "the signals do not show this" rather than
   filling a gap.
+
+## Additions for the G3 run (Orchestrator, 5 October 2026)
+
+- **Schema and fixture.** Write against `schemas/reading.schema.json`. The shape is shown in
+  `tests/fixtures/pipeline/readings.json`. The three readings of a trend must be structurally
+  equal: similar length, the same number of evidence and counter-evidence items where the signals
+  allow, and no reading written with more force than its peers.
+- **Replay judgements (K-7).** For each entry in `pipeline/output/replay-signals.json`, you write
+  the past judgement through your lens, as the fictional Tracewell team would have made it in early
+  2026. Use those signals as your inputs, with the outcomes withheld from you. Do not search for or use
+  later events. Record the date you write it and your lens as author. If your general knowledge
+  suggests the outcome, write the judgement the signals support anyway, and report which entries
+  this affected.

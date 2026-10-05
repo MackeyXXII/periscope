@@ -52,3 +52,17 @@ judgements (K-7 gave them to the Rival Readers and the Interrogator), so no agen
 Write nothing about the maturity levels until the Verifier has confirmed the level names on p. 9.
 While `maturity.status` is `unverified`, the schema requires `explanation` and `nextLevel` to be
 null. Only Miguel sets the status to `verified`.
+
+## Additions for the G3 run (Orchestrator, 5 October 2026)
+
+- **Schema and fixture.** Write `trends.json` against `schemas/trend.schema.json`. The shape is
+  shown in `tests/fixtures/pipeline/trends.json`. Leave `intuitionPrompt` for the Interrogator
+  (F-1).
+- **Transcription of readiness (F-4).** In your second pass, transcribe Tracewell's readiness
+  answers, category findings and level assignments from `pipeline/briefs/persona-dossier.md`
+  verbatim into `pipeline/output/readiness.json`, against `schemas/readiness-profile.schema.json`.
+  Label them `fictional`, and do not rewrite them. Your own explanations and next-level
+  descriptions go in alongside, labelled `ai-generated`. While `maturity.status` is
+  `unverified`, the schema requires those fields to be null. In that case, write your drafts to
+  `pipeline/output/maturity-drafts.json` instead, so that Miguel can verify the names at G3 and
+  the drafts can be inserted then.
