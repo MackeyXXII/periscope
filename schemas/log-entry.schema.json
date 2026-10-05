@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://periscope.invalid/schemas/log-entry.schema.json",
   "title": "LogEntry",
-  "description": "One entry in the decision log's retrospective replay: real signals from about early 2026, a judgement attributed to the fictional Tracewell team, the real outcome by September 2026 with a dated source, and a qualitative calibration note. A composite: the entry as a whole is replay, and each part carries its own label. There is no verdict field (held / did not hold) and no field that could be tallied across entries; the calibration note is prose only. Shipped in data/log.js as an array.",
+  "description": "One entry in the decision log's retrospective replay: real signals published between REPLAY_WINDOW_START and REPLAY_WINDOW_END (1 Jan to 31 Mar 2026), a judgement written for the fictional Tracewell team from those signals alone with the outcome withheld, the real outcome by September 2026 with a dated source attached afterwards by the Verifier, and a qualitative calibration note (K-7, DM-10). A composite under DM-2: the entry as a whole is replay; each original signal and the outcome are real; every paraphrase inside them and the calibration note are ai-generated. There is no verdict field (held / did not hold) and no field that could be tallied across entries. Shipped in data/log.js as an array.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "originalSignals", "pastJudgement", "outcome", "calibrationNote", "label", "provenance"],
@@ -17,8 +17,8 @@
     "pastJudgement": { "$ref": "#/$defs/pastJudgement" },
     "outcome": { "$ref": "#/$defs/outcome" },
     "calibrationNote": {
-      "description": "Qualitative prose such as 'threat reading held; timing was early'. Its label depends on who writes it (K-3, K-7).",
-      "$ref": "common.schema.json#/$defs/labelledText"
+      "description": "Qualitative prose such as 'threat reading held; timing was early', written offline by an agent after the outcome was attached. Labelled ai-generated (DM-10).",
+      "$ref": "common.schema.json#/$defs/generatedText"
     },
     "role": {
       "description": "R7, designed for and not built: the role of the team member the replayed judgement is attributed to. Absent in every fixture of this build.",
@@ -34,26 +34,39 @@
       "required": ["title", "summary", "source", "label"],
       "properties": {
         "title": { "$ref": "common.schema.json#/$defs/text" },
-        "summary": { "$ref": "common.schema.json#/$defs/labelledText" },
-        "source": { "$ref": "common.schema.json#/$defs/sourceRef" },
+        "summary": {
+          "description": "English paraphrase written by an agent, labelled ai-generated as signal summaries are.",
+          "$ref": "common.schema.json#/$defs/generatedText"
+        },
+        "source": {
+          "description": "Its publishedOn must fall within the replay window (M8-U2).",
+          "$ref": "common.schema.json#/$defs/sourceRef"
+        },
         "label": { "const": "real" }
       }
     },
     "pastJudgement": {
-      "description": "A judgement attributed to the fictional team as of asOfDate, but actually written on authoredOn, after the outcome was known. Both dates are carried so the after-the-fact authorship is visible in the data, not only in the replay statement (K-7). There is deliberately no intuition record: inventing one would be a fabrication.",
+      "description": "A judgement presented as of asOfDate and attributed to the fictional team, but actually written on authoredOn by the agents named in authoredBy, from the original signals only, with the outcome withheld (K-7). Both dates and the authors are in the data, so the replay statement and each entry can say who wrote it and when. There is deliberately no intuition record: inventing one would be a fabrication.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["lens", "rationale", "asOfDate", "authoredOn", "label"],
+      "required": ["lens", "rationale", "asOfDate", "authoredOn", "authoredBy", "label"],
       "properties": {
         "lens": { "$ref": "common.schema.json#/$defs/lens" },
         "rationale": { "$ref": "common.schema.json#/$defs/text" },
         "asOfDate": {
-          "description": "The date whose knowledge the judgement represents. On or after the latest original signal, before the outcome (checked in the M8 unit test).",
+          "description": "The date whose knowledge the judgement represents. On or after the latest original signal, before the outcome's publication (M8-U7).",
           "$ref": "common.schema.json#/$defs/date"
         },
         "authoredOn": {
-          "description": "The date the judgement text was actually written.",
+          "description": "The date the judgement text was actually written. On or before outcome.attachedOn (M8-U7), which is how the data records that the outcome was withheld from the authors.",
           "$ref": "common.schema.json#/$defs/date"
+        },
+        "authoredBy": {
+          "description": "The agents who wrote the judgement (K-7). A subset of the producer vocabulary.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["rival-reader", "interrogator"] }
         },
         "label": { "const": "replay" }
       }
@@ -61,15 +74,19 @@
     "outcome": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["summary", "source", "label"],
+      "required": ["summary", "source", "attachedOn", "label"],
       "properties": {
         "summary": {
-          "description": "Paraphrase of what actually happened.",
-          "$ref": "common.schema.json#/$defs/text"
+          "description": "Paraphrase of what actually happened, written by an agent: ai-generated per part, inside a real outcome.",
+          "$ref": "common.schema.json#/$defs/generatedText"
         },
         "source": {
-          "description": "Real, dated source. Its publishedOn must be later than every original signal's (checked in the M8 unit test). An invented outcome is a project-ending defect.",
+          "description": "Real, dated source. Its publishedOn must be later than every original signal's (M8-U1). An invented outcome is a project-ending defect.",
           "$ref": "common.schema.json#/$defs/sourceRef"
+        },
+        "attachedOn": {
+          "description": "The date the Verifier attached this outcome to the entry. On or after pastJudgement.authoredOn and on or before provenance.frozenOn (M8-U7).",
+          "$ref": "common.schema.json#/$defs/date"
         },
         "label": { "const": "real" }
       }

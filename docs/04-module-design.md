@@ -1,45 +1,85 @@
 # Level 4 — Module design
 
-**Status: designed by the Architect on 19 September 2026; awaiting G2. Owner: Architect (design)
-and Test Engineer (paired unit tests). Gate: G2.**
+**Status: designed by the Architect on 19 September 2026; revised on 5 October 2026 to apply
+Miguel's G2 decisions of 4 October 2026, the Q-5 outcome of 5 October 2026 and the revised Level 2
+(F5 added). Awaiting G2. Owner: Architect (design) and Test Engineer (paired unit tests).**
 
-Ten modules implement the four flows. Each unit test below is written by the Test Engineer
-**before** the Implementer opens that module. The design decisions behind these modules are in
-`03-architecture.md`; this document states, for each module, what it takes in, what it produces,
-which entities it touches, what it may import, where it lives, and the one invariant it is most
-likely to break. It then lists its unit tests as statements the Test Engineer can write directly,
-each with the condition under which it fails.
+Ten modules implement the five flows. F5 is part of M6 (`03-architecture.md`, section 12, A-11),
+so there is no M11. Each unit test below is written by the Test Engineer **before** the Implementer
+opens that module. The design decisions behind these modules are in `03-architecture.md`; this
+document states, for each module, what it takes in, what it produces, which entities it touches,
+what it may import, where it lives, and the one invariant it is most likely to break. It then lists
+every unit test precisely enough to be written from this text alone: its identifier, what it
+asserts and when it fails, its inputs and fixtures, the runner it needs, and its expected status
+before G3.
 
 ## Summary
 
 | Module | Purpose | Runs | Seeded unit test (kept) |
 |---|---|---|---|
-| M1 Data contracts | Schemas, runtime validator, data loader, freeze step | Offline and in the page | All fixtures validate against the schemas |
+| M1 Data contracts | Schemas, vocabulary and constants, runtime validator, data loader, freeze step | Offline and in the page | All fixtures validate against the schemas |
 | M2 Persona and scanning brief | Scenario ground truth | Offline (Cowork) | Every named competitor and regulation is real and dated |
 | M3 Scan pipeline | Scout output into signals | Offline | Every signal has a URL, a date and a summary |
-| M4 Interpretation pipeline | Trends into rival readings and interrogation | Offline | Exactly three readings per trend; each has a disconfirming condition; no `score` or `rank` field exists |
-| M5 Brief composer | R1 attention budget, F2 screen | Offline and in the page | Signal count within the cap; estimated reading time 10 minutes or less |
-| M6 Judgement capture | F1: intuition first, then commit | In the page | AI readings stay hidden until intuition is recorded; commit disabled without a rationale |
-| M7 Readiness and maturity | F3 and the governance screen | In the page | All five readiness categories present; level names match the verified report |
+| M4 Interpretation pipeline | Trends, rival readings, interrogation and conversation questions | Offline | Exactly three readings per trend; each has a disconfirming condition; no `score` or `rank` field exists |
+| M5 Brief composer | R1 attention budget, F2 screen | Offline and in the page | No more than five signals; estimated reading time 10 minutes or less |
+| M6 Judgement and scenario capture | F1 (intuition first, random peer order, commit with rationale) and F5 (own scenario first, then questions) | In the page | AI readings stay out of the page until intuition is recorded; commit disabled without a rationale |
+| M7 Readiness and maturity | F3 and the governance screen | In the page | All five readiness categories present; `LEVEL_NAME_UNVERIFIED` until the level names are verified |
 | M8 Decision log and replay | F4 | In the page | Every replay entry carries a dated, real outcome source |
-| M9 Honesty and provenance layer | NF2 and NF3 in the page | In the page | Every AI-generated, fictional or replayed element carries its label |
-| M10 UI shell and navigation | Click path across F1 to F4 | In the page | No external network requests at runtime |
+| M9 Honesty and provenance layer | NF2 and NF3 in the page | In the page | Every content element carries its label from the six-value vocabulary |
+| M10 UI shell and navigation | Click path across F1 to F5 | In the page | No external network requests at runtime |
 
 ## Conventions for every test below
 
-- **Identifiers.** `M<n>-U<k>`. The seeded tests keep their meaning and are marked *(seeded)*.
-- **Runner.** *node* means a plain ES module test under `node --test`, with no dependencies.
-  *browser* means a test that needs a real DOM, run from the test page in `tests/unit/` served by a
-  local static server. Pure logic is always tested under node; only rendering needs the browser.
-- **Fixtures.** Until G3, content tests run against small synthetic samples in `tests/fixtures/`,
-  each file headed as fictional test data and never imported by the page. From G3 the same tests
-  also run against `data/`, and a content test that finds `data/` empty after G3 fails.
-- **Constants.** `BRIEF_SIGNAL_CAP`, `READING_WPM`, `QUOTE_MAX_WORDS`, `REPLAY_WINDOW_START`,
-  `REPLAY_WINDOW_END` and `VERIFIED_LEVEL_NAMES` live in `assets/js/contracts/constants.js` and
-  are `null` until Miguel sets them (DM-9, D-1). A test that needs a constant fails while it is
-  `null`. That is intended: the test is reporting an open decision.
-- **"Fails when"** states the concrete condition that makes the test fail. A test that cannot fail
-  is not a test.
+- **Identifiers.** `M<n>-U<k>`. The seeded tests keep their meaning and are marked *(seeded)*. A
+  test's name in the runner output begins with its identifier, for example
+  `M6-U7 readings appear in the seeded random order`.
+- **Runner.** *both* means a plain ES module test that runs under `node --test` and from the
+  browser runner `tests/run.html`. *browser* means it needs a real DOM and runs only from
+  `tests/run.html`. *node* means it needs a file-system listing or a child process and runs only
+  under Node; in the browser runner it is reported as skipped with that reason. The contract that
+  lets one file run in both is at the end of this document.
+- **Fixtures.** Synthetic content lives in `tests/fixtures/`, each file headed
+  `// Fictional test data for Periscope unit tests. Never imported by the page.` It contains
+  distinctive marker strings (for example `zebra-alpha-opportunity-text`) so that leak tests can
+  search for them. The layout is:
+  - `tests/fixtures/content/`: modules in the shape of `data/` (`freeze.js`, `signals.js`,
+    `trends.js`, `brief.js`, `reveal/<trendId>.js`, `conversation/<trendId>.js`,
+    `readiness-unverified.js`, `readiness-verified.js`, `governance.js`, `log.js`). At least two
+    trends (`trend-fixture-alpha`, `trend-fixture-beta`) sharing one signal; six signals including
+    two with the same publication date and one German-language source; three log entries, one of
+    them with two original signals.
+  - `tests/fixtures/invalid/`: one module per named invalid case, used by the tests that name it.
+  - `tests/fixtures/session/`: a valid `judgement.js` and `scenario-record.js`.
+  - `tests/fixtures/pipeline/` and `tests/fixtures/expected-data/`: input and expected output of the
+    freeze core.
+  - `tests/fixtures/briefs/`: a small synthetic scanning brief, so that M3-U3 can run before the
+    Cowork briefs exist.
+- **Content source.** `tests/lib/content.mjs` returns the synthetic fixtures while
+  `CONTENT_FROZEN` in `tests/lib/stage.mjs` is `false`, and `data/` once the Orchestrator sets it to
+  `true` in the G3 freeze commit. A content test that finds `data/` missing after that fails.
+- **Constants.** `assets/js/contracts/constants.js` holds the values Miguel fixed on 4 October
+  2026 (DM-9): `BRIEF_SIGNAL_CAP = 5` (a maximum), `READING_WPM = 200`, `QUOTE_MAX_WORDS = 15`,
+  `REPLAY_WINDOW_START = '2026-01-01'`, `REPLAY_WINDOW_END = '2026-03-31'`,
+  `QUESTIONS_PER_GROUP_MAX = 3`; and the build switch `SCENARIO_FLOW`, `'static'` until O-1 is
+  closed. Tests import them; none hard-codes a value except M1-U15, which checks them.
+- **Level names.** `MATURITY_LEVEL_NAMES` in `assets/js/contracts/vocabulary.js` is an empty frozen
+  array until the Verifier has re-opened p. 9 and Miguel has set the status to verified (D-1). Tests
+  of the verified case inject synthetic names (`Fixture level one`, `Fixture level two`,
+  `Fixture level three`) through the `levelNames` option. The three candidate names from the thesis
+  live only in `tests/lib/candidate-level-names.mjs`, for M1-U18.
+- **Status before G3.** At G2 no page or pipeline code exists, so every test that imports it fails
+  with a missing-module error: that is the test-first rule working. The status column says what
+  remains true *after* the module is implemented:
+  - **T**: depends only on test tooling, fixtures and `schemas/`; can pass at G2.
+  - **I**: passes once the module under test is implemented, against the synthetic fixtures.
+  - **G3**: also asserts on `data/`; that part is skipped with the reason "needs data/ (G3)" until
+    `CONTENT_FROZEN`, and fails afterwards if `data/` is absent or wrong.
+  - **B**: needs the Cowork outputs in `pipeline/briefs/` (D-2); fails, naming the missing file,
+    until they exist.
+  - **V**: has a verified-maturity part against `data/`, skipped with the reason "maturity
+    unverified (D-1)" while the frozen profile is unverified.
+  - **Q**: has a conversation-questions part against `data/`, skipped with the reason
+    "SCENARIO_FLOW is static (O-1)" while the switch is `'static'`.
 
 ---
 
@@ -48,36 +88,53 @@ each with the condition under which it fails.
 | | |
 |---|---|
 | **Purpose** | Define what every piece of content must look like, prove every fixture conforms before it ships, and guard the invariants again at the moment the page loads content. The only module that touches `data/`. |
-| **Inputs** | The pipeline's raw JSON in `pipeline/output/` and the Verifier's record (for the freeze step); the frozen modules in `data/` (for the loader). |
-| **Outputs** | `schemas/*.json`; the ES modules in `data/`, written once at G3; for the page, validated and deep-frozen content, or a typed failure the calling screen turns into its error state. |
-| **Entities touched** | All seven entities and all four containers. |
-| **May import** | Nothing. M1's runtime files are leaves. The freeze script imports only Node built-ins (`node:fs`, `node:path`, `node:crypto`). |
-| **Lives in** | `schemas/*.json`; `assets/js/contracts/vocabulary.js` (labels, lenses, banned tokens, identifier patterns); `assets/js/contracts/constants.js`; `assets/js/contracts/validate.js`; `assets/js/contracts/load.js`; `pipeline/freeze.mjs`. Test tooling: `tests/lib/mini-schema.mjs`. |
+| **Inputs** | The pipeline's raw JSON in `pipeline/output/` and the Verifier's record (for the freeze core); the frozen modules in `data/` (for the loader); session records from M6 (for the validator). |
+| **Outputs** | `schemas/*.json`; the ES modules in `data/`, written once at G3; for the page, validated and deep-frozen content, or a typed failure the calling screen turns into its error state; verdicts on in-session records. |
+| **Entities touched** | All nine entities (Signal, Trend, Reading, Interrogation, Judgement, ReadinessProfile, LogEntry, ConversationQuestions, ScenarioRecord) and all four containers. |
+| **May import** | Nothing outside M1. Within M1, `load.js` and `validate.js` import `vocabulary.js` and `constants.js`. The freeze core imports only `tests/lib/mini-schema.mjs`; the Node driver also imports Node built-ins. |
+| **Lives in** | `schemas/*.json`; `assets/js/contracts/vocabulary.js`, `constants.js`, `validate.js`, `load.js`; `pipeline/freeze-core.mjs`, `pipeline/freeze.mjs`, `pipeline/freeze.html`. Tooling: `tests/lib/mini-schema.mjs`. Tests: `tests/unit/m1-contracts.test.mjs`, `tests/unit/m1-freeze.test.mjs`. |
 | **Invariant most at risk** | **Invariant 1, no ranking.** A contract that admits one extra field, one numeric type or one ordinal enumeration lets every agent downstream carry a ranking into the demo with the schema's blessing. The closed-object, no-number and allowlisted-enumeration rules exist to shut this off. |
 
-**Loader interface.** `loadFreeze()`, `loadSignals()`, `loadTrends()`, `loadBrief()`,
-`loadReadiness()`, `loadGovernance()`, `loadLog()`, and `loadReveal(trendId)`. Each resolves to
-`{ ok: true, value }` with a deep-frozen value, or `{ ok: false, reason, withheld }`, and never
-throws. Each uses dynamic `import()` with a literal path, except `loadReveal`, which builds its
-path only from an identifier that matches the trend identifier pattern and appears in the loaded
-trend list. Per-item checks that withhold single items (signals in F2, entries in F4) return the
-valid items plus a count of withheld ones.
+**Interface.** `vocabulary.js` exports `LABELS` (six), `LABEL_DISPLAY` (value to badge text),
+`LENSES` (alphabetical), `PRODUCERS`, `MATURITY_STATUSES`, `READINESS_CATEGORY_KEYS`,
+`PRACTICE_KEYS`, `BANNED_NAME_TOKENS`, `ID_PATTERNS`, `LEVEL_NAME_PLACEHOLDER`
+(`'LEVEL_NAME_UNVERIFIED'`) and `MATURITY_LEVEL_NAMES`. `validate.js` exports one check per entity
+and container, each returning `{ ok: true }` or `{ ok: false, errors }` and never throwing:
+`checkSignal`, `checkBrief`, `checkTrend`, `checkRevealBundle`, `checkConversation`,
+`checkReadiness(profile, { levelNames })`, `checkGovernance`, `checkLogEntry`, `checkLog`,
+`checkJudgement`, `checkScenarioRecord(record, judgement)`, and `findBannedKeys(value)`.
+`load.js` exports `createLoader({ importer })`, returning `loadFreeze()`, `loadSignals()`,
+`loadTrends()`, `loadBrief()`, `loadReadiness()`, `loadGovernance()`, `loadLog()`,
+`loadReveal(trendId)` and `loadConversation(trendId)`. Each resolves to `{ ok: true, value }` with a
+deep-frozen value, or `{ ok: false, reason, withheld }`, and never throws. Per-item checks that
+withhold single items (signals in F2, entries in F4) return the valid items plus a count of
+withheld ones. `loadReveal` and `loadConversation` build a path only from an identifier that matches
+the trend identifier pattern and appears in the loaded trend list. `freeze-core.mjs` exports
+`freeze({ inputs, verification, schemas, frozenOn, pipelineRunOn })`, resolving to
+`{ ok: true, files }` (a `Map` from repository path to file text) or `{ ok: false, errors }`.
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M1-U1 *(seeded)* | Every fixture validates against its schema using the test-side interpreter: each element of `data/signals.js`, `data/trends.js` and `data/log.js`; `data/brief.js`, `data/readiness.js`, `data/governance.js`, `data/freeze.js`; and every `data/reveal/*.js`. | Any fixture produces a validation error. | node |
-| M1-U2 | No property name declared anywhere in `schemas/` (under `properties` at any depth, including inside `$defs`) and no key present anywhere in any fixture has a camelCase or hyphen-separated token in the banned list: score, rank, ranking, ranked, confidence, priority, prioritised, prioritized, weight, weighting, likelihood, probability, importance, rating, featured, highlight, recommended, recommendation, top, best, winner. | Any property name or fixture key contains a banned token. | node |
-| M1-U3 | No schema declares `type` `number`, `integer` or `boolean`, alone or in a type array, at any depth. | Any such declaration exists. | node |
-| M1-U4 | Every subschema in `schemas/` that declares `type: "object"` also declares `additionalProperties: false`. | An object subschema lacks it or sets it to anything else. | node |
-| M1-U5 | Every `enum` in `schemas/` equals, or is a subset of, one of the five allowlisted enumerations in `vocabulary.js` (label, lens, producer, maturity status, readiness category key); the label and lens enumerations in `common.schema.json` equal the constants in `vocabulary.js` exactly; each identifier pattern in `common.schema.json` equals its counterpart in `vocabulary.js`. | Any other enumeration exists, or a schema value and its `vocabulary.js` constant differ. | node |
-| M1-U6 | Mutation agreement. For a valid sample of each entity and container, generate mutants: each required property removed in turn; `score: "x"` added to every object at every depth; a reading reference's lens duplicated; a fourth reading reference added; one removed; rationale set to `""`, `" "` and `"\n\t"`; intuition removed; an evidence item's `publishedOn` removed; a Signal's `provenance.sourceUrl` set to null; a label outside the vocabulary. Every mutant is rejected by both the schema interpreter and `validate.js`. | Either validator accepts any mutant. | node |
-| M1-U7 | The test-side interpreter supports every keyword used in `schemas/`, and throws on a schema that uses a keyword outside its supported list (checked with a deliberately bad schema). | A keyword in `schemas/` is unsupported, or the bad schema does not throw. | node |
-| M1-U8 | A Trend whose reading references have lenses `[opportunity, opportunity, noise]`, or `[opportunity, threat]`, or four references, is rejected by the schema and by `checkTrend`; all six orderings of a valid set of three are accepted by both. | Any invalid set is accepted, or any valid ordering is rejected. | node |
-| M1-U9 | Referential integrity across files. Every `Trend.signalIds` entry resolves to a Signal; every Trend has exactly one reveal bundle whose `trendId` equals its `id`; in each bundle, each Reading's `trendId` equals the bundle's, each Reading's `id` equals the `readingId` the Trend holds for that Reading's lens, and equals `reading-<trend slug>-<lens>`; the Interrogation's `trendId` equals the bundle's; every `Brief.signalIds` entry resolves to a Signal; no two Signals share a `provenance.sourceUrl`. | Any reference dangles or any pair of identifiers disagrees. | node |
-| M1-U10 | `checkJudgement` accepts a well-formed Judgement and rejects one with no `intuition`; one whose rationale is `""`, `"   "` or `"\n"`; one whose `readingsRevealedAt` is earlier than `intuition.recordedAt`; and one whose `committedAt` is earlier than `readingsRevealedAt`. | Any of the four invalid Judgements is accepted, or the valid one is rejected. | node |
-| M1-U11 | The freeze script refuses to write anything when an entity in its input has no `pass` verdict in the verification record, when the entity's canonical-JSON SHA-256 differs from the recorded hash, or when an entity fails its schema; it exits non-zero and leaves the output directory unchanged. Run against copies in a temporary directory. | The script writes any file, or exits zero, in any of the three cases. | node |
-| M1-U12 | `loadReveal` refuses `"../x"`, `"trend-unknown"` (well-formed but not in the trend list) and `"Trend-A"` without calling the injected importer, and returns `{ ok: false }`. | The importer is called for any of the three, or the loader throws. | node |
-| M1-U13 | Freeze determinism and inert modules. Running the freeze script on `tests/fixtures/pipeline/` produces output byte-identical to `tests/fixtures/expected-data/`; from G3, running it on `pipeline/output/` reproduces the committed `data/` byte for byte. Every file in `data/` contains exactly one `export default` and no `import`, `function`, `=>` or `new`. `data/freeze.js` lists exactly the files present in `data/`. | Any byte differs, any data module contains code, or the manifest and the directory disagree. | node |
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M1-U1 *(seeded)* | Every content module validates against its schema using `mini-schema.mjs`: each element of `signals`, `trends` and `log`; `brief`, `readiness`, `governance`, `freeze`; every reveal and conversation module listed in the manifest; and the session samples against `judgement.schema.json` and `scenario-record.schema.json`. Fails on any validation error, reported with file and path. | Content source; `tests/fixtures/session/`; `schemas/` | both | T, G3 |
+| M1-U2 | No property name in `schemas/` (under `properties` at any depth, including `$defs`, and in every `required` array) and no key anywhere in any content module contains a banned token. Names are split into tokens at camelCase boundaries and hyphens. Tokens: score, scores, scoring, rank, ranks, ranked, ranking, confidence, priority, priorities, prioritise, prioritised, prioritize, prioritized, weight, weighting, likelihood, probability, importance, rating, featured, highlight, recommended, recommendation, top, best, winner. Fails on any match, naming file and path. | `schemas/`; content source | both | T, G3 |
+| M1-U3 | No schema declares `type` `number`, `integer` or `boolean`, alone or in a type array, at any depth. Fails on any such declaration. | `schemas/` | both | T |
+| M1-U4 | Every subschema in `schemas/` that declares `type: "object"` also declares `additionalProperties: false`. Fails otherwise. | `schemas/` | both | T |
+| M1-U5 | Every `enum` in `schemas/` equals, or is a subset of, one of the six allowlists in `vocabulary.js` (`LABELS`, `LENSES`, `PRODUCERS`, `MATURITY_STATUSES`, `READINESS_CATEGORY_KEYS`, `PRACTICE_KEYS`); the `label`, `lens`, `producer` and `practiceKey` enumerations in `common.schema.json` equal their constants exactly, `label` having the six values including `yours`; each identifier pattern in `common.schema.json` equals its `ID_PATTERNS` counterpart; `LABEL_DISPLAY` has exactly the six keys; `brief.schema.json` `signalIds.maxItems` equals `BRIEF_SIGNAL_CAP`; the `maxItems` of `provenanceChecks`, `assumptionProbes`, `preMortem` and `questions` equal `QUESTIONS_PER_GROUP_MAX`. Fails on any other enumeration or any mismatch. | `schemas/`; `vocabulary.js`; `constants.js` | both | I |
+| M1-U6 | Mutation agreement. For a valid sample of each entity and container, the test generates mutants: each required property removed in turn; `score: "x"` added to every object at every depth; a reading reference's lens duplicated; a fourth reading reference added; one removed; rationale set to `""`, `" "` and `"\n\t"`; intuition removed; an evidence item's `publishedOn` removed; a Signal's `provenance.sourceUrl` set to null; any `label` set to `"verified"`; a Signal's label set to `"yours"`; a Judgement's label set to `"ai-generated"`; a governance argument item's `label` removed and set to `"real"`; a conversation question's text without `?`; four conversation questions; four pre-mortem questions; an unverified practice with `levelName` other than the placeholder; a ScenarioRecord with `whatWasHeard` `" "`. Every mutant is rejected by both `mini-schema.mjs` and the matching `validate.js` check. Fails if either accepts any mutant. | `tests/fixtures/content/`; `tests/fixtures/session/` | both | I |
+| M1-U7 | `mini-schema.mjs` supports every keyword used in `schemas/`, and throws on a schema that uses a keyword outside its list. Fails if a keyword in `schemas/` is unsupported, or if the bad schema validates without throwing. | `schemas/`; `tests/fixtures/invalid/bad-schema.json` (uses `exclusiveMinimum`) | both | T |
+| M1-U8 | A Trend whose reading references have lenses `[opportunity, opportunity, noise]`, or `[opportunity, threat]`, or four references, is rejected by the schema and by `checkTrend`; all six orderings of a valid set of three are accepted by both. Fails if any invalid set is accepted or any valid ordering rejected. | A valid fixture Trend, mutated in memory | both | I |
+| M1-U9 | Referential integrity across modules. Every `Trend.signalIds` entry resolves to a Signal; every Trend has exactly one reveal bundle with its `trendId`; in each bundle each Reading's `trendId` equals the bundle's, its `id` equals the `readingId` the Trend holds for its lens and equals `reading-<trend slug>-<lens>`; the Interrogation's `trendId` equals the bundle's; either every Trend has exactly one conversation module whose `trendId` equals it and whose `id` is `conversation-<trend slug>`, or no conversation module exists; every `Brief.signalIds` entry resolves; no two Signals share `provenance.sourceUrl`. Fails on any dangling reference or disagreeing identifier, or on a partial set of conversation modules. | Content source | both | T, G3, Q |
+| M1-U10 | `checkJudgement` accepts the valid session Judgement and rejects one with no `intuition`; rationale `""`, `"   "` or `"\n"`; `readingsRevealedAt` earlier than `intuition.recordedAt`; `committedAt` earlier than `readingsRevealedAt`; `label` other than `"yours"`. Fails if any invalid Judgement is accepted or the valid one rejected. | `tests/fixtures/session/judgement.js`, mutated in memory | both | I |
+| M1-U11 | The freeze core returns `{ ok: false }`, with an error naming the entity and no files, when an entity has no `pass` verdict, when its canonical-JSON SHA-256 differs from the recorded hash, or when it fails its schema. Under Node, the driver run against a temporary copy exits non-zero and leaves the output directory byte-identical. Fails if any file is produced or written, or the driver exits zero, in any case. | `tests/fixtures/pipeline/`, mutated in memory | both (driver part: node) | I |
+| M1-U12 | `loadReveal` and `loadConversation` each refuse `"../x"`, `"trend-unknown"` (well-formed but not in the trend list) and `"Trend-A"` without calling the injected importer, and resolve to `{ ok: false }`. Fails if the importer is called for any of the six cases or the loader throws. | Injected importer spy; fixture trend list | both | I |
+| M1-U13 | Freeze determinism. The core on `tests/fixtures/pipeline/` produces exactly the files in `tests/fixtures/expected-data/`, byte for byte, including the header line and trailing newline; running it twice gives identical output; from G3, the core on `pipeline/output/` reproduces the committed `data/` byte for byte. Fails on any byte difference or any extra or missing file. | Fixture pipeline and expected data; from G3, `pipeline/output/`, `data/` | both | I, G3 |
+| M1-U14 | Inert data modules and a truthful manifest. Every module listed in the manifest consists of the fixed header line, then exactly one `export default` of a literal, and contains no `import`, `function`, `=>`, `new ` or backtick. The manifest's `modules` list equals the set of files in `data/` (listing part under Node only). Fails on any code in a data module or any disagreement. | `tests/fixtures/expected-data/`; from G3, `data/` | both (listing: node) | T, G3 |
+| M1-U15 | `constants.js` exports exactly `BRIEF_SIGNAL_CAP` 5, `READING_WPM` 200, `QUOTE_MAX_WORDS` 15, `REPLAY_WINDOW_START` `'2026-01-01'`, `REPLAY_WINDOW_END` `'2026-03-31'`, `QUESTIONS_PER_GROUP_MAX` 3, and `SCENARIO_FLOW` equal to `'static'` or `'interactive'`. Fails if any is missing, null or different. | `constants.js` | both | I |
+| M1-U16 | Nothing unverified ships. Every entity in `data/` (each signal, trend, reading, interrogation, conversation set, log entry, the readiness profile, the governance container and the brief) has a `pass` verdict in `pipeline/output/verification.json` whose hash equals the SHA-256 of the entity's canonical JSON. Fails on any entity without a matching `pass`. | `data/`; `pipeline/output/verification.json` | both | G3 |
+| M1-U17 | Q-5: governance argument labels. Every `argument` item in the governance content has `label` `"ai-generated"`; the container's `label` is `"real"`; the schema and `checkGovernance` both reject an argument item with no `label`, with `"real"` and with `"yours"`. Fails on any other label or any accepted mutant. | Content source governance; mutants in memory | both | T, G3 (checker part: I) |
+| M1-U18 | D-1: the level names have one home. Using the candidate names in `tests/lib/candidate-level-names.mjs`, matched case-insensitively: no file in `schemas/` contains any candidate; in `index.html` and `assets/`, candidates may appear only in `assets/js/contracts/vocabulary.js`; while the readiness content is unverified, `MATURITY_LEVEL_NAMES` is empty and no candidate appears in `index.html`, `assets/` or `data/`; the literal `LEVEL_NAME_UNVERIFIED` appears in `assets/` only in `vocabulary.js`. Fails on any match outside those places. | `schemas/`; `index.html`; `assets/` (via the file inventory); content source readiness | both | I, G3 |
+| M1-U19 | `checkScenarioRecord(record, judgement)` accepts the valid session pair and rejects: `whatWasHeard` or `howItCouldPlayOut` equal to `""`, `" "` or `"\n\t"`; `recordedAt` equal to or earlier than the Judgement's `committedAt`; `trendId` different from the Judgement's; `label` other than `"yours"`; `producedBy` other than `["viewer"]`; a note equal to `""`. Fails if any invalid record is accepted or the valid one rejected. | `tests/fixtures/session/` | both | I |
+| M1-U20 | `checkReadiness` accepts `readiness-unverified.js` and, with the three fixture level names injected, `readiness-verified.js`. It rejects, with names injected: a verified `levelName` not in the list; a `nextLevel.levelName` that is not the successor of `levelName` in the list; a practice at the last listed level with a described next level instead of `noLevelAboveCitation`; a practice below the last level with `noLevelAboveCitation`; `betweenLevels.lowerLevelName` different from `levelName`; `betweenLevels.upperLevelName` not the successor; a verified profile checked with an empty list; an unverified profile with a non-null explanation; a profile with two practices. Fails if any is accepted or a valid fixture rejected. | `tests/fixtures/content/readiness-*.js`, mutated in memory | both | I |
 
 ---
 
@@ -87,19 +144,24 @@ valid items plus a count of withheld ones.
 |---|---|
 | **Purpose** | The scenario's ground truth: who Tracewell is, what it faces in early 2026, which real incumbents, technologies and regulations surround it, what the Scout scans, and which early-2026 signals have documented outcomes for the replay. |
 | **Inputs** | Public sources, researched in Claude Cowork by the Persona and Brief Researcher. |
-| **Outputs** | `pipeline/briefs/persona-dossier.md`, `scanning-brief.md`, `replay-candidates.md`. Each carries a section headed "Named entities" with a table of columns Name, Kind, Source URL, Date (follow-up F-5 in the architecture). |
+| **Outputs** | `pipeline/briefs/persona-dossier.md`, `scanning-brief.md`, `replay-candidates.md`, written to the Markdown conventions below so that they can be checked (follow-up F-5 in the architecture). |
 | **Entities touched** | None directly. Feeds Signal (through M3), ReadinessProfile (M7) and LogEntry (M8). |
 | **May import** | Not code. No page file may reference `pipeline/briefs/`. |
 | **Lives in** | `pipeline/briefs/`. Test: `tests/unit/m2-briefs.test.mjs`. |
 | **Invariant most at risk** | **Invariant 4, every factual claim is sourced.** The dossier is where real-world facts about Dynatrace, OpenTelemetry and EU regulation enter the project, and an unsourced fact here propagates into every downstream agent's output as if it were ground truth. |
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M2-U1 *(seeded, made testable)* | Every row of every "Named entities" table has a non-empty name, a Kind from {competitor, incumbent, technology, regulation, standard, publication}, an `https://` Source URL and an ISO date. Whether the entity is real is the Verifier's check at G3; this test guarantees the claim is checkable. | A briefs file lacks the section, or any row lacks a field or has a malformed URL or date. | node |
-| M2-U2 | Every organisation named in any fixture's `publisher` field, and the words "Dynatrace" and "OpenTelemetry" wherever they appear in fixture text, appear as a Name in some "Named entities" table. | A fixture names a publisher or incumbent not in the tables. | node |
-| M2-U3 | The persona dossier states that Tracewell is fictional, lists exactly five readiness categories, and cites Jöhnk et al. (2021) with an `https://` URL and a date. | Any of the three is missing. | node |
-| M2-U4 | The scanning brief states a time window as two ISO dates, start before end. | The window is missing, malformed or reversed. | node |
-| M2-U5 | Every entry in `replay-candidates.md` has both an original-signal URL and date and an outcome URL and date, with the outcome date later. | Any candidate lacks either source or has the dates reversed. | node |
+**Markdown conventions the tests parse.** Each file has a section headed `## Named entities` with a
+table of columns Name, Kind, Source URL, Date. The scanning brief has a line
+`Window: YYYY-MM-DD to YYYY-MM-DD`. Each replay candidate is a `###` heading followed by a line
+`Original: <url> (YYYY-MM-DD)` for each original signal and one line `Outcome: <url> (YYYY-MM-DD)`.
+
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M2-U1 *(seeded, made testable)* | Every row of every "Named entities" table has a non-empty Name, a Kind from {competitor, incumbent, technology, regulation, standard, publication}, an `https://` Source URL and an ISO date. Whether the entity is real is the Verifier's check at G3; this test guarantees the claim is checkable. Fails if a file lacks the section or any row lacks a field or has a malformed URL or date. | The three briefs files | both | B |
+| M2-U2 | Every `publisher` in any content module, and the words "Dynatrace" and "OpenTelemetry" wherever they appear in content text, appear as a Name in some "Named entities" table. Fails, naming the item, on any absence. | Briefs; content source | both | B, G3 |
+| M2-U3 | The persona dossier states that Tracewell is fictional (contains "fictional" within the paragraph that first names Tracewell), names the five readiness categories (strategic alignment, resources, knowledge, culture, data), and cites Jöhnk et al. (2021) with an `https://` URL and a date. Fails if any is missing. | `persona-dossier.md` | both | B |
+| M2-U4 | The scanning brief has a `Window:` line with two ISO dates, start before end. Fails if missing, malformed or reversed. | `scanning-brief.md` | both | B |
+| M2-U5 | Every replay candidate has at least one `Original:` line and one `Outcome:` line with URL and date; every original date lies within `REPLAY_WINDOW_START` to `REPLAY_WINDOW_END`; the outcome date is later than every original date and no later than 2026-09-30. Fails on any missing source or date out of range. | `replay-candidates.md`; `constants.js` | both | B |
 
 ---
 
@@ -107,22 +169,22 @@ valid items plus a count of withheld ones.
 
 | | |
 |---|---|
-| **Purpose** | Turn the Scout's run against the scanning brief into verified, dated, linked Signals. |
+| **Purpose** | Turn the Scout's run against the scanning brief into verified, dated, linked Signals; and, under the Q-5 outcome, gather the regulatory source list the governance argument is drafted from. |
 | **Inputs** | `pipeline/briefs/scanning-brief.md`; the open web, through the Scout, once, offline. |
-| **Outputs** | `pipeline/output/signals.json`; after the freeze, `data/signals.js`. |
+| **Outputs** | `pipeline/output/signals.json` and the regulatory source list; after the freeze, `data/signals.js`. |
 | **Entities touched** | Signal. |
-| **May import** | Not page code. Writes to `schemas/signal.schema.json`. |
-| **Lives in** | `pipeline/output/signals.json`, `data/signals.js`. Test: `tests/unit/m3-signals.test.mjs`. |
-| **Invariant most at risk** | **Invariant 4, every factual claim is sourced**, in its most serious form: a fabricated or mis-dated signal is a project-ending defect. The contract forces a URL and dates to be present; only the Verifier can confirm they are true, which is why the freeze step refuses anything the Verifier did not pass. |
+| **May import** | Not page code. Writes against `schemas/signal.schema.json`. |
+| **Lives in** | `pipeline/output/`, `data/signals.js`. Test: `tests/unit/m3-signals.test.mjs`. |
+| **Invariant most at risk** | **Invariant 4, every factual claim is sourced**, in its most serious form: a fabricated or mis-dated signal is a project-ending defect. The contract forces a URL and dates to be present; only the Verifier can confirm they are true, which is why nothing ships without a `pass` (M1-U16). |
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M3-U1 *(seeded)* | Every Signal has an `https://` `provenance.sourceUrl`, a publisher, a `publishedOn`, a `retrievedOn` and a non-empty `summary.text`. | Any Signal lacks any of them. | node |
-| M3-U2 | For every Signal, `publishedOn` ≤ `retrievedOn` ≤ `frozenOn`. | Any Signal has a date out of that order, for example a retrieval before publication. | node |
-| M3-U3 | Every Signal whose `publishedOn` falls outside the scanning brief's window carries a `windowNote`, and no Signal inside the window carries one. | A signal outside the window has no note, or one inside has a note. | node |
-| M3-U4 | Every `quote` has at most `QUOTE_MAX_WORDS` words (split on whitespace). | Any quote is longer, or `QUOTE_MAX_WORDS` is `null`. | node |
-| M3-U5 | The date inside every Signal `id` equals its `publishedOn`, so identifiers cannot encode an order of importance. | Any identifier's date differs from its publication date. | node |
-| M3-U6 | No `summary.text`, `relevanceNote.text` or `windowNote` contains a C-6 forbidden term (best, better option, recommended, recommendation, top, priority, prioritise, rank, ranking, score, confidence, most important, most likely, key signal, must-read, winner) or a relevance level (high, medium, low, critical, minor) as a whole word, case-insensitive. Quotes are excluded here and listed for Red-team review instead (C-6). | Any match. | node |
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M3-U1 *(seeded)* | Every Signal has an `https://` `provenance.sourceUrl`, a publisher, a `publishedOn`, a `retrievedOn` and a non-empty `summary.text`. Fails if any Signal lacks any of them. | Content source signals | both | T, G3 |
+| M3-U2 | For every Signal, `publishedOn` ≤ `retrievedOn` ≤ `frozenOn`. Fails on any date out of that order. | Content source signals | both | T, G3 |
+| M3-U3 | Every Signal published outside the scanning brief's window carries a `windowNote`, and no Signal inside it does. Fails on a missing or superfluous note. | Fixture signals with `tests/fixtures/briefs/scanning-brief.md`; from G3, `data/` with `pipeline/briefs/scanning-brief.md` | both | T, B, G3 |
+| M3-U4 | Every `quote` has at most `QUOTE_MAX_WORDS` (15) words, split on whitespace. Fails on any longer quote. The fixture includes one quote of exactly 15 words. | Content source signals; `constants.js` | both | I, G3 |
+| M3-U5 | The date inside every Signal `id` equals its `publishedOn`. Fails on any disagreement. | Content source signals | both | T, G3 |
+| M3-U6 | No `summary.text`, `relevanceNote.text` or `windowNote` contains, as a whole word and case-insensitively, a C-6 term (best, better option, recommended, recommendation, top, priority, prioritise, rank, ranking, score, confidence, most important, most likely, key signal, must-read, winner) or a relevance level (high, medium, low, critical, minor). Quotes are excluded and listed in the output for Red-team review (C-6). Fails on any match. | Content source signals | both | T, G3 |
 
 ---
 
@@ -130,25 +192,27 @@ valid items plus a count of withheld ones.
 
 | | |
 |---|---|
-| **Purpose** | Turn signals into lens-neutral trends, three rival readings per trend, and the questioning layer. |
+| **Purpose** | Turn signals into lens-neutral trends, three rival readings per trend, the questioning layer, and the conversation questions F5 shows after the founder's own scenario. |
 | **Inputs** | `pipeline/output/signals.json`; the Trend Analyst, three Rival Readers and the Interrogator, once, offline. |
-| **Outputs** | `pipeline/output/trends.json`, `readings.json`, `interrogations.json`; after the freeze, `data/trends.js` and one `data/reveal/<trendId>.js` per trend. |
-| **Entities touched** | Trend, Reading, Interrogation; RevealBundle. |
-| **May import** | Not page code. Writes to the Trend, Reading and Interrogation schemas. |
+| **Outputs** | `pipeline/output/trends.json`, `readings.json`, `interrogations.json`, `conversations.json`; after the freeze, `data/trends.js`, one `data/reveal/<trendId>.js` and, once O-1 is closed, one `data/conversation/<trendId>.js` per trend. |
+| **Entities touched** | Trend, Reading, Interrogation, ConversationQuestions; RevealBundle. |
+| **May import** | Not page code. Writes against the Trend, Reading, Interrogation and ConversationQuestions schemas. |
 | **Lives in** | The files above. Test: `tests/unit/m4-interpretation.test.mjs`. |
 | **Invariant most at risk** | **Invariant 1, no ranking**, through its subtle form: one reading written with more force, more evidence or more questioning than its peers, or a trend summary that already leans one way. The contract equalises the structure; the lexical tests below catch the crudest leaks, and the Verifier and Red-team catch the rest. |
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M4-U1 *(seeded)* | Every Trend has exactly three reading references with lenses exactly {noise, opportunity, threat}, and its reveal bundle has exactly three Readings with the same lenses. | Any trend or bundle has a missing, extra or duplicated lens. | node |
-| M4-U2 *(seeded)* | Every Reading has non-empty `text`, at least one `evidence` item and at least one `counterEvidence` item each with a full `sourceRef`, and a non-empty `disconfirmingCondition`. | Any Reading lacks any of them. | node |
-| M4-U3 *(seeded)* | No key named `score`, `rank`, `confidence` or `priority`, or containing any banned token from M1-U2, exists anywhere in `data/trends.js` or any reveal bundle, at any depth. | Any such key exists. | node |
-| M4-U4 | Every evidence and counter-evidence source has `publishedOn` ≤ `retrievedOn` ≤ the bundle's `frozenOn`. | Any source date is out of order. | node |
-| M4-U5 | Lens neutrality before the gut reading. No Trend `title`, `summary` or `intuitionPrompt` contains, as a whole word and case-insensitively, opportunity, opportunities, threat, threats, threatening, noise, noisy, risk, risky, danger, dangerous, promising, overhyped or hype. (A lexical floor only; the Verifier judges neutrality at G3.) | Any match. | node |
-| M4-U6 | No intuition prompt shares a run of six or more consecutive words (case-insensitive, punctuation stripped) with any text in its trend's readings. | Any shared run of six words exists. | node |
-| M4-U7 | No Reading refers to another lens's reading: an opportunity reading's text does not contain the phrases "threat reading" or "noise reading", and likewise for each lens. | Any cross-reference phrase appears. | node |
-| M4-U8 | Every Interrogation has one to three provenance checks, one to three assumption probes and one pre-mortem; every question's text ends with "?"; question identifiers are unique across all interrogations. | Any group is empty or over three, any question lacks the question mark, or an identifier repeats. | node |
-| M4-U9 | No reading, evidence item, disconfirming condition or question contains a C-6 forbidden term (as listed in M3-U6) as a whole word. | Any match. | node |
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M4-U1 *(seeded)* | Every Trend has exactly three reading references with lenses exactly {noise, opportunity, threat}, and its reveal bundle has exactly three Readings with the same lenses. Fails on a missing, extra or duplicated lens. | Content source | both | T, G3 |
+| M4-U2 *(seeded)* | Every Reading has non-empty `text`, at least one `evidence` and one `counterEvidence` item each with a full `sourceRef`, and a non-empty `disconfirmingCondition`. Fails if any Reading lacks any of them. | Content source reveal bundles | both | T, G3 |
+| M4-U3 *(seeded)* | No key named `score`, `rank`, `confidence` or `priority`, or containing a banned token from M1-U2, exists anywhere in the trends, any reveal bundle or any conversation module, at any depth. Fails on any such key. | Content source | both | T, G3 |
+| M4-U4 | Every evidence and counter-evidence source has `publishedOn` ≤ `retrievedOn` ≤ the Reading's `frozenOn`. Fails on any date out of order. | Content source reveal bundles | both | T, G3 |
+| M4-U5 | Lens neutrality before the gut reading. No Trend `title`, `summary` or `intuitionPrompt` contains, as a whole word and case-insensitively, opportunity, opportunities, threat, threats, threatening, noise, noisy, risk, risky, danger, dangerous, promising, overhyped or hype. A lexical floor only; the Verifier judges neutrality at G3. Fails on any match. | Content source trends | both | T, G3 |
+| M4-U6 | No intuition prompt shares a run of six or more consecutive words (case-insensitive, punctuation stripped) with any text in its trend's readings. Fails on any shared run. | Content source | both | T, G3 |
+| M4-U7 | No Reading refers to another lens's reading: an opportunity reading does not contain "threat reading" or "noise reading", and likewise for each lens. Fails on any cross-reference phrase. | Content source reveal bundles | both | T, G3 |
+| M4-U8 | Every Interrogation has one to `QUESTIONS_PER_GROUP_MAX` (3) provenance checks, assumption probes and pre-mortem questions; every question ends with "?"; question identifiers are unique across all interrogations and all conversation-question sets. Fails on an empty or oversized group, a missing question mark or a repeated identifier. | Content source; `constants.js` | both | I, G3 |
+| M4-U9 | No reading text, evidence or counter-evidence claim, disconfirming condition or interrogation question contains a C-6 term (as in M3-U6) as a whole word. Fails on any match. | Content source reveal bundles | both | T, G3 |
+| M4-U10 | Conversation questions are questions, lens-free and not advice: each set has one to three questions; each ends with "?"; none contains a C-6 term, a lens word from M4-U5, or (whole word, case-insensitive) should, must, need to, recommend, advise, advice; each set's `trendId` resolves to a Trend. Fails on any violation. | Content source conversation modules | both | T, G3, Q |
+| M4-U11 | Conversation questions favour no reading: no question shares a run of six or more consecutive words with any of its trend's three reading texts or disconfirming conditions. Fails on any shared run. | Content source | both | T, G3, Q |
 
 ---
 
@@ -156,61 +220,92 @@ valid items plus a count of withheld ones.
 
 | | |
 |---|---|
-| **Purpose** | R1's attention budget made concrete: a small set of signals that reads in about ten minutes, each a door into F1 (F2). |
+| **Purpose** | R1's attention budget made concrete: no more than five signals that read in about ten minutes, each a door into F1 (F2). The entry screen (DM-7). |
 | **Inputs** | Offline: verified signals, through the Brief Editor. In the page: the Brief container, the Signals, and the Trends (only to draw each signal's trend links). |
-| **Outputs** | Offline: `pipeline/output/brief.json` and `data/brief.js`. In the page: screen states `F2-S1`, `F2-S0`, `F2-W1`, `F2-S2`, `F2-E1`. |
+| **Outputs** | Offline: `pipeline/output/brief.json` and `data/brief.js`. In the page: `F2-S1`, `F2-S0`, `F2-W1`, `F2-S2`, `F2-E1`. |
 | **Entities touched** | Brief (container), Signal; Trend read-only for titles and identifiers, never its readings. |
-| **May import** | M1 (`load.js`, `validate.js`, `constants.js`), M9, M10's leaf `shell/routes.js`. |
-| **Lives in** | `assets/js/screens/brief.js`; `data/brief.js`. Test: `tests/unit/m5-brief.test.mjs` (node) and `tests/unit/m5-brief.browser.mjs` (browser). |
+| **May import** | M1 (`load.js`, `validate.js`, `constants.js`, `vocabulary.js`), M9, M10's leaf `shell/routes.js`. |
+| **Lives in** | `assets/js/screens/brief.js`; `data/brief.js`. Tests: `tests/unit/m5-brief.test.mjs` and `tests/unit/m5-brief.browser.mjs`. |
 | **Invariant most at risk** | **Invariant 1, no ranking.** A digest is the format most easily read as "the important things, most important first". The order rule, the ordering note and identical templates are what keep it a list of peers. |
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M5-U1 *(seeded)* | The number of signals in the brief is at most `BRIEF_SIGNAL_CAP`. | The count is greater, or the constant is `null`. | node |
-| M5-U2 *(seeded)* | The total word count of all text rendered in `F2-S1` (the `textContent` of the screen, split on whitespace) divided by `READING_WPM` is at most 10. | The estimate exceeds 10 minutes, or `READING_WPM` is `null`. | browser |
-| M5-U3 | The pure ordering function returns signals by `publishedOn` newest first, ties by `id` ascending, for every one of at least ten random permutations of `Brief.signalIds`, and always returns the same order. | Any permutation yields a different order. | node |
-| M5-U4 | Every signal in the brief appears in at least one Trend's `signalIds`; the test reports the orphans by identifier. | Any brief signal belongs to no trend. | node |
-| M5-U5 | Given a brief where two signals fail the per-signal check (one with no `publishedOn`, one with no relevance note), the rendered screen contains no text from either, and contains the notice with N = 2. | Any text of a withheld signal is rendered, or the notice is missing or has the wrong count. | browser |
-| M5-U6 | Every signal element in `F2-S1` has the same tag, the same class list and the same child structure, and no element carries a class, attribute or text marking it as new, pinned, featured or relevant. The ordering note "Listed by publication date. The order says nothing about importance." is present. | Any signal element differs in template, or a marker is present, or the note is missing. | browser |
-| M5-U7 | A signal belonging to two trends shows two links, in alphabetical order of trend title, each with `href` equal to the route for that trend. | Links are missing, out of order or point elsewhere. | browser |
-| M5-U8 | Nothing in `F2-S1` shows a count, level or marker of relevance: the interface text the screen adds around the fixture fields (everything except the rendered signal titles, summaries, quotes and relevance notes) contains no "high", "medium", "low" or "relevance:"; no signal element contains a position number (such as "1." or "#1"); and the screen contains no `<meter>` or `<progress>` element. | Any is present. | browser |
+**Interface.** Pure: `orderSignals(signals)`, `trendLinksFor(signalId, trends)`. Render:
+`renderBrief(root, ctx)`, where `ctx` holds `loader`, `routes` and the freeze manifest.
+
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M5-U1 *(seeded)* | The brief holds no more than `BRIEF_SIGNAL_CAP` (5) signals; `checkBrief` rejects a brief of six. Fails if the count exceeds five or the six-signal brief is accepted. | Content source brief; `tests/fixtures/invalid/brief-six-signals.js` | both | I, G3 |
+| M5-U2 *(seeded)* | In `F2-S1`, the words of the screen's `textContent` (split on whitespace) divided by `READING_WPM` (200) is at most 10. Fails if the estimate exceeds ten minutes. | Content source | browser | I, G3 |
+| M5-U3 | `orderSignals` returns signals by `publishedOn` newest first, ties by `id` ascending, for ten permutations of the brief's signals produced with `seededRandom` seeds 1 to 10, and always the same order. Fails if any permutation yields a different order. | Fixture signals (two share a date) | both | I |
+| M5-U4 | Every signal in the brief appears in at least one Trend's `signalIds`; the test reports orphans by identifier. Fails on any orphan. | Content source | both | T, G3 |
+| M5-U5 | With two signals failing the per-signal check (one without `publishedOn`, one without a relevance note), the screen contains no text from either and contains "2 signal(s) were withheld because they failed the provenance check." Fails if any withheld text renders or the notice is missing or miscounted. | `tests/fixtures/invalid/brief-two-bad-signals.js` | browser | I |
+| M5-U6 | Every signal element in `F2-S1` has the same tag, class list and child structure; no element carries a class, attribute or text marking it new, pinned, featured or relevant; "Listed by publication date. The order says nothing about importance." is present. Fails on any template difference, marker or missing note. | Content source | browser | I |
+| M5-U7 | A signal that belongs to two trends shows two links, in alphabetical order of trend title, each `href` equal to `routes.trend(id)`. Fails if links are missing, out of order or point elsewhere. | Fixture shared signal | browser | I |
+| M5-U8 | No count, level or marker of relevance: the interface text the screen adds around the fixture fields contains no "high", "medium", "low" or "relevance:"; no signal element contains a position number ("1.", "#1"); there is no `<meter>` or `<progress>`. Fails on any. | Content source | browser | I |
+| M5-U9 | `F2-E1`: a brief container with an extra field `featured` shows "The weekly brief could not be shown because its content failed validation." and no signal title. Fails otherwise. | `tests/fixtures/invalid/brief-featured-field.js` | browser | I |
+| M5-U10 | `F2-S0` and `F1-E0` in F2: an empty brief shows "This brief contains no signals."; with `loadTrends` stubbed to fail, every signal shows "No trend card for this signal in this build." and has no trend link. Fails otherwise. | `tests/fixtures/invalid/brief-empty.js`; loader stub | browser | I |
+| M5-U11 | F2 labels (C-5): the brief header carries `data-label="frozen"` and shows the freeze date; each signal element carries `real`; its summary and relevance note each carry their own `ai-generated` label with a visible badge. Fails on any missing or different label. | Content source | browser | I |
 
 ---
 
-## M6 Judgement capture
+## M6 Judgement and scenario capture
 
 | | |
 |---|---|
-| **Purpose** | F1, the core loop: trend index, trend card, gut reading, the three readings, interrogation, and the committed judgement with a rationale. Holds session state. |
-| **Inputs** | Trends and Signals through the M1 loader; the trend's reveal bundle through `loadReveal`, only after the intuition record; the viewer's actions. |
-| **Outputs** | Screen states `F1-S0`, `F1-S0e`, `F1-S1`, `F1-S2`, `F1-S3`, `F1-S4`, `F1-E1`, `F1-E2`, and, if Level 2 accepts them, `F1-E0` and `F1-E3`. In memory: intuition records and Judgements. |
-| **Entities touched** | Trend, Signal, Reading, Interrogation (read); Judgement (created in memory). |
+| **Purpose** | F1, the core loop: trend index, trend card, gut reading, the three readings in a random order, interrogation, and the committed judgement with a rationale. F5: the founder's own scenario, recorded before any conversation question loads. Holds session state. |
+| **Inputs** | Trends and Signals through the M1 loader; the trend's reveal bundle through `loadReveal`, only after the intuition record; the trend's conversation questions through `loadConversation`, only after the scenario record; the freeze manifest and `SCENARIO_FLOW`; the viewer's actions; a random source and a clock, both injectable. |
+| **Outputs** | `F1-S0`, `F1-S0e`, `F1-S1` to `F1-S4`, `F1-E0` to `F1-E3`; `F5-S0`, `F5-S1`, `F5-S2`, `F5-E2`, `F5-ST`. In memory: lens orders, intuition records, Judgements, ScenarioRecords. |
+| **Entities touched** | Trend, Signal, Reading, Interrogation, ConversationQuestions (read); Judgement and ScenarioRecord (created in memory). |
 | **May import** | M1, M9, M10's leaf `shell/routes.js`. |
-| **Lives in** | `assets/js/screens/trend-index.js`, `assets/js/screens/trend.js`, `assets/js/state/session.js`. Tests: `tests/unit/m6-judgement.test.mjs` (node: state machine, gating, ordering) and `tests/unit/m6-judgement.browser.mjs` (browser: DOM). |
-| **Invariant most at risk** | **Invariant 2, intuition before AI.** This module holds the only code path that loads readings. One early call to `loadReveal`, one pre-rendered hidden element, or one reading string in an attribute breaks the invariant while the screen still looks correct. |
+| **Lives in** | `assets/js/screens/trend-index.js`, `trend.js`, `scenario.js`; `assets/js/state/session.js`, `lens-order.js`, `scenario.js`. Tests: `tests/unit/m6-judgement.test.mjs`, `m6-judgement.browser.mjs`, `m6-scenario.test.mjs`, `m6-scenario.browser.mjs`. |
+| **Invariant most at risk** | **Invariant 2, intuition before AI.** This module holds the only code paths that load readings and conversation questions. One early call to `loadReveal`, one pre-rendered hidden element, or one reading string in an attribute breaks the invariant while the screen still looks correct. |
 
-**Interface.** `createSession()` returns the session object. Pure functions: `canRecord(draft)`,
-`canCommit(draft)`, `whatIsMissing(draft)`, `orderReadings(readings)`, `recordIntuition(session,
-trendId, draft, now)`, `commitJudgement(session, trendId, draft, now)`. The screen's render
-function receives the session, the loader functions (so a test can inject a spy for `loadReveal`)
-and a root element.
+**Interface.** State: `createSession({ random = Math.random } = {})`,
+`lensOrderFor(session, trendId)`, `drawLensOrder(random)`, `orderReadings(readings, lensOrder)`,
+`canRecord(draft)`, `canCommit(draft)`, `whatIsMissing(draft)`,
+`recordIntuition(session, trendId, draft, now)`, `commitJudgement(session, trendId, draft, now)`,
+`canRecordScenario(draft)`, `whatIsMissingScenario(draft)`,
+`recordScenario(session, trendId, draft, now)`, `setQuestionNote(session, trendId, questionId,
+text)`, `snapshotScenario(session, trendId)`, `scenarioMode(manifest, trends, flow)`. Render:
+`renderTrendIndex(root, ctx)`, `renderTrend(root, ctx, trendId)`, `renderScenario(root, ctx,
+trendId)`, where `ctx` holds `session`, `loader` (so a test can inject spies for `loadReveal` and
+`loadConversation`), `routes`, `manifest`, `flow` and `now`. The seeded shuffle is specified in
+`03-architecture.md`, section 7.3.
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M6-U1 *(seeded)* | In `F1-S1`, the serialised page (`document.documentElement.outerHTML`, which includes attributes, comments and `<template>` contents) contains none of the fixture's reading texts, evidence claims, counter-evidence claims, disconfirming conditions or interrogation questions other than the intuition prompt; and the injected `loadReveal` spy has not been called. | Any such string appears, or the spy has been called. | browser |
-| M6-U2 | After "Record my gut reading" is activated and the returned promise settles, the spy has been called exactly once with the trend's identifier, and the page contains all three readings' texts and disconfirming conditions. | The spy is called zero or more than one time, or any reading is missing. | browser |
-| M6-U3 *(seeded)* | `canCommit` is false for rationale `""`, `" "`, `"\n\t "` with a lens chosen, and for rationale `"x"` with no lens; true for rationale `"x"` with a lens. In the page, "Commit judgement" has the `disabled` attribute in each false case, and a line of text names what is missing. | Any false case enables commit, the true case does not, or the missing-item line is absent. | node and browser |
-| M6-U4 | In `F1-S1` no lens option is selected and "Record my gut reading" is disabled until one is chosen. In `F1-S2` no lens is selected in the judgement control, including the lens of the recorded gut call. | Any lens is pre-selected, or the record button is enabled with no lens. | browser |
-| M6-U5 | After the record, the stored intuition record satisfies `Object.isFrozen`, an attempt to change its `gutCall` leaves it unchanged, the gut-reading controls are disabled, and calling `recordIntuition` again for the same trend throws. | The record is mutable, a control is enabled, or a second record succeeds. | node and browser |
-| M6-U6 | After commit, the Judgement satisfies `Object.isFrozen`; calling `commitJudgement` again for the same trend throws; the page shows `F1-S4` with no enabled commit control and no editable field. | A second commit succeeds, or any field remains editable. | node and browser |
-| M6-U7 | For each of the six orderings of the readings array in the reveal bundle, the rendered readings appear in the order noise, opportunity, threat; the three reading elements have the same tag, class list and child structure; and the note "The three readings are peers. They appear in alphabetical order of their lens." is present. | Any ordering renders differently, any reading element differs in template, or the note is missing. | node (`orderReadings`) and browser |
-| M6-U8 | Recording and committing on trend A leaves trend B at `awaiting-intuition`. Navigating from A to the brief and back to A shows A at the stage it reached. | B's state changes, or A does not resume. | node and browser |
-| M6-U9 | With `localStorage`, `sessionStorage`, `indexedDB`, `caches` and the `document.cookie` setter replaced by stubs that record any access, a full walk from `F1-S1` to `F1-S4` records no access. | Any stub records an access. | browser |
-| M6-U10 | `F1-S4` contains the statement that the judgement is held only in this tab, is not saved or sent, will be gone on reload and does not appear in the decision log; and, outside the viewer's own echoed text (gut reason, answers, rationale, which the test sets to neutral strings), contains none of the words match, mismatch, correct, wrong, agree, disagree, changed your mind. | The statement is missing, or any evaluative word appears. | browser |
-| M6-U11 | With a reveal bundle that fails `checkRevealBundle` (one Reading without counter-evidence), recording the gut reading shows `F1-E3`: the gut reading stays visible and no text from any of the three readings, or any interrogation question, is rendered. | Any reading or question text is rendered, or the gut reading disappears. | browser |
-| M6-U12 | Route `#/trend/trend-does-not-exist` shows `F1-E1`. A Trend with two reading references shows `F1-E2`, and the page contains neither its title nor any of its signals' titles. | The wrong state is shown, or any part of the withheld trend is rendered. | browser |
-| M6-U13 | The Judgement produced by a full walk passes `checkJudgement`, with `intuition.recordedAt` ≤ `readingsRevealedAt` ≤ `committedAt`, `provenance.producedBy` equal to `["viewer"]` and `provenance.frozenOn` null. | Validation fails or the order is violated. | node |
-| M6-U14 | Every `<input>` and `<textarea>` on the trend screen has `autocomplete="off"`; after a walk in which the viewer types the reason "zebra-test-reason" and the rationale "zebra-test-rationale", `location.href` contains neither string. | Any field lacks the attribute, or either string appears in the URL. | browser |
+**F1 tests.**
+
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M6-U1 *(seeded)* | In `F1-S1`, the serialised page (`document.documentElement.outerHTML`, including attributes, comments and `<template>` contents) contains none of the fixture's reading texts, evidence or counter-evidence claims, disconfirming conditions or interrogation questions; the `loadReveal` spy has not been called. Fails if any such string appears or the spy was called. | `trend-fixture-alpha`; marker strings; `loadReveal` spy | browser | I |
+| M6-U2 | After "Record my gut reading" is activated and the returned promise settles, the spy has been called exactly once, with `trend-fixture-alpha`, and the page contains all three readings' texts and disconfirming conditions. Fails on zero or several calls or a missing reading. | As M6-U1 | browser | I |
+| M6-U3 *(seeded)* | `canCommit` is false for rationale `""`, `" "` and `"\n\t "` with a lens chosen, and for `"x"` with no lens; true for `"x"` with a lens. In the page, "Commit judgement" has `disabled` in each false case and a line names what is missing ("Choose a reading and write a rationale to commit your judgement." or only the missing part). Fails if a false case enables commit, the true case does not, or the line is absent. | Drafts in memory; `trend-fixture-alpha` | both | I |
+| M6-U4 | In `F1-S1` no lens option is selected and "Record my gut reading" is disabled until one is chosen; in `F1-S2` no lens is selected in the judgement control, including the recorded gut call. Fails on any pre-selection or an enabled button with no lens. | `trend-fixture-alpha` | browser | I |
+| M6-U5 | After the record, the intuition record satisfies `Object.isFrozen`; assigning to `gutCall` leaves it unchanged; the gut-reading controls are disabled; a second `recordIntuition` for the trend throws. Fails if the record is mutable, a control is enabled or a second record succeeds. | Session with injected `now` | both | I |
+| M6-U6 | After commit, the Judgement satisfies `Object.isFrozen`; a second `commitJudgement` throws; `F1-S4` has no enabled commit control and no editable field. Fails if a second commit succeeds or a field stays editable. | Session with injected `now` | both | I |
+| M6-U7 | Q-2, random order. Pure part: `drawLensOrder` with stubs returning `[0, 0]`, `[0, 0.5]`, `[0.34, 0]`, `[0.34, 0.5]`, `[0.67, 0]`, `[0.67, 0.5]` returns respectively `[opportunity, threat, noise]`, `[threat, opportunity, noise]`, `[threat, noise, opportunity]`, `[noise, threat, opportunity]`, `[opportunity, noise, threat]`, `[noise, opportunity, threat]`; calls `random` exactly twice; returns a frozen array; throws `RangeError` for `1`, `-0.1` and `NaN`. With `seededRandom` seeds 1 to 200, all six orders occur. `orderReadings` returns `lensOrder`'s order for all six permutations of the input, and throws for two readings. Page part: with `createSession({ random: seededRandom(42) })`, the gut-reading options, the three readings and the judgement options all follow `drawLensOrder(seededRandom(42))`; the six permutations of the bundle's `readings` array give byte-identical reading areas; the three reading elements share tag, class list and child structure; the note "The three readings are peers. Their order is random and means nothing." is present. Fails on any difference. | Stubs; `tests/lib/seeded-random.mjs`; `trend-fixture-alpha` and its six permuted bundles | both | I |
+| M6-U8 | Recording and committing on trend A leaves trend B at `awaiting-intuition`. Navigating A, brief, A shows A at the stage it reached and in the same lens order; `lensOrderFor` returns the same array (`===`) on a second call; a new session with a different stub draws a different order. Fails if B changes, A does not resume, or the order changes within a session. | Two fixture trends | both | I |
+| M6-U9 | With `localStorage`, `sessionStorage`, `indexedDB`, `caches` and the `document.cookie` setter replaced by stubs that record access, a walk from `F1-S1` to `F1-S4` records none. Fails on any access. | `tests/lib/dom.mjs` storage stubs | browser | I |
+| M6-U10 | `F1-S4` contains the statement that the judgement is held only in this tab, is not saved or sent, will be gone on reload and does not appear in the decision log, which is a replay; a link "Take this trend into your conversations" with `href` equal to `routes.scenario(trendId)`; and, outside the viewer's echoed text (set to neutral strings), none of: match, mismatch, correct, wrong, agree, disagree, changed your mind. Fails if the statement or link is missing or an evaluative word appears. | `trend-fixture-alpha` | browser | I |
+| M6-U11 | `F1-E3`: with a reveal bundle that fails `checkRevealBundle` (one Reading without counter-evidence), recording the gut reading shows the locked gut reading and "The readings for this trend were withheld because their content failed validation. Your gut reading is kept for this session."; no text from any reading and no interrogation question is rendered; no judgement control exists. Fails otherwise. | `tests/fixtures/invalid/reveal-no-counter-evidence.js` | browser | I |
+| M6-U12 | `#/trend/trend-does-not-exist` shows "This trend card does not exist in this build." and a link to the trend index. A Trend with two reading references shows "This trend card was withheld because its content failed validation." and the page contains neither its title nor any of its signals' titles. Fails on the wrong state or any partial rendering. | `tests/fixtures/invalid/trend-two-readings.js` | browser | I |
+| M6-U13 | The Judgement produced by a full walk passes `checkJudgement`, with `intuition.recordedAt` ≤ `readingsRevealedAt` ≤ `committedAt`, `label` `"yours"`, `provenance.producedBy` `["viewer"]` and `provenance.frozenOn` null. Fails on any. | Session with an injected clock advancing one second per call | both | I |
+| M6-U14 | Every `<input>` and `<textarea>` on the trend screen has `autocomplete="off"`; after typing the reason "zebra-test-reason", an answer "zebra-test-answer" and the rationale "zebra-test-rationale", `location.href` contains none of them. Fails on a missing attribute or any string in the URL. | `trend-fixture-alpha` | browser | I |
+| M6-U15 | `F1-E0`: with `loadTrends` stubbed to fail, `#/trends`, `#/trend/trend-fixture-alpha` and `#/scenario/trend-fixture-alpha` each show "Trend cards could not be loaded in this build."; `loadReveal` and `loadConversation` are never called. Fails otherwise. | Loader stub | browser | I |
+| M6-U16 | Q-1, answering is primary. In `F1-S2`: every question has an answer field directly beneath it, not inside a closed `<details>` or hidden element, captioned "Your answer (optional)"; one skip control "Skip the questions" follows the last question in document order and in rendered position; the first focusable element in the interrogation area is the first answer field; the skip control's computed `background-color` is transparent, its border width is zero or its style `none`, and its computed `font-size` and `font-weight` are no greater than the question text's; each answer field has a non-zero border; activating skip leaves the draft answers unchanged, leaves every answer field enabled, and moves focus to the first judgement option; the commit hint contains neither "answer" nor "question". Fails on any. | `trend-fixture-alpha` | browser | I |
+| M6-U17 | Viewer entries carry `yours` in F1: in `F1-S1` the gut-reading control and reason field; in `F1-S2` every answer field, the judgement control and the rationale field; in `F1-S4` every read-only echo (gut call, reason, answers, committed lens, rationale). Each carries `data-label="yours"` and a visible "Yours" badge; each reading and question carries `ai-generated`. Fails on any other label. | `trend-fixture-alpha` | browser | I |
+
+**F5 tests.**
+
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M6-U18 | `F5-S0`: with `SCENARIO_FLOW` `'interactive'` and no committed Judgement for the trend (including in a fresh session, as after a reload), `#/scenario/trend-fixture-alpha` shows "Scenario work on this trend starts from a judgement you have committed in this session. Open the trend card and commit a judgement first." and a link to the trend card; no `<input>` or `<textarea>`; the `loadConversation` spy is not called. Fails otherwise. | Fixture with conversation modules; `flow: 'interactive'` | browser | I |
+| M6-U19 | `canRecordScenario` is false when either field is `""`, `" "` or `"\n\t"`, and true when both hold text. In the page, "Record my scenario" is disabled in each false case and a line names which field is still empty. Fails if a false case enables recording, the true case does not, or the line is absent or names the wrong field. | Drafts in memory; committed fixture session | both | I |
+| M6-U20 | The founder's step comes first in F5. In `F5-S1`, the serialised page contains none of the trend's conversation-question texts and the `loadConversation` spy has not been called. After "Record my scenario", the spy has been called exactly once, with the trend's identifier, and the page contains every question. Fails on any early question text or call, or on a missing question. | Committed fixture session; `loadConversation` spy; marker strings | browser | I |
+| M6-U21 | `recordScenario` freezes the two fields and `recordedAt`; a second call throws; a call whose `now` equals the Judgement's `committedAt` throws; `setQuestionNote` changes a note after recording; `snapshotScenario` returns a record that passes `checkScenarioRecord` with the session's Judgement. In `F5-S2` both recorded fields are read-only and each note field stays editable. Fails on any. | Session with an injected clock | both | I |
+| M6-U22 | `F5-S2` layout and labels: a region headed "What you wrote" precedes, in document order, a region headed "Questions to take into your next conversations"; the first holds the read-only echo of the committed judgement and of both fields, each `data-label="yours"`; each question carries byte-identical `ai-generated` label markup and has a field captioned "Who you would ask (optional)" with `autocomplete="off"` and `data-label="yours"`; the page contains "These questions were written offline, before you arrived, and are the same for every visitor. They do not respond to what you wrote." and the not-saved statement; none of the evaluative words of M6-U10 appears outside the viewer's echoed text. Fails on any. | Committed and recorded fixture session | browser | I |
+| M6-U23 | `F5-E2`: with a conversation module that fails `checkConversation` (a question without "?"), recording shows both fields read-only and "The conversation questions for this trend were withheld because their content failed validation. What you wrote is kept for this session."; no question text is rendered. Fails otherwise. | `tests/fixtures/invalid/conversation-no-question-mark.js` | browser | I |
+| M6-U24 | `F5-ST` and the switch. Pure part: `scenarioMode` returns `'interactive'` for flow `'interactive'` with a conversation module listed for every trend; `'static'` for flow `'interactive'` with none listed; `'static'` for flow `'static'` with all listed; and throws when some trends have a module and others not. Page part: in static mode, `#/scenario/trend-fixture-alpha`, with or without a committed Judgement, shows the heading "Scenario work from your own conversations", three sentences of description, and "In this build the scenario step is described only. No questions are shown, because this screen cannot first record your own scenario."; contains no `<input>` or `<textarea>` and no element with `data-label="ai-generated"`; and `loadConversation` is never called. From G3, if `SCENARIO_FLOW` is `'interactive'`, every trend in `data/` has a conversation module. Fails on any. | Fixture manifests with all, none and some conversation modules; `constants.js` | both | I, G3, Q |
+| M6-U25 | No storage and nothing in the URL in F5: with the storage stubs of M6-U9, a walk from `F5-S1` to `F5-S2` with a note records no access; after typing "zebra-test-heard", "zebra-test-playout" and "zebra-test-note", `location.href` contains none; every F5 text field has `autocomplete="off"`. Fails on any. | Committed fixture session | browser | I |
+| M6-U26 | Resume. After recording, navigating to the brief and back to `#/scenario/trend-fixture-alpha`, or following the link on `F1-S4` again, shows `F5-S2` with the same recorded text and notes. Fails if the screen returns to `F5-S1` or the text differs. | Recorded fixture session | browser | I |
 
 ---
 
@@ -218,23 +313,30 @@ and a root element.
 
 | | |
 |---|---|
-| **Purpose** | F3: Tracewell's readiness across the five Jöhnk et al. categories, the maturity view held at `LEVEL_NAME_UNVERIFIED`, and the governance screen (R8). |
-| **Inputs** | The ReadinessProfile and the Governance container through the M1 loader. Offline, the persona dossier (M2) and the governance content (author unassigned, Q-5). |
-| **Outputs** | `data/readiness.js`, `data/governance.js`; screen states `F3-S1`, `F3-S2`, `F3-S3`, `F3-E1`, `F3-E2`. |
+| **Purpose** | F3: Tracewell's readiness across the five Jöhnk et al. categories, the maturity level of each foresight practice (held at `LEVEL_NAME_UNVERIFIED` until verified), what the WEF/OECD report describes for the next level once verified, and the governance screen (R8). |
+| **Inputs** | The ReadinessProfile and the Governance container through the M1 loader; `MATURITY_LEVEL_NAMES`, injectable for tests. Offline: the persona dossier (M2); the governance argument, drafted by the Architect from the Scout's frozen source list during G3 (Q-5); the maturity explanations and next-level descriptions (author: open item O-2). |
+| **Outputs** | `data/readiness.js`, `data/governance.js`; `F3-S1`, `F3-S2`, `F3-S2v`, `F3-S3`, `F3-E1`, `F3-E2`. |
 | **Entities touched** | ReadinessProfile; Governance (container). |
 | **May import** | M1, M9, M10's leaf `shell/routes.js`. |
 | **Lives in** | `assets/js/screens/readiness.js`, `assets/js/screens/governance.js`. Tests: `tests/unit/m7-readiness.test.mjs`, `tests/unit/m7-readiness.browser.mjs`. |
-| **Invariant most at risk** | **Invariant 1, no ranking**, in the form of a score. A readiness diagnostic invites bars, traffic lights and "you are strongest in…". The contract has no numbers to draw them from; the screen must not invent them. The unverified level name is the other exposure, guarded by the schema's pinned placeholder. |
+| **Invariant most at risk** | **Invariant 1, no ranking**, in two forms. A readiness diagnostic invites bars, traffic lights and "you are strongest in…", and the contract has no numbers to draw them from; the screen must not invent them. And a next-level description can slide from what the report describes into what Tracewell should do, which is a recommendation; the K-2 wording tests exist for that. |
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M7-U1 *(seeded)* | The profile has exactly five categories, with keys in the order strategic-alignment, resources, knowledge, culture, data (or the order confirmed under DM-8), each with at least one answer and a non-empty finding; the screen renders them in the same order. | A category is missing or repeated, or the order differs in the data or on screen. | node and browser |
-| M7-U2 *(seeded, restated for G2)* | While `maturity.status` is `unverified`, the maturity view renders the literal `LEVEL_NAME_UNVERIFIED` and the sentence "Level name pending verification against the OECD/WEF report.", and neither `explanation` nor any other level name is rendered. Once D-1 is resolved, `levelName` is one of `VERIFIED_LEVEL_NAMES`, the list Miguel confirms against the report. | Any other level name appears while unverified, or after verification the name is not in the confirmed list. | node and browser |
-| M7-U3 | `F3-S1` contains no `<meter>`, `<progress>`, `<svg>` or `<canvas>` element, no element with `role="meter"` or `role="progressbar"`, and no inline style setting `width` in `%` inside the categories area. | Any is present. | browser |
-| M7-U4 | A profile with four categories shows `F3-E1` and renders none of the four categories' names, answers or findings. | Any category content is rendered. | browser |
-| M7-U5 | The governance screen shows headings "Implemented in this demo" and "Not implemented", every item of each list, and, for each implemented item, the test identifiers in its `verifiedBy`; every argument paragraph shows at least one source link with its date. | A heading, item, test identifier or dated source is missing. | browser |
-| M7-U6 | The governance content contains the required items by identifier: implemented `open-web-sources-frozen`, `no-viewer-data-stored-or-sent`, `no-live-ai`, `no-accounts-cookies-analytics`; not implemented `own-data-ingestion`, `cross-session-persistence`, `role-aware-model`; and every test identifier in any `verifiedBy` exists in this document. | Any item is missing, or a `verifiedBy` names a test that does not exist. | node |
-| M7-U7 | While K-2 is open, the next-complement view renders exactly "Pending: the next complement depends on the verified level definitions." and nothing else. | Any other text is rendered there. | browser |
+**Interface.** `renderReadiness(root, ctx, { levelNames = MATURITY_LEVEL_NAMES })`,
+`renderGovernance(root, ctx)`.
+
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M7-U1 *(seeded)* | The profile has exactly five categories with keys in the order strategic-alignment, resources, knowledge, culture, data (DM-8), each with at least one answer and a non-empty finding, and exactly three practices in the order scanning, trend-analysis, scenario-work; the screen renders both lists in those orders. Fails on a missing or repeated item or a different order in data or on screen. | Content source readiness | both | T (data), I (screen), G3 |
+| M7-U2 *(seeded, restated)* | Unverified maturity view (`F3-S2`): each of the three practices shows its name and the literal `LEVEL_NAME_UNVERIFIED`; the sentence "Level names pending verification against the WEF/OECD report." appears exactly once; no explanation, no report citation, and none of the candidate level names is in the page. Fails on any. | `readiness-unverified.js`; `tests/lib/candidate-level-names.mjs` | browser | I |
+| M7-U3 | `F3-S1` and the maturity view contain no `<meter>`, `<progress>`, `<svg>` or `<canvas>`, no element with `role="meter"` or `role="progressbar"`, and no inline style setting `width` in `%`. Fails if any is present. | Both readiness fixtures | browser | I |
+| M7-U4 | `F3-E1`: a profile with four categories, and separately a profile with two practices, shows "The readiness profile was withheld because its content failed validation." and renders no category name, answer, finding or practice. Fails on any partial rendering. | `tests/fixtures/invalid/readiness-four-categories.js`, `readiness-two-practices.js` | browser | I |
+| M7-U5 | Governance screen (`F3-S3`): headings "Implemented in this demo" and "Not implemented"; every item of each list; for each implemented item, the test identifiers in its `verifiedBy`; every argument paragraph with at least one source link showing its date and its own `ai-generated` label; the lists covered by the container's `real` label. Fails on any missing heading, item, identifier, source or label. | Content source governance | browser | I |
+| M7-U6 | The governance content holds the required items by identifier (implemented: `open-web-sources-frozen`, `no-viewer-data-stored-or-sent`, `no-live-ai`, `no-accounts-cookies-analytics`; not implemented: `own-data-ingestion`, `cross-session-persistence`, `role-aware-model`), and every test identifier in any `verifiedBy` is a row identifier in this document. Fails on a missing item or an unknown test. | Content source governance; this document | both | T, G3 |
+| M7-U7 | While unverified, the next-level area renders exactly "Pending: the next complement depends on the verified level definitions." and nothing else. Fails on any other text there. | `readiness-unverified.js` | browser | I |
+| M7-U8 | Verified view (`F3-S2v`), with the fixture level names injected: each practice shows its level name, its explanation and a citation with page; a block headed "What the WEF/OECD report describes for the next level" holds, per practice, the next level's name, its description with its own `ai-generated` label, and a citation showing the DOI link, the year and the page; the practice at the last level shows exactly "The report describes no level above this one."; after all practices, "These are the report's descriptions of the next level. They are not advice from this demo."; neither pending sentence appears. Fails on any. | `readiness-verified.js` with `levelNames` injected | browser | I, V |
+| M7-U9 | The K-2 wording constraints that a test can check, on every next-level description: it begins with "The report describes"; it contains none of the whole words, case-insensitive, you, your, we, our, should, must, need, needs, recommend, recommended, recommendation, advise, advice, Tracewell, team, nor the phrase "next step", nor any C-6 term; its citation's `url` is `https://doi.org/10.1787/aa573076-en`, its `publishedOn` year is 2025, and `title` and `page` are present. Fails on any violation. | `readiness-verified.js`; from verification, `data/` | both | T, V |
+| M7-U10 | The lower-level rule is stated: for every verified practice with `betweenLevels` set, the explanation text contains "lower level" (case-insensitive); every verified explanation cites the report's DOI with a page. The structural rule is M1-U20. Fails on any omission. | `readiness-verified.js` (one practice between two levels); from verification, `data/` | both | T, V |
+| M7-U11 | `F3-E2`: with `loadGovernance` stubbed to fail, `#/governance` shows "The governance statement could not be shown." while `#/readiness` still renders `F3-S1`. Fails otherwise. | Loader stub | browser | I |
 
 ---
 
@@ -242,24 +344,29 @@ and a root element.
 
 | | |
 |---|---|
-| **Purpose** | F4: the retrospective replay of real early-2026 signals, a judgement attributed to the fictional team, the real outcome by September 2026, and a qualitative calibration note (R5). |
-| **Inputs** | LogEntries through the M1 loader. Offline, the replay candidates (M2), with the authorship of past judgements still open (K-7). |
-| **Outputs** | `data/log.js`; screen states `F4-S1`, `F4-S0`, `F4-W1`, `F4-E1`. |
+| **Purpose** | F4: the retrospective replay of real signals from 1 January to 31 March 2026, a judgement written for the fictional team from those signals alone with the outcome withheld, the real outcome by September 2026, and a qualitative calibration note labelled `ai-generated` (R5, K-7, DM-10). |
+| **Inputs** | LogEntries through the M1 loader. Offline: the replay candidates (M2); past judgements by the Rival Readers and the Interrogator; outcomes attached by the Verifier; calibration notes (author: open item O-2). |
+| **Outputs** | `data/log.js`; `F4-S1`, `F4-S0`, `F4-W1`, `F4-E1`. |
 | **Entities touched** | LogEntry. |
 | **May import** | M1, M9, M10's leaf `shell/routes.js`. |
 | **Lives in** | `assets/js/screens/log.js`. Tests: `tests/unit/m8-log.test.mjs`, `tests/unit/m8-log.browser.mjs`. |
 | **Invariant most at risk** | **Invariant 4, every factual claim is sourced**, at its sharpest: an outcome that did not happen, or a date that makes a judgement look prescient, is a project-ending defect. The second exposure is invariant 1: any tally of readings that held becomes a scoreboard. |
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M8-U1 *(seeded)* | Every LogEntry's outcome has an `https://` source with a `publishedOn` later than every original signal's `publishedOn` and no later than the entry's `frozenOn`. | Any outcome is undated, not later than a signal, or dated after the freeze. | node |
-| M8-U2 | Every original signal's `publishedOn` falls within `REPLAY_WINDOW_START` to `REPLAY_WINDOW_END` inclusive. | Any signal falls outside, or either constant is `null`. | node |
-| M8-U3 | The pure ordering function returns entries by earliest original-signal `publishedOn`, oldest first, ties by `id` ascending, for at least ten random permutations; the date in each entry `id` equals its earliest original signal's date. | Any permutation yields a different order, or an identifier's date disagrees. | node |
-| M8-U4 | In `F4-S1`, `F4-S0`, `F4-W1` and `F4-E1` the replay statement is the first content element in the screen, before any entry, and contains the sentences required by F4 step 1, including that the judgements were written after the fact and are not the viewer's. | The statement is missing, incomplete or not first. | browser |
-| M8-U5 | `F4-S1` contains no aggregate or verdict: no text matching `\d+\s*(of|/)\s*\d+` or `%`, no `<svg>`, `<img>`, `<canvas>`, `<meter>` or `<progress>` inside any entry, and every entry element has the same class list. | Any match, graphic or differing class list. | browser |
-| M8-U6 | An entry whose outcome lacks a source date is withheld: none of its text is rendered, and the notice shows N = 1. | Any of its text is rendered, or the notice is wrong. | browser |
-| M8-U7 | For every entry, `pastJudgement.asOfDate` is on or after the latest original signal's `publishedOn` and before the outcome's `publishedOn`, and `pastJudgement.authoredOn` is on or after the outcome's `publishedOn`. | Any date is out of that order. | node |
-| M8-U8 | R7 is designed for, not built: no fixture LogEntry has a `role`, and no file in `assets/js/` other than `validate.js` contains the property access `.role` or `["role"]`. (Setting the ARIA `role` attribute with `setAttribute` is unaffected.) | Any fixture carries a role, or any page code other than the validator reads it. | node |
+**Interface.** Pure: `orderEntries(entries)`, `writingDates(entries)` (one date, or first and
+last). Render: `renderLog(root, ctx)`.
+
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M8-U1 *(seeded)* | Every LogEntry's outcome has an `https://` source whose `publishedOn` is later than every original signal's and no later than the entry's `frozenOn`. Fails on an undated outcome, one not later than a signal, or one after the freeze. | Content source log | both | T, G3 |
+| M8-U2 | Every original signal's `publishedOn` lies within `REPLAY_WINDOW_START` to `REPLAY_WINDOW_END` inclusive. Fails on any outside. The fixture includes signals on both boundary dates. | Content source log; `constants.js` | both | I, G3 |
+| M8-U3 | `orderEntries` returns entries by earliest original-signal `publishedOn`, oldest first, ties by `id` ascending, for ten `seededRandom` permutations; the date in each entry `id` equals its earliest signal's date. Fails on any different order or disagreeing identifier. | Fixture log | both | I |
+| M8-U4 | The replay statement is the first content in `F4-S1`, `F4-S0`, `F4-W1` and `F4-E1`, before any entry, and contains: "retrospective replay"; "1 January" and "31 March 2026"; "fictional"; "Rival Reader" and "Interrogator"; "withheld"; "Verifier"; "some" (with no number of entries anywhere in it); "AI-generated"; that the judgements are not the viewer's and that judgements from this session do not appear; and the writing date as formatted by M9's `formatDate`, or the first and last when they differ. Fails on any missing element, a count, or a statement not first. | Fixture logs with one and with two writing dates | browser | I |
+| M8-U5 | `F4-S1` contains no aggregate or verdict: no text matching `\d+\s*(of|/)\s*\d+` or `%`; no `<svg>`, `<img>`, `<canvas>`, `<meter>` or `<progress>` inside any entry; every entry element has the same class list. Fails on any. | Content source log | browser | I |
+| M8-U6 | An entry whose outcome lacks a source date is withheld: none of its text is rendered, and "1 entr(y/ies) were withheld because they lacked a dated outcome source or failed validation." is shown. Fails otherwise. | `tests/fixtures/invalid/log-undated-outcome.js` | browser | I |
+| M8-U7 | K-7 dates. For every entry: `pastJudgement.asOfDate` is on or after the latest original signal's `publishedOn` and before the outcome's `publishedOn`; and `asOfDate` ≤ `pastJudgement.authoredOn` ≤ `outcome.attachedOn` ≤ `provenance.frozenOn`. Fails on any date out of order. | Content source log | both | T, G3 |
+| M8-U8 | R7 is designed for, not built: no LogEntry in the content has a `role`; no file in `assets/js/` other than `contracts/validate.js` contains the property access `.role` or `["role"]` (the ARIA attribute set with `setAttribute` is unaffected). Fails on any fixture role or page-code read. | Content source; `assets/js/` via the file inventory | both | T, I, G3 |
+| M8-U9 | Entry structure and labels: each entry renders, in document order, its original signal(s), the past judgement, the outcome and the calibration note; the past judgement line shows the as-of date, states that the Tracewell team is fictional, and names its authors and writing date; labels are `replay` on the entry and the past judgement, `real` on each signal and the outcome, `ai-generated` on each signal summary, the outcome summary and the calibration note. Fails on any order or label difference. | Content source log | browser | I |
+| M8-U10 | `F4-S0` and `F4-E1`: an empty log shows the replay statement and "This build contains no replay entries."; a log module that is not an array of valid entries as a whole shows the replay statement and "The decision log could not be shown because its content failed validation." and no entry. Fails otherwise. | `tests/fixtures/invalid/log-empty.js`, `log-not-array.js` | browser | I |
 
 ---
 
@@ -267,23 +374,25 @@ and a root element.
 
 | | |
 |---|---|
-| **Purpose** | Render every honesty label, every source citation and the demo-wide statement, identically everywhere, so that NF2 and NF3 hold by construction rather than screen by screen. |
-| **Inputs** | Label values, `sourceRef` objects, the freeze manifest. |
-| **Outputs** | DOM fragments: `renderLabel(value)`, `renderSource(sourceRef)`, `renderQuote(text, sourceLanguage)`, `renderDemoStatement(manifest)`. |
+| **Purpose** | Render every honesty label, every source citation, every date and the demo-wide statement, identically everywhere, so that NF2 and NF3 hold by construction rather than screen by screen. |
+| **Inputs** | Label values, `sourceRef` and `reportCitation` objects, dates, the freeze manifest. |
+| **Outputs** | DOM fragments: `renderLabel(value)`, `renderSource(ref)`, `renderQuote(text, sourceLanguage, publisher)`, `renderDemoStatement(manifest)`; text: `formatDate(isoDate)` (for example "5 October 2026"). |
 | **Entities touched** | The label and provenance parts of every entity; FreezeManifest. |
 | **May import** | M1 only. |
-| **Lives in** | `assets/js/honesty/labels.js`, `assets/js/honesty/sources.js`, `assets/js/honesty/statement.js`. Tests: `tests/unit/m9-honesty.test.mjs`, `tests/unit/m9-honesty.browser.mjs`. |
+| **Lives in** | `assets/js/honesty/labels.js`, `sources.js`, `statement.js`. Tests: `tests/unit/m9-honesty.test.mjs`, `tests/unit/m9-honesty.browser.mjs`. |
 | **Invariant most at risk** | **Invariant 5, honest labelling.** A label that is present but wrong is worse than a missing one, because it passes a presence check. The mechanism guarantees presence and vocabulary; correctness of each label is reviewed by the Red-team at G3 and G4. |
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M9-U1 *(seeded)* | On every screen of a full walk, every element with `data-content` has a `data-label` whose value is in the vocabulary, and a visible label element whose text is the display form of that value. (Expected to fail on the viewer's own entries until DM-1 is decided.) | Any content element lacks either form, or carries a value outside the vocabulary. | browser |
-| M9-U2 | `renderLabel` throws for `"verified"`, `""`, `undefined` and `"AI"`, and returns an element for each of the five vocabulary values. | Any invalid value is accepted, or a valid one throws. | browser |
-| M9-U3 | `renderSource` returns an `<a>` whose `href` equals the source URL and starts with `https://`, with `target="_blank"` and `rel` containing `noopener` and `noreferrer`, followed by visible text containing the publisher and the publication date; it throws for a `sourceRef` without `publishedOn`. | Any attribute or text is missing, or an undated source renders. | browser |
-| M9-U4 | Every route (`#/brief`, `#/trends`, one `#/trend/<id>`, `#/readiness`, `#/governance`, `#/log`) renders the demo-wide statement with the freeze date from `data/freeze.js`. | Any screen lacks the statement or shows a different date. | browser |
-| M9-U5 | The three reading elements on a trend card carry byte-identical label markup. | The label markup of any reading differs from another's. | browser |
-| M9-U6 | For a Signal whose `summary.label` differs from the entity's `label`, the summary shows its own label; for a LogEntry, the original signal, past judgement, outcome and calibration note each show their own label. | Any part with its own label shows the entity's label instead, or none. | browser |
-| M9-U7 | `renderQuote` wraps the quote in `<q>` with a `lang` attribute equal to `sourceLanguage` and follows it with the publisher; it throws for a quote longer than `QUOTE_MAX_WORDS`. | The markup is wrong, the attribution is missing, or a long quote renders. | browser |
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M9-U1 *(seeded)* | On every screen of a full walk (brief; trend card to `F1-S4`; `F5-S2` in interactive mode; readiness, both fixtures; governance; log), every element with `data-content` has a `data-label` in the six-value vocabulary and a visible badge whose text is `LABEL_DISPLAY[value]`. Viewer entries pass with `yours`. Fails on any content element lacking either form or carrying another value. | `tests/app-host.html` with fixture loader; `flow: 'interactive'` | browser | I |
+| M9-U2 | `formatDate('2026-10-05')` is "5 October 2026". `renderLabel` throws for `"verified"`, `""`, `undefined`, `"AI"` and `"Yours"`, and for each of the six values returns an element with that `data-label` and the badge text from `LABEL_DISPLAY`. Fails if an invalid value is accepted, a valid one throws, or a text differs. | None | both (`formatDate`), browser (`renderLabel`) | I |
+| M9-U3 | `renderSource` returns an `<a>` whose `href` equals the URL and starts with `https://`, with `target="_blank"` and `rel` containing `noopener` and `noreferrer`, followed by visible text with the publisher and the formatted publication date, and, for a `reportCitation`, the page; it throws for a reference without `publishedOn`. Fails on any missing attribute or text, or an undated source rendering. | Fixture references | browser | I |
+| M9-U4 | Every route (`#/brief`, `#/trends`, `#/trend/trend-fixture-alpha`, `#/scenario/trend-fixture-alpha`, `#/readiness`, `#/governance`, `#/log`, and `#/nothing`) renders the demo-wide statement with the freeze date from the manifest. Fails if any screen lacks it or shows another date. | `tests/app-host.html` | browser | I |
+| M9-U5 | Peers carry byte-identical label markup: the three reading elements on a trend card; the conversation questions in `F5-S2`; the signal elements in `F2-S1`. Fails on any difference. | Fixture content | browser | I |
+| M9-U6 | Per-part labels: a Signal's summary and relevance note show their own `ai-generated` label; in a LogEntry, each original signal, its summary, the past judgement, the outcome, its summary and the calibration note show their own; each governance argument paragraph shows `ai-generated`; each next-level description shows `ai-generated` (verified fixture). Fails if a part with its own label shows the entity's label instead, or none. | Fixture content | browser | I |
+| M9-U7 | `renderQuote` wraps the quote in `<q>` with `lang` equal to `sourceLanguage`, follows it with the publisher, and throws for a quote longer than `QUOTE_MAX_WORDS` (a 16-word quote throws; a 15-word quote renders). Fails on wrong markup, missing attribution or a long quote rendering. | None | browser | I |
+| M9-U8 | Interface copy is not content (C-5 rule 6): across the full walk of M9-U1, no `h1` to `h6`, `button` or `label` element carries `data-label`; and no element whose text is an ordering note, error or withheld notice, the demo-wide statement or the replay statement carries `data-content` or `data-label`. Fails on any. | As M9-U1 | browser | I |
+| M9-U9 | `frozen` is an element label only on the brief (DM-2): across the full walk of M9-U1, exactly one element carries `data-label="frozen"`, the brief header in `F2-S1`. Fails on any other element with that label, or none. | As M9-U1 | browser | I |
 
 ---
 
@@ -291,37 +400,117 @@ and a root element.
 
 | | |
 |---|---|
-| **Purpose** | The page itself: `index.html`, start-up, the static failure message, routing between screens, the navigation, layout and styles for laptop and phone. |
-| **Inputs** | The URL fragment; `data/freeze.js` through the M1 loader; the screen modules. |
-| **Outputs** | The running page; `G-E1`; the not-found state (if C-R3 is accepted). |
+| **Purpose** | The page itself: `index.html`, start-up, the static failure message, routing between screens, the navigation, layout and styles for phone in portrait and desktop in landscape. |
+| **Inputs** | The URL fragment; `data/freeze.js` through the M1 loader; the screen modules; `start()` options (loader, random source) for tests. |
+| **Outputs** | The running page; `G-E1`; `G-E2`. |
 | **Entities touched** | FreezeManifest only. |
 | **May import** | M1, M5, M6, M7, M8, M9. Its leaf file `shell/routes.js` imports nothing and is the only M10 file others may import. |
-| **Lives in** | `index.html`; `assets/js/main.js`; `assets/js/shell/router.js`, `assets/js/shell/routes.js`, `assets/js/shell/nav.js`; `assets/css/main.css`. Tests: `tests/unit/m10-shell.test.mjs` (static audits, import graph, router) and `tests/unit/m10-shell.browser.mjs`. |
+| **Lives in** | `index.html` (only: `lang`, viewport meta, stylesheet link, the static `#startup-failure` message, an `#app` root, one module script calling `start()`); `assets/js/main.js` (exports `start({ loader, random })`); `assets/js/shell/router.js`, `routes.js`, `nav.js`; `assets/css/main.css`. Tests: `tests/unit/m10-shell.test.mjs`, `tests/unit/m10-shell.browser.mjs`; whole-app tests load `tests/app-host.html`, which has the same static elements as `index.html` and calls `start()` with the options the test page provides. |
 | **Invariant most at risk** | **Invariant 5's clause "viewers trigger no live AI calls", and NF1.** The shell is where a convenient web font, a CDN copy of a library, an analytics snippet or a prefetch hint would be added, and any of them turns a self-contained demo into one that talks to the network. |
 
-| ID | Statement | Fails when | Runner |
-|---|---|---|---|
-| M10-U1 *(seeded)* | Static network audit of `index.html`, every file in `assets/` and every file in `data/`: no `fetch(`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `sendBeacon` or `<iframe>` at all; and no `import` specifier, `<script src>`, `<link href>`, `<img src>`, `srcset`, CSS `@import`, CSS `url()` or `@font-face` source that points to an `http:`, `https:` or protocol-relative (`//`) address. Local, relative references (such as the stylesheet link to `assets/css/main.css`) are allowed, and so is `<a href>` to any address. | Any match. | node |
-| M10-U2 | Static storage audit of the same files: no `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `caches`, `serviceWorker` or `navigator.storage`. | Any match. | node |
-| M10-U3 | `index.html` has `<html lang="en">`, a viewport meta element, and an element with `id="startup-failure"` that is visible without script and contains the `G-E1` message; `main.js` removes it only after `loadFreeze()` succeeds and the first screen renders. | Any of these is missing, or the element is removed before a successful start (checked with a failing `loadFreeze` stub). | node and browser |
-| M10-U4 | Import graph. Parsing every `import` statement and `import(` call in `assets/js/` gives only the edges permitted in `03-architecture.md` section 10; there are no cycles; no file outside `assets/js/contracts/load.js` contains the string `data/`; no file imports from `pipeline/`, `schemas/` or `tests/`; `index.html` has no `modulepreload`, `prefetch` or `preload` link. | Any forbidden edge, cycle, data path, cross-layer import or preload hint. | node |
-| M10-U5 | Router. An empty fragment and `#/brief` show the brief; `#/trend/trend-does-not-exist` shows `F1-E1`; an unknown route such as `#/nothing` shows the not-found state; after navigating across all routes, the session object passed to M6 is the same object (`===`) as at start-up. | Any route shows the wrong screen, or the session object is replaced. | browser |
-| M10-U6 | Per-screen failure. With the log loader stubbed to fail, `#/log` shows `F4-E1` while `#/brief`, `#/trends` and `#/readiness` render normally, and `G-E1` is not shown. | Another screen fails, or the whole application shows `G-E1`. | browser |
-| M10-U7 | The navigation lists Brief, Trends, Readiness, Governance and Decision log in that fixed order on every screen, all with the same template, and no item carries a count, badge or "new" marker. | The order differs between screens, a template differs, or a marker is present. | browser |
-| M10-U8 | At viewport widths 360 and 1280 CSS pixels, on every route, `document.documentElement.scrollWidth` does not exceed the viewport width, and computed `font-size` of body text is at least 16px. (Widths pending Q-7.) | Horizontal overflow at either width, or body text below 16px. | browser |
+**Permitted import edges** (checked by M10-U4): `main.js` and `shell/*` to `screens/*`, `state/*`,
+`honesty/*`, `contracts/*`; `screens/*` and `state/*` to `honesty/*`, `contracts/*` and
+`shell/routes.js`; `honesty/*` to `contracts/*`; `contracts/load.js` and `contracts/validate.js` to
+`contracts/vocabulary.js` and `contracts/constants.js`; `screens/*` of M6 to `state/*`. No other
+edge. `state/*` belongs to M6 and no other screen module imports it.
+
+| ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
+|---|---|---|---|---|
+| M10-U1 *(seeded)* | Static network audit of `index.html`, every file in `assets/` and every file in `data/`: no `fetch(`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `sendBeacon` or `<iframe>`; no `import` specifier, `<script src>`, `<link href>`, `<img src>`, `srcset`, CSS `@import`, `url()` or `@font-face` source pointing to an `http:`, `https:` or protocol-relative (`//`) address. Relative references and `<a href>` to any address are allowed. `tests/` and `pipeline/` are not shipped files and are out of scope (DM-11). Fails on any match. | File inventory | both | T at G2 on the seeded files; re-run on every change |
+| M10-U2 | Static storage audit of the same files: no `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `caches`, `serviceWorker` or `navigator.storage`. Fails on any match. | File inventory | both | T, as M10-U1 |
+| M10-U3 | `index.html` has `<html lang="en">`, a viewport meta element, and an element `id="startup-failure"`, without `hidden` and not hidden by `main.css`, containing exactly "The demo could not load. It makes no network requests. If you opened this file directly from your disk, some browsers block it; please use the hosted version."; it has exactly one module script. In the app host, with `loadFreeze` stubbed to fail, the element stays; with fixtures, it is removed only after the first screen has rendered. Fails on any. | `index.html`; `tests/app-host.html` | both (static), browser (start-up) | I |
+| M10-U4 | Import graph. Parsing every `import` statement and `import(` call in `assets/js/` yields only the permitted edges above, with no cycles; no file outside `contracts/load.js` contains the string `data/` or calls `import(`; `loadReveal` is named only in `contracts/load.js` and `screens/trend.js`, and `loadConversation` only in `contracts/load.js` and `screens/scenario.js`; nothing imports from `pipeline/`, `schemas/` or `tests/`; `index.html` has no `modulepreload`, `prefetch` or `preload` link. Fails on any. | File inventory | both | I |
+| M10-U5 | Router (C-7). An empty fragment and `#/brief` show the brief; `#/trends`, `#/trend/<id>`, `#/scenario/<id>`, `#/readiness`, `#/governance` and `#/log` show their screens; `#/trend/trend-does-not-exist` shows `F1-E1`; `#/nothing` shows "This page does not exist in this build." with a link to `#/brief` while the navigation and demo-wide statement stay visible; after visiting every route, the session object M6 receives is the same object (`===`) as at start-up; with `start({ random: seededRandom(7) })`, the first trend opened shows its readings in `drawLensOrder(seededRandom(7))` order. Fails on any. | `tests/app-host.html` with fixtures | browser | I |
+| M10-U6 | Per-screen failure: with `loadLog` stubbed to fail, `#/log` shows `F4-E1` while `#/brief`, `#/trends` and `#/readiness` render normally and `#startup-failure` is not shown. Fails if another screen fails or the application shows `G-E1`. | Loader stub | browser | I |
+| M10-U7 | The navigation lists Brief, Trends, Readiness, Governance and Decision log in that order on every screen, with the same template, no scenario item, and no count, badge or "new" marker. Fails on any difference between screens, any template difference or any marker. | `tests/app-host.html` | browser | I |
+| M10-U8 | Responsive at the four Q-7 viewports, 360 × 640 and 390 × 844 (portrait) and 1280 × 800 and 1440 × 900 (landscape), each an `<iframe>` of that size loading the app host: on every route, `scrollWidth` does not exceed `clientWidth`; body text's computed `font-size` is at least 16px; every control's bounding box lies within the viewport width; in `F1-S2` the three reading elements have equal computed `font-size` and `font-weight`, and equal widths within 1px when side by side; on arrival at `#/log` the replay statement lies entirely within the viewport. Fails on any. | `tests/app-host.html` with fixtures | browser | I |
+| M10-U9 | Test inventory. `tests/lib/files.mjs` lists exactly the files under `assets/` and `schemas/` plus `index.html`, and `tests/unit/index.mjs` imports every `*.test.mjs` and `*.browser.mjs` in `tests/unit/`. This keeps the browser audits from silently missing a file. Fails on any difference. | File system | node | T |
 
 ---
 
 ## What the Test Engineer should know before starting
 
-- **Order of work.** M1 first: the test-side schema interpreter (`tests/lib/mini-schema.mjs`) and
-  the fixture samples in `tests/fixtures/` are what every content test depends on.
-- **Tests that are meant to fail at G2.** Tests that read an unset constant (M3-U4, M5-U1, M5-U2,
-  M8-U2, M9-U7), M9-U1 on viewer entries (DM-1), and every test that needs `data/` before G3. Each
-  failure must name its cause, so that a failure caused by an open decision is never mistaken for a
-  defect, and never "fixed" by weakening the test.
-- **Integration and system level.** The NF1 integration matrix (local server in Chromium and
-  Firefox; `file://` in Firefox, and in Chromium expecting `G-E1`) is in `03-architecture.md`
-  section 9. The system-level check for invariant audit 2 reads
-  `performance.getEntriesByType('resource')` in `F1-S1` and requires that no `data/reveal/` entry
-  exists.
+**Order of work.** First the shared tooling in `tests/lib/` (harness, assertions, environment,
+schema interpreter, seeded random, DOM helpers, file inventory, content source, stage flag) and the
+fixtures; then M1, whose tests every content test leans on; then M10's static audits; then the
+screen modules in build order (M5, M6, then M7, M8, M9). Tests marked **T** should pass as soon as
+they are written: if one fails, either the test or a schema is wrong, and the failure is reported
+to the Architect rather than worked around.
+
+**What fails at G2, and why.** At G2 there is no page or pipeline code, so every test that imports
+it fails with a missing-module error. That is the test-first rule working, not a defect. Beyond
+that, failures must name their cause, so that an open dependency is never mistaken for a defect and
+never "fixed" by weakening a test:
+
+- **B** tests fail until the Cowork briefs exist in `pipeline/briefs/` (D-2).
+- **G3** parts are skipped with "needs data/ (G3)" until `CONTENT_FROZEN`; then they run, and
+  missing data fails.
+- **V** parts are skipped with "maturity unverified (D-1)" until the frozen profile is verified;
+  the synthetic verified fixture keeps the verified code path tested meanwhile.
+- **Q** parts are skipped with "SCENARIO_FLOW is static (O-1)" until the switch is
+  `'interactive'`.
+- No test now depends on an unset constant: DM-9 fixed them all, and M1-U15 checks each value. The
+  M9-U1 failure on viewer entries expected before 4 October is gone: they carry `yours`.
+
+**No Node runtime is installed on the build machine.** Every test file must therefore run in two
+places: under `node --test` (Node 22 or later, once installed; F-9 in the architecture) and from
+`tests/run.html`, a dependency-free browser page. `tests/run.html` is a module page, so it needs a
+static origin: a local static server, or the published GitHub Pages site, which serves the whole
+repository root, including `tests/`. It does not start from `file://` in Chromium. No demo page
+links to it.
+
+**How a test file is written so that it runs in both.**
+
+1. *Naming.* Pure tests go in `tests/unit/<module>.test.mjs`; DOM tests in
+   `tests/unit/<module>.browser.mjs`. `node --test`, run from the repository root, discovers only
+   `*.test.mjs` files by its default pattern, so it never loads a DOM test. `tests/unit/index.mjs`
+   imports every file of both kinds for the browser runner, and M10-U9 checks that it is complete.
+   No fixture or helper file may end in `.test.mjs`.
+2. *Imports.* A test file imports only relative ES modules: the code under test, fixtures, and
+   `tests/lib/`. It never imports a Node built-in (`node:*`) and never touches `document`, `window`
+   or `process` at top level.
+3. *Registration.* Tests register through `tests/lib/harness.mjs`:
+   ```js
+   import { test } from '../lib/harness.mjs';
+   import { assert } from '../lib/assert.mjs';
+   import { drawLensOrder } from '../../assets/js/state/lens-order.js';
+
+   test('M6-U7 drawLensOrder maps six stub sequences to the six orders', () => {
+     const stub = (values) => { let i = 0; return () => values[i++]; };
+     assert.deepEqual(drawLensOrder(stub([0, 0])), ['opportunity', 'threat', 'noise']);
+   });
+
+   test('M1-U16 every data entity has a pass verdict', { needs: ['data'] }, async () => { /* … */ });
+   ```
+   The harness detects its environment once (`typeof process !== 'undefined' &&
+   process.versions?.node`). Under Node it loads `node:test` with a top-level `await import()` and
+   passes each test through, turning unmet `needs` into `skip` with a reason. In the browser it
+   collects the tests in a registry that `tests/run.html` executes in sequence, each with a fresh
+   scratch root and a five-second timeout, and prints a table of identifier, result and reason, then
+   a summary line. The `needs` values are `dom` (browser only), `fs` (Node only: directory listings,
+   child processes), `data` (`CONTENT_FROZEN`), `verified` and `questions`.
+4. *Assertions.* `tests/lib/assert.mjs`, the project's own: `ok`, `equal` (`Object.is`),
+   `deepEqual` (structural), `match`, `includes`, `throws`, `rejects`. Not `node:assert`, so that
+   both runners use the same code.
+5. *Files.* Paths are built with `new URL('../../schemas/trend.schema.json', import.meta.url)`, which
+   works in both. `tests/lib/env.mjs` provides `readText(url)` and `readJson(url)`: under Node it
+   imports `node:fs/promises` dynamically; in the browser it uses a same-origin `fetch()`. This is
+   the only `fetch()` in the repository outside `pipeline/freeze.html`, it never ships to the demo,
+   and it is open item DM-11 for Miguel. If DM-11 is refused, every test that reads a file declares
+   `needs: ['fs']` and runs under Node only. `listFiles(url)` is Node-only; in the browser, file sets
+   come from `tests/lib/files.mjs` and, for `data/`, from the freeze manifest.
+6. *Randomness and time.* Never `Math.random` or `Date.now` in a test: use `seededRandom(seed)` from
+   `tests/lib/seeded-random.mjs` (Mulberry32) and an injected clock. Seeds used by a test are
+   written in the test.
+7. *Whole-app tests.* `tests/lib/dom.mjs` provides `mount()` for screen tests and
+   `appFrame({ width, height, hash, options })`, which loads `tests/app-host.html` into a
+   same-origin `<iframe>` of the given size, with the options (fixture loader, random source,
+   storage stubs) handed to `start()`. Viewport tests (M10-U8) rely on the iframe's size being the
+   viewport its media queries see.
+
+**Integration and system level.** The NF1 integration matrix (local server in Chromium and Firefox;
+`file://` in Firefox, and in Chromium expecting `G-E1`) is in `03-architecture.md`, section 9, now
+covering F1 to F5. The system-level check for invariant audit 2 reads
+`performance.getEntriesByType('resource')` in `F1-S1` and requires that no `data/reveal/` entry
+exists, and in `F5-S1` that no `data/conversation/` entry exists. Invariant audit 5 in
+`test-plan.md` still lists five labels; it should list the six (F-10 in the architecture).

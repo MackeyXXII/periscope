@@ -37,8 +37,8 @@
     "committedAt": { "$ref": "common.schema.json#/$defs/dateTime" },
     "role": { "$ref": "common.schema.json#/$defs/role" },
     "label": {
-      "description": "Which vocabulary value applies to text the viewer types is undecided (K-3, Decision DM-1 in docs/03-architecture.md). The schema admits the vocabulary unchanged and does not choose.",
-      "$ref": "common.schema.json#/$defs/label"
+      "description": "Text and choices the viewer enters are labelled yours (DM-1, 4 Oct 2026). Every part of a Judgement is the viewer's, so the entity label covers all of it.",
+      "const": "yours"
     },
     "provenance": { "$ref": "common.schema.json#/$defs/sessionProvenance" }
   },

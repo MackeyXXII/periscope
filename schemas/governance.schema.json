@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://periscope.invalid/schemas/governance.schema.json",
   "title": "Governance",
-  "description": "Container for the governance screen (R8, F3 step 4, A-2). Two lists and a sourced argument. The statements required by L2 are pinned by identifier, so the screen cannot ship without them. Every 'implemented' statement names the test that verifies it, which turns a claim about the demo into a checkable one. Every argument paragraph carries at least one dated source, because it makes regulatory claims (NF2). Shipped in data/governance.js.",
+  "description": "Container for the governance screen (R8, F3 step 4, A-2). Two lists and a sourced argument. The statements required by L2 are pinned by identifier, so the screen cannot ship without them. Every 'implemented' statement names the test that verifies it, which turns a claim about the demo into a checkable one; that is why the container, and with it both lists, is labelled real (DM-2). The argument is drafted by the Architect during G3 from the Scout's frozen regulatory source list (Q-5 outcome, 5 Oct 2026), so every argument paragraph carries its own required label, fixed to ai-generated, and at least one dated source. Shipped in data/governance.js.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "implemented", "notImplemented", "argument", "label", "provenance"],
@@ -52,13 +52,13 @@
       ]
     },
     "argument": {
-      "description": "What own-data ingestion would require before it could be built, as paragraphs in reading order. Each paragraph cites at least one dated source.",
+      "description": "What own-data ingestion would require before it could be built, as paragraphs in reading order. This is one continuous argument, not a list of peers, so its order is the order of the reasoning. Each paragraph states conditions, not advice (C-6), and cites at least one dated source that the Verifier has opened; a paragraph it cannot tie to a listed source is cut, not softened. If no paragraph passes, the fallback is a single paragraph citing the GDPR's own definition of personal data (gates.md, Q-5).",
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "text", "sources"],
+        "required": ["id", "text", "sources", "label"],
         "properties": {
           "id": { "$ref": "common.schema.json#/$defs/slug" },
           "text": { "$ref": "common.schema.json#/$defs/text" },
@@ -66,13 +66,17 @@
             "type": "array",
             "minItems": 1,
             "items": { "$ref": "common.schema.json#/$defs/sourceRef" }
+          },
+          "label": {
+            "description": "Fixed by the Q-5 outcome: machine-written prose is labelled ai-generated (M1-U17).",
+            "const": "ai-generated"
           }
         }
       }
     },
     "label": {
-      "description": "Undecided (K-3, Decision DM-2): statements about the demo itself fit no origin label cleanly. The schema admits the vocabulary unchanged.",
-      "$ref": "common.schema.json#/$defs/label"
+      "description": "real: the two lists are statements about the demo, each implemented item backed by a named test (DM-2). The argument paragraphs carry their own label.",
+      "const": "real"
     },
     "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }
   }

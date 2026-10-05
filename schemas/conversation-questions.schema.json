@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/conversation-questions.schema.json",
+  "title": "ConversationQuestions",
+  "description": "F5: for one trend, one to three questions for the founder to take into their own external conversations (customers, partners, investors, peers, regulators), written offline by the Interrogator in the same run as the interrogations (A-11, O-1). Questions, not advice, and not scenarios: the machine supplies structure only, so there is nothing to rank or choose between. Ships in its own per-trend module, data/conversation/<trendId>.js, loaded by dynamic import() only after the viewer has recorded their own scenario, by the same mechanism that keeps readings out of the page before the gut reading (docs/03-architecture.md section 6.4). Fixture order carries no importance (C-4, checked at G3). The same for every viewer; it never responds to what the viewer wrote.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "trendId", "questions", "label", "provenance"],
+  "properties": {
+    "id": { "$ref": "common.schema.json#/$defs/conversationId" },
+    "trendId": { "$ref": "common.schema.json#/$defs/trendId" },
+    "questions": {
+      "description": "One to QUESTIONS_PER_GROUP_MAX (3) questions, kept in step with constants.js by M1-U5.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/questionId" },
+          "text": { "$ref": "common.schema.json#/$defs/questionText" }
+        }
+      }
+    },
+    "label": {
+      "description": "Written offline by the Interrogator: ai-generated (DM-2). Every question shows identical label markup.",
+      "$ref": "common.schema.json#/$defs/generatedLabel"
+    },
+    "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }
+  }
+}

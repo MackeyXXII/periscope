@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://periscope.invalid/schemas/brief.schema.json",
   "title": "Brief",
-  "description": "Container for one weekly sensing brief (A-2): the period it covers, its freeze date (provenance.frozenOn) and which signals it contains. It holds signal identifiers, not signals, so a signal's text exists in exactly one place. The order of signalIds carries no meaning: the UI orders by publication date (C-4), so the Brief Editor cannot express a preference through list position. The upper bound BRIEF_SIGNAL_CAP is not set here because its value is open (Q-3); the M5 unit test enforces it. Shipped in data/brief.js.",
+  "description": "Container for one weekly sensing brief (A-2): the period it covers, its freeze date (provenance.frozenOn) and which signals it contains. It holds signal identifiers, not signals, so a signal's text exists in exactly one place. The order of signalIds carries no meaning: the UI orders by publication date (C-4), so the Brief Editor cannot express a preference through list position. maxItems equals BRIEF_SIGNAL_CAP (5, a maximum: Q-3, DM-9); M1-U5 keeps the two in step and M5-U1 tests the count. Zero signals is valid and gives F2-S0. Shipped in data/brief.js.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "periodStart", "periodEnd", "signalIds", "label", "provenance"],
@@ -16,11 +16,12 @@
     "periodEnd": { "$ref": "common.schema.json#/$defs/date" },
     "signalIds": {
       "type": "array",
+      "maxItems": 5,
       "uniqueItems": true,
       "items": { "$ref": "common.schema.json#/$defs/signalId" }
     },
     "label": {
-      "description": "The brief as an assembled whole is frozen content; its signals carry their own labels.",
+      "description": "The brief as an assembled whole is the one container labelled frozen (DM-2); its signals carry their own labels.",
       "const": "frozen"
     },
     "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }

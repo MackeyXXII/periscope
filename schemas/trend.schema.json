@@ -25,7 +25,7 @@
       "items": { "$ref": "common.schema.json#/$defs/signalId" }
     },
     "readings": {
-      "description": "Exactly three references, one per lens. They are unordered peers: array order carries no meaning and the UI ignores it. Only the lens and the reading identifier appear here, never reading content.",
+      "description": "Exactly three references, one per lens. They are unordered peers: array order carries no meaning and the UI ignores it, showing them in an order drawn at random per trend per page load (Q-2). Only the lens and the reading identifier appear here, never reading content.",
       "type": "array",
       "minItems": 3,
       "maxItems": 3,
@@ -56,7 +56,10 @@
         }
       ]
     },
-    "label": { "$ref": "common.schema.json#/$defs/generatedLabel" },
+    "label": {
+      "description": "Written offline by the Trend Analyst and the Interrogator: ai-generated (DM-2).",
+      "$ref": "common.schema.json#/$defs/generatedLabel"
+    },
     "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }
   }
 }

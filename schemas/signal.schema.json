@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://periscope.invalid/schemas/signal.schema.json",
   "title": "Signal",
-  "description": "One real, dated, published item found by the Scout and passed by the Verifier. The signal as a whole is real, so its provenance carries the external source. The summary and relevance note are written by the pipeline and carry their own labels. A Signal does not name its trends: the Trend holds the link (Trend.signalIds), and the UI derives the signal-to-trend links by inverting it. Shipped in data/signals.js as an array.",
+  "description": "One real, dated, published item found by the Scout and passed by the Verifier. The signal as a whole is real, so its provenance carries the external source and its label is real. The summary and relevance note are written by the pipeline and carry their own label, ai-generated (DM-2, per-part labels). A Signal does not name its trends: the Trend holds the link (Trend.signalIds), and the UI derives the signal-to-trend links by inverting it. Shipped in data/signals.js as an array.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "title", "sourceLanguage", "summary", "relevanceNote", "label", "provenance"],
@@ -18,16 +18,16 @@
       "pattern": "^[a-z]{2}$"
     },
     "summary": {
-      "description": "English paraphrase of what the source says. Written by the Scout.",
-      "$ref": "common.schema.json#/$defs/labelledText"
+      "description": "English paraphrase of what the source says. Written by the Scout, so labelled ai-generated.",
+      "$ref": "common.schema.json#/$defs/generatedText"
     },
     "quote": {
-      "description": "Optional short verbatim quote from the source. Length capped by QUOTE_MAX_WORDS (Q-4), checked in the M3 unit test, not here, because the cap is not yet set.",
+      "description": "Optional short verbatim quote from the source, at most QUOTE_MAX_WORDS (15) words. The cap lives in assets/js/contracts/constants.js and is checked by M3-U4 and by renderQuote (M9-U7), so that the value has one home.",
       "$ref": "common.schema.json#/$defs/text"
     },
     "relevanceNote": {
-      "description": "Why this signal concerns Tracewell, lens-neutral and without any level of relevance (F2 precondition 4).",
-      "$ref": "common.schema.json#/$defs/labelledText"
+      "description": "Why this signal concerns Tracewell, lens-neutral and without any level of relevance (F2 precondition 4). Written by the pipeline, so labelled ai-generated.",
+      "$ref": "common.schema.json#/$defs/generatedText"
     },
     "windowNote": {
       "description": "Present only when the source falls outside the scanning brief's time window, saying so plainly.",

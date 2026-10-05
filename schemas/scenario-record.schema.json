@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://periscope.invalid/schemas/scenario-record.schema.json",
+  "title": "ScenarioRecord",
+  "description": "F5: what the viewer has heard in their own external conversations about one trend and how they think it could play out, created in the browser tab and held in memory only; never a fixture, never stored, never sent (C-1). It can exist only after a committed Judgement on the same trend, and its recordedAt must be later than that Judgement's committedAt; JSON Schema cannot compare two values or two documents, so checkScenarioRecord(record, judgement) in the M1 runtime validator checks it (M1-U19). The two fields are locked once recorded; the per-question notes stay editable while the screen is open, so session state holds them apart and snapshots them into this shape for validation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["trendId", "whatWasHeard", "howItCouldPlayOut", "recordedAt", "questionNotes", "label", "provenance"],
+  "properties": {
+    "trendId": { "$ref": "common.schema.json#/$defs/trendId" },
+    "whatWasHeard": {
+      "description": "Answer to 'What have you heard in your own conversations ... that bears on this trend?'. At least one non-whitespace character; no minimum length, because a minimum would be a grade.",
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "howItCouldPlayOut": {
+      "description": "Answer to 'In your own words, how could this trend play out over the next twelve months?'. Same rule as whatWasHeard.",
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "recordedAt": { "$ref": "common.schema.json#/$defs/dateTime" },
+    "questionNotes": {
+      "description": "Optional notes on whom the viewer would ask, one per conversation question at most, possibly none. They gate nothing.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["questionId", "note"],
+        "properties": {
+          "questionId": { "$ref": "common.schema.json#/$defs/questionId" },
+          "note": { "$ref": "common.schema.json#/$defs/text" }
+        }
+      }
+    },
+    "label": {
+      "description": "The viewer's own text (DM-1).",
+      "const": "yours"
+    },
+    "provenance": { "$ref": "common.schema.json#/$defs/sessionProvenance" }
+  }
+}

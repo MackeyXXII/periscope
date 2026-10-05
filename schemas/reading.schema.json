@@ -30,7 +30,10 @@
       "description": "The specific, observable event that would show this reading to be wrong.",
       "$ref": "common.schema.json#/$defs/text"
     },
-    "label": { "$ref": "common.schema.json#/$defs/generatedLabel" },
+    "label": {
+      "description": "Written offline by a Rival Reader: ai-generated (DM-2). The three readings of a trend therefore always carry the same label, so a label never distinguishes one peer from another.",
+      "$ref": "common.schema.json#/$defs/generatedLabel"
+    },
     "provenance": { "$ref": "common.schema.json#/$defs/frozenProvenance" }
   },
   "$defs": {

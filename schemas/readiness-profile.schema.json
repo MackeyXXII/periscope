@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://periscope.invalid/schemas/readiness-profile.schema.json",
   "title": "ReadinessProfile",
-  "description": "Tracewell's position across the five readiness categories of Jöhnk et al. (2021) and on the OECD/WEF maturity view. The whole profile describes a fictional team and is labelled fictional; the framework citation is real and labelled so. There is no numeric field anywhere: a category holds answers and a prose finding, never a score, bar value or level of strength (A-10). The maturity level is held as a name only, with no level number, and is pinned to the literal LEVEL_NAME_UNVERIFIED until the report is verified (D-1). The next complement is pinned to null until K-2 is decided. Shipped in data/readiness.js.",
+  "description": "Tracewell's position across the five readiness categories of Jöhnk et al. (2021) and, for each foresight practice, on the WEF/OECD (2025) maturity levels. The whole profile describes a fictional team and is labelled fictional; the framework citations are real and labelled so; each next-level description is written by an agent and labelled ai-generated. There is no numeric field anywhere, no level index and no boolean: a category holds answers and a prose finding; a practice holds a level name, never a level number (A-10, A-13). While maturity.status is unverified, every practice's level is the literal LEVEL_NAME_UNVERIFIED and its explanation, between-levels note and next level are null (D-1). Verified level names are never enumerated in this schema: their only home in the code is MATURITY_LEVEL_NAMES in assets/js/contracts/vocabulary.js, so replacing the placeholder with the verified names is a one-place change (docs/03-architecture.md section 5.4). Shipped in data/readiness.js.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "subject", "framework", "categories", "maturity", "label", "provenance"],
@@ -16,6 +16,7 @@
       "$ref": "common.schema.json#/$defs/text"
     },
     "framework": {
+      "description": "The readiness framework: Jöhnk et al. (2021). Real, so it carries its own label.",
       "type": "object",
       "additionalProperties": false,
       "required": ["name", "citation", "label"],
@@ -26,7 +27,7 @@
       }
     },
     "categories": {
-      "description": "Exactly five categories, each key exactly once, in the order the paper presents them. Here, unlike elsewhere, array order is meaningful: it is the source's order, not an order of importance, and the UI never re-sorts it by finding.",
+      "description": "Exactly five categories, each key exactly once, in the order the paper presents them (DM-8: strategic alignment, resources, knowledge, culture, data). Here, unlike elsewhere, array order is meaningful: it is the source's order, not an order of importance, and the UI never re-sorts it by finding.",
       "type": "array",
       "minItems": 5,
       "maxItems": 5,
@@ -50,11 +51,11 @@
       "required": ["key", "name", "answers", "finding"],
       "properties": {
         "key": {
-          "description": "Machine key. The five keys follow the category names as L2 records them from the paper; the Verifier confirms the names before freeze (Decision DM-8).",
+          "description": "Machine key. The five keys stand (DM-8, supported by the thesis, Appendix A, adapted from Jöhnk et al., 2021).",
           "enum": ["strategic-alignment", "resources", "knowledge", "culture", "data"]
         },
         "name": {
-          "description": "The category name exactly as confirmed against the paper, for display.",
+          "description": "The category name as the persona dossier records it with its citation, for display.",
           "$ref": "common.schema.json#/$defs/text"
         },
         "answers": {
@@ -78,24 +79,30 @@
       }
     },
     "maturity": {
+      "description": "The maturity view: one entry per foresight practice (D-1). status is report-wide, because verifying the level names is a single act against p. 9 of the report; only Miguel sets it to verified.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "levelName", "explanation", "nextComplement", "report"],
+      "required": ["status", "report", "practices"],
       "properties": {
         "status": {
-          "description": "Whether the level names and criteria have been confirmed by Miguel against the OECD/WEF report itself.",
+          "description": "Whether the level names have been confirmed against the WEF/OECD report itself (Verifier, then Miguel).",
           "enum": ["unverified", "verified"]
         },
-        "levelName": { "$ref": "common.schema.json#/$defs/text" },
-        "explanation": {
-          "oneOf": [{ "$ref": "common.schema.json#/$defs/text" }, { "type": "null" }]
-        },
-        "nextComplement": {
-          "description": "Pinned to null until K-2 decides whether a single next complement is compatible with the no-recommendation invariant, and in what form. The shape is re-specified then.",
-          "type": "null"
-        },
         "report": {
+          "description": "The maturity framework: World Economic Forum and OECD (2025), AI in strategic foresight, https://doi.org/10.1787/aa573076-en. Null while unverified, so nothing about the levels is shown before p. 9 has been re-opened.",
           "oneOf": [{ "$ref": "common.schema.json#/$defs/sourceRef" }, { "type": "null" }]
+        },
+        "practices": {
+          "description": "Exactly three practices, each key once, in the order R2 names the methods (scanning, trend analysis, scenario work). Array order is the source's order, as for the categories, and is checked by M7-U1.",
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/practice" },
+          "allOf": [
+            { "contains": { "required": ["key"], "properties": { "key": { "const": "scanning" } } }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "required": ["key"], "properties": { "key": { "const": "trend-analysis" } } }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "required": ["key"], "properties": { "key": { "const": "scenario-work" } } }, "minContains": 1, "maxContains": 1 }
+          ]
         }
       },
       "if": {
@@ -104,16 +111,102 @@
       },
       "then": {
         "properties": {
-          "levelName": { "const": "LEVEL_NAME_UNVERIFIED" },
-          "explanation": { "type": "null" },
-          "report": { "type": "null" }
+          "report": { "type": "null" },
+          "practices": {
+            "items": {
+              "properties": {
+                "levelName": { "const": "LEVEL_NAME_UNVERIFIED" },
+                "betweenLevels": { "type": "null" },
+                "explanation": { "type": "null" },
+                "nextLevel": { "type": "null" }
+              }
+            }
+          }
         }
       },
       "else": {
         "properties": {
-          "levelName": { "not": { "const": "LEVEL_NAME_UNVERIFIED" } },
-          "explanation": { "type": "string" },
-          "report": { "type": "object" }
+          "report": { "not": { "type": "null" } },
+          "practices": {
+            "items": {
+              "properties": {
+                "levelName": { "not": { "const": "LEVEL_NAME_UNVERIFIED" } },
+                "explanation": { "not": { "type": "null" } },
+                "nextLevel": { "not": { "type": "null" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "practice": {
+      "description": "One foresight practice and the level assigned to it. Every key is required, so a null is always an explicit statement ('not yet verified' or 'not between two levels'), never an omission.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "levelName", "betweenLevels", "explanation", "nextLevel"],
+      "properties": {
+        "key": { "$ref": "common.schema.json#/$defs/practiceKey" },
+        "name": {
+          "description": "Display name of the practice.",
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        "levelName": {
+          "description": "LEVEL_NAME_UNVERIFIED while unverified. Once verified, one of MATURITY_LEVEL_NAMES in vocabulary.js, checked by checkReadiness and M1-U20, not by this schema, so that the names have exactly one home.",
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        "betweenLevels": {
+          "description": "Set only when Tracewell's account of this practice falls between two levels. Then the lower level is assigned (D-1), lowerLevelName must equal levelName, and upperLevelName must be the level the report places directly above it (M1-U20). Recording both names makes the lower-level rule checkable rather than a matter of trust.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["lowerLevelName", "upperLevelName"],
+              "properties": {
+                "lowerLevelName": { "$ref": "common.schema.json#/$defs/text" },
+                "upperLevelName": { "$ref": "common.schema.json#/$defs/text" }
+              }
+            }
+          ]
+        },
+        "explanation": {
+          "description": "Why Tracewell's practice sits at this level, drawing on the dossier answers, citing the report with a page. Covered by the profile's fictional label, since it describes the fictional team.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["text", "citation"],
+              "properties": {
+                "text": { "$ref": "common.schema.json#/$defs/text" },
+                "citation": { "$ref": "common.schema.json#/$defs/reportCitation" }
+              }
+            }
+          ]
+        },
+        "nextLevel": {
+          "description": "What the report describes for the level above the assigned one (K-2), never advice. Either the next level's name with the report's description, paraphrased and labelled ai-generated, and a page citation; or, where the assigned level is the highest the report describes, only the citation that shows it, and the UI renders the fixed sentence 'The report describes no level above this one.' Null while unverified. There is no flag distinguishing the two cases: the shapes are disjoint closed objects.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["levelName", "description", "citation"],
+              "properties": {
+                "levelName": { "$ref": "common.schema.json#/$defs/text" },
+                "description": { "$ref": "common.schema.json#/$defs/generatedText" },
+                "citation": { "$ref": "common.schema.json#/$defs/reportCitation" }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["noLevelAboveCitation"],
+              "properties": {
+                "noLevelAboveCitation": { "$ref": "common.schema.json#/$defs/reportCitation" }
+              }
+            }
+          ]
         }
       }
     }
