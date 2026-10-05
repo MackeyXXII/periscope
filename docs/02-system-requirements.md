@@ -85,7 +85,7 @@ writes; names, types and nesting are the Architect's. No entity may carry a `sco
 | ReadinessProfile | Frozen; answers from the persona dossier | Tracewell's answers in each of the five readiness categories; a prose finding per category; for each foresight practice, the maturity level (placeholder until verified), the explanation and the report's description of the next level; honesty labels; provenance for both frameworks |
 | LogEntry | Frozen replay | The original signal or signals (real, dated); the past judgement (lens, rationale, the date it is presented as of, and the date and authors of its writing); the outcome (paraphrase with a dated, real source); a calibration note; honesty labels |
 | ScenarioRecord | **In-session only**, created by the viewer (F5) | The trend it concerns; what the viewer has heard; how they think it could play out; when it was recorded; optional per-question notes; label `yours` |
-| Conversation questions | Frozen, from the Interrogator (F5) | For one trend: one to three questions to take into external conversations; honesty label. **The contract does not exist yet** (A-11) |
+| ConversationQuestions | Frozen, from the Interrogator (F5) | For one trend: one to three questions to take into external conversations; honesty label. Shipped one module per trend, in `data/conversation/<trendId>.js` (`03-architecture.md`, section 6.4) |
 
 The containers for the weekly brief and the governance content are schemas (`Brief`,
 `Governance`), decided by the Architect in `03-architecture.md`, section 5.5.
@@ -486,8 +486,8 @@ role-aware data model (R7), which is designed in the architecture and not built.
 The argument that follows the two lists states what own-data ingestion would require before it
 could be built. Every factual claim in it about GDPR or other EU regulation carries a dated source
 under NF2 and passes the Verifier. Who writes the argument is decided under Q-5 by a structured
-debate before G3, and the outcome and its reasoning are recorded in `gates.md`; this specification
-does not depend on which way it went, except for the label of the argument (see O-4).
+debate, and the outcome and its reasoning are recorded in `gates.md` (as a proposal until Miguel
+confirms it at G2). That outcome assigns the argument to a build agent, so it is agent-written text.
 
 **Expected labels.** The readiness profile, Tracewell's answers and findings, and each practice's
 verified level assignment and explanation: `fictional`. The framework citations (Jöhnk et al. and
@@ -495,7 +495,8 @@ the WEF/OECD report): `real`. The next-level descriptions: labelled by origin, `
 written by a pipeline agent, as signal summaries are (who writes them is open item O-2). The
 maturity placeholder: no label, since it is not content. The two governance lists: `real`, since
 each implemented item is a statement about the demo verified by a named test (DM-2). The governance
-argument: by origin, once Q-5's outcome is known (O-4).
+argument paragraphs: `ai-generated`, since the Q-5 outcome assigns them to an agent; each claim in
+them carries its own `real`, dated source.
 
 ### Screen states
 
@@ -551,8 +552,10 @@ written. The replay statement names who wrote the judgements and when.
 2. The log data has loaded. Each LogEntry passes these checks, otherwise it is withheld (`F4-W1`):
    at least one original signal with a URL and a publication date between `REPLAY_WINDOW_START` and
    `REPLAY_WINDOW_END` inclusive; a past judgement with a lens, a non-empty rationale, the date it is
-   presented as of, and the date it was written; an outcome with a paraphrase, a source URL and a
-   publication date later than every original signal's; a non-empty calibration note; labels
+   presented as of, the date it was written, and the agents who wrote it; an outcome with a
+   paraphrase, a source URL, a publication date later than every original signal's, and the date
+   the outcome was attached, which is on or after the date the judgement was written (so the
+   outcome was withheld while the judgement was written); a non-empty calibration note; labels
    present.
 3. Content constraints enforced at G3 by the Verifier and checked by the Red-team Reviewer: every
    outcome is real and dated (an invented outcome is a project-ending defect); the judgements were
@@ -615,12 +618,19 @@ writes no scenario, so there is nothing to rank and nothing for the founder to c
 F5 follows a committed judgement on the same trend. It is reached from the link on `F1-S4`, so the
 readings for that trend have already been revealed and nothing in F5 can pre-empt the gut reading.
 
-**Dependency flag.** The conversation questions do not exist yet. Producing them needs two things
-that this specification does not assume: an addition to the Interrogator's instructions, so that
-it writes one to three conversation questions per trend in the same offline run (no new agent is
-needed, since writing questions, not advice, is already the Interrogator's job); and a data
-contract for them, with a decision on where they ship (A-11). Until both exist, or if the build is
-behind on 6 October, F5 ships as the static screen `F5-ST`.
+**Dependency flag.** The contract and shipping question are settled: the questions are
+`ConversationQuestions` records, one module per trend in `data/conversation/<trendId>.js`, loaded
+only after the scenario is recorded (`03-architecture.md`, section 6.4; A-11 answered). The
+questions themselves do not exist yet: the Interrogator's instructions need an addition so that it
+writes one to three conversation questions per trend in the same offline run (no new agent is
+needed, since writing questions, not advice, is already the Interrogator's job; O-1). F5 lives in
+module M6.
+
+**When F5 is static.** Every scenario route that passes the trend checks shows the static screen
+`F5-ST` when the build switch `SCENARIO_FLOW` is `"static"`, or when the build does not contain a
+conversation module for every trend. `SCENARIO_FLOW` starts as `"static"`; the Orchestrator sets it
+to `"interactive"` at the G3 freeze if the questions passed the Verifier, and back to `"static"` if
+the build is behind on 6 October.
 
 ### Preconditions
 
@@ -648,8 +658,8 @@ behind on 6 October, F5 ships as the static screen `F5-ST`.
 **Rules that hold throughout F5.**
 
 - Before step 3 completes, the page contains no conversation question in any form, by the same
-  standard as F1's rule for readings (not hidden, not in a template, attribute, accessible name or
-  comment).
+  standard as F1's rule for readings: not hidden, not in a template, attribute, accessible name or
+  comment, and not loaded or requested.
 - In `F5-S2` the viewer's text and the machine's questions sit in two separately headed regions,
   "What you wrote" first and "Questions to take into your next conversations" second, so that who
   did what is visible at a glance.
@@ -687,14 +697,16 @@ F5 is satisfied for a trend when all of the following hold and can be observed b
 1. Opening the scenario route with no committed Judgement for the trend shows `F5-S0`.
 2. Session state holds a ScenarioRecord for the trend with both fields containing at least one
    non-whitespace character and a recorded time later than the Judgement's commit time.
-3. A DOM snapshot taken in `F5-S1` contains none of the trend's conversation questions; a snapshot
+3. A DOM snapshot taken in `F5-S1` contains none of the trend's conversation questions, and the
+   browser's resource-timing entries contain no request for its conversation module; a snapshot
    taken in `F5-S2` contains all of them.
 4. In `F5-S2`, every element of the viewer's text carries `yours`, every question carries
    `ai-generated`, the two sit in separately headed regions, and the statement about the questions
    is present.
 5. Nothing was written to any browser storage or sent over the network.
 
-If F5 ships as `F5-ST`, the exit criterion is instead: the scenario route shows `F5-ST`, with no
+If F5 ships as `F5-ST` (see "When F5 is static"), the exit criterion is instead: the scenario
+route shows `F5-ST`, with no
 input field and no AI-generated question anywhere in the page. In that case R2's scenario method is
 described rather than demonstrated, and the traceability matrix says so.
 
@@ -705,17 +717,17 @@ described rather than demonstrated, and the traceability matrix says so.
 Test levels follow `test-plan.md`. Tooling has no package manager, so unit tests are plain ES
 modules run under `node --test` or in the browser; integration and system checks that need a real
 browser are scripted walks run by the Test Engineer or the Red-team Reviewer. Module references
-follow `04-module-design.md`; F5's modules are to be assigned by the Architect.
+follow `04-module-design.md`; F5 lives in M6.
 
 | NF | How it is verified | Test level | Modules | Pass criterion |
 |---|---|---|---|---|
 | NF1 Static, no runtime network calls | Static audit of every shipped file (`index.html`, `assets/`, `data/`) for `fetch(`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `sendBeacon`, `import` from an `http(s)` URL, `<script>`, `<link>`, `<img>`, `srcset`, `<iframe>`, `@import` or CSS `url()` pointing at a remote address, and remote `@font-face`. Plain `<a href>` links to sources are allowed, because they are navigation the viewer chooses. The same audit checks for `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `caches`, `serviceWorker` and `navigator.storage` (C-1) | Unit | M10, M1 | Zero matches outside `<a href>` |
-| | Load the demo from a local static server with the browser offline in current Chromium and current Firefox, and from `file://` in both, and walk F1 to F5 while recording network activity | Integration | M10 | From the server, in both browsers: every screen renders and no request leaves the page's own files. From `file://`: Firefox as from the server; Chromium shows `G-E1`, including its `file://` sentence, and nothing else (DM-6). Safari is not covered |
+| | Load the demo from a local static server with the browser offline in current Chromium and current Firefox, and from `file://` in both, and walk F1 to F5 while recording network activity | Integration | M10; M6 for F5 | From the server, in both browsers: every screen renders and no request leaves the page's own files. From `file://`: Firefox as from the server; Chromium shows `G-E1`, including its `file://` sentence, and nothing else (DM-6). Safari is not covered |
 | | Invariant audit 6 | System | all | As in `test-plan.md` |
 | NF2 Provenance | Schema check that every claim-bearing item has a source URL, publication date and retrieval date (M1); every Signal has a URL, date and summary (M3); every evidence and counter-evidence item has a dated source (M4); every replay outcome has a dated source later than its signal (M8); every verified maturity explanation and next-level description cites the report with a page (M7); every rendered claim shows its link and date, and every quote is within fifteen words (M9) | Unit | M1, M3, M4, M7, M8, M9 | All assertions pass for every fixture |
 | | Claim-by-claim check that each source exists and says what is claimed; unverifiable claims struck | Review (Verifier at G3; Red-team Reviewer) | — | Verification record lists every claim with a verdict; no struck claim ships |
 | | Invariant audit 4 | System | all | As in `test-plan.md` |
-| NF3 Honest labelling | Every rendered content element carries a visible label and a machine-readable label from the six-value vocabulary; every element of the viewer's own text in F1 and F5 carries `yours`; peers carry identical labels; per-part labels appear where a part's origin differs; `frozen` appears as an element label only on the weekly brief; the demo-wide "frozen offline, no live AI" statement is present on every screen; the replay statement is present in F4 | Unit | M9, M6 | No content element lacks a label; no label outside the vocabulary; no viewer entry without `yours` |
+| NF3 Honest labelling | Every rendered content element carries a visible label and a machine-readable label from the six-value vocabulary; every element of the viewer's own text in F1 and F5 carries `yours`; peers carry identical labels; per-part labels appear where a part's origin differs; `frozen` appears as an element label only on the weekly brief; the demo-wide "frozen offline, no live AI" statement is present on every screen; the replay statement is present in F4 | Unit | M9; M6 for F1 and F5 | No content element lacks a label; no label outside the vocabulary; no viewer entry without `yours` |
 | | Invariant audit 5, and review of whether each label is correct under C-5, not merely present | System; Review (Red-team at G3 and G4) | M9, M10 | No mislabelled element |
 | NF4 Core loop under 8 minutes | Two to three people unfamiliar with the project open the demo unaided at the entry screen (the weekly brief, DM-7). The clock runs only for the core loop (Q-6): it starts at the first display of `F1-S1` for the trend the viewer chooses, and stops at `F1-S4` for that trend. Time spent in the brief before opening the trend card is not counted | Acceptance (G5), preceded by the agent rehearsal | M10, M5, M6 | Each viewer reaches `F1-S4` within 8 minutes of first seeing `F1-S1` |
 | NF5 Responsive and legible | Walk F1 to F5 at four viewports (Q-7): phone in portrait at 360 × 640 and 390 × 844 CSS pixels; desktop or laptop in landscape at 1280 × 800 and 1440 × 900; a viewport meta element is present (static check) | System; Unit for the static check | M10 | At every viewport: every step completes; no horizontal scrolling; no clipped content or control; body text not smaller than 16 CSS pixels; the three readings keep equal visual weight; the F4 replay statement is visible on arrival |
@@ -780,7 +792,8 @@ Written into C-1.
 
 **K-6. R2's scenario work had no flow.** *Resolved, 4 Oct 2026:* a flow is added, structured around
 the founder's own external conversations, respecting every invariant, and shipping as a static
-screen if time runs short. Specified as F5. Its content depends on A-11 and O-1.
+screen if time runs short. Specified as F5. A-11 is answered (C-R4, C-R6); its content depends
+on O-1.
 
 **K-7. Who writes the replay judgements, and how hindsight is kept out.** *Resolved, 4 Oct 2026:*
 the Rival Readers and the Interrogator write them from the early-2026 signals only, outcomes
@@ -805,7 +818,8 @@ replay window (1 January to 31 March 2026) and three questions per interrogation
 
 **Q-5. Governance content.** *Resolved, 4 Oct 2026, as to process:* the author is decided by a
 structured debate between agents before G3, with the outcome and reasoning recorded in `gates.md`;
-every regulatory claim still passes the Verifier. The label consequence is open item O-4.
+every regulatory claim still passes the Verifier. The debate's outcome, recorded in `gates.md` on
+5 October 2026, assigns the argument to a build agent; Miguel confirms it at G2.
 
 **Q-6. What NF4's eight minutes measure.** *Resolved, 4 Oct 2026:* only the core loop, from opening
 a trend card to a committed judgement. DM-7 confirmed the brief as the entry screen. In the NF4 row.
@@ -831,23 +845,31 @@ and does not presume what it says.
 for unknown routes, and the `file://` sentence in `G-E1`) were requested in `03-architecture.md`,
 section 13. None touches an invariant. All three are applied, on 5 October 2026.
 
+**C-R4** (F5's `ConversationQuestions` contract in `data/conversation/<trendId>.js`, the
+`SCENARIO_FLOW` switch and the condition for `F5-ST`), **C-R5** (O-4 answered by the Q-5 outcome),
+**C-R6** (F5 lives in M6) and **C-R7** (F4 precondition 2 names the past judgement's authors and the
+date the outcome was attached) were requested after the Architect's revision of 5 October 2026.
+None touches an invariant. All four are applied, on 5 October 2026.
+
 ### Items still open
 
 These do not block G2. Each says who closes it and what the demo does until then.
 
-- **O-1. Conversation questions for F5** (Orchestrator and Architect). The Interrogator's
-  instructions need a section for one to three conversation questions per trend, and the
-  questions need a contract (A-11). Until both exist, F5 ships as `F5-ST`.
+- **O-1. Conversation questions for F5** (Orchestrator). The contract exists (A-11, C-R4); what
+  remains is a section in the Interrogator's instructions for one to three conversation questions
+  per trend. Until the questions exist and pass the Verifier, `SCENARIO_FLOW` stays `"static"` and
+  F5 ships as `F5-ST`.
 - **O-2. Who writes the maturity explanations, the next-level descriptions and the replay
   calibration notes** (Orchestrator). No agent definition covers them. Whoever writes them, the
   Verifier checks them; a pipeline agent's text is labelled `ai-generated`. Until assigned, F3
   ships as `F3-S2`, and F4 cannot pass its exit criterion.
 - **O-3. The list of foresight practices** (Verifier, with p. 9). F3 assumes the three methods R2
   names; the thesis is the authority.
-- **O-4. The label of the governance argument** (Miguel, only if needed). If the Q-5 debate assigns
-  a pipeline agent, the label is `ai-generated` and nothing more is needed. If it assigns a person,
-  the six-value vocabulary has no value for human-authored prose about the demo, and Miguel
-  decides which applies.
+- **O-4. The label of the governance argument.** *Closed, pending Miguel's confirmation of the Q-5
+  outcome at G2.* The outcome recorded in `gates.md` assigns the argument to a build agent, so its
+  paragraphs are `ai-generated` and no seventh label is needed. If Miguel assigns a person instead,
+  this item reopens, because the six-value vocabulary has no value for human-written prose about
+  the demo.
 
 ---
 
@@ -857,11 +879,9 @@ A-1 to A-10, handed on 19 September 2026, are answered in `03-architecture.md`, 
 the decisions they required from Miguel (DM-1 to DM-10) were taken on 4 October 2026. The
 following follow from the 4 October decisions and are new.
 
-- **A-11. F5's contracts and loading.** A contract for the conversation questions, and where they
-  ship: inside the existing reveal bundle (already loaded by the time F5 opens, since F5 follows a
-  committed judgement) or in a module of their own. Either satisfies F5, which requires only that
-  no question is in the page before the scenario is recorded. Also a contract, or a statement that
-  none is needed, for the in-session ScenarioRecord, and the module that owns F5.
+- **A-11. F5's contracts and loading.** *Answered* in `03-architecture.md`, section 6.4:
+  `ConversationQuestions` in one module per trend, loaded only after the scenario is recorded, the
+  `SCENARIO_FLOW` switch, and F5 in M6.
 - **A-12. The vocabulary's sixth value.** `common.schema.json`, `vocabulary.js` and the Judgement
   contract need `yours` (DM-1); the Judgement's label becomes `yours`, and so does the
   ScenarioRecord's.
