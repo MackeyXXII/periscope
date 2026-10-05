@@ -6,16 +6,12 @@
 // every test that imports assets/js/contracts/* fails with "module under test could not be
 // imported" until the Implementer builds M1; every data/ part is skipped with "needs data/ (G3)".
 //
-// ASSUMED CALL SIGNATURES. The module design fixes the argument lists of checkReadiness and
-// checkScenarioRecord only. For the others these tests pass the context a check plausibly needs
-// as an extra argument, which a one-argument implementation simply ignores:
-//   checkTrend(trend, signals)          signals: the Signal array (to resolve signalIds)
-//   checkRevealBundle(bundle, trend)    trend: the Trend whose reading references the bundle must match
-//   checkConversation(set, trend)       trend: the Trend the set belongs to
-//   checkSignal(signal), checkBrief(brief), checkGovernance(container), checkLogEntry(entry),
-//   checkJudgement(judgement)
-// Reported to the Orchestrator as a specification gap; change here, in one place, if the
-// Architect fixes different signatures.
+// Call signatures, as fixed in docs/04-module-design.md (M1, the check-function table):
+//   checkSignal(signal), checkBrief(brief), checkTrend(trend, signals),
+//   checkRevealBundle(bundle, trend), checkConversation(set, trend),
+//   checkReadiness(profile, { levelNames }), checkGovernance(container), checkLogEntry(entry),
+//   checkJudgement(judgement), checkScenarioRecord(record, judgement),
+//   checkFreezeManifest(manifest).
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -288,8 +284,7 @@ async function mutationSamples() {
     { kind: 'LogEntry', schema: 'log-entry.schema.json', value: c.log.find((e) => e.originalSignals.length > 1), check: (V, v) => V.checkLogEntry(v) },
     { kind: 'Judgement', schema: 'judgement.schema.json', value: s.judgement, check: (V, v) => V.checkJudgement(v) },
     { kind: 'ScenarioRecord', schema: 'scenario-record.schema.json', value: s.scenarioRecord, check: (V, v) => V.checkScenarioRecord(v, s.judgement) },
-    // validate.js names no check for the freeze manifest, so only the schema side applies to it.
-    { kind: 'FreezeManifest', schema: 'freeze-manifest.schema.json', value: c.freeze, check: null },
+    { kind: 'FreezeManifest', schema: 'freeze-manifest.schema.json', value: c.freeze, check: (V, v) => V.checkFreezeManifest(v) },
   ];
 }
 
@@ -352,6 +347,11 @@ function mutantsOf(sample) {
   }
   if (kind === 'ScenarioRecord') {
     out.push(mutant(v, 'whatWasHeard " "', (m) => { m.whatWasHeard = ' '; }));
+  }
+  if (kind === 'FreezeManifest') {
+    out.push(mutant(v, 'a module path "data/../x.js"', (m) => { m.modules.push('data/../x.js'); }));
+    out.push(mutant(v, 'a duplicated module path', (m) => { m.modules.push(m.modules[0]); }));
+    out.push(mutant(v, 'frozenOn "5 Oct 2026"', (m) => { m.frozenOn = '5 Oct 2026'; }));
   }
   return out;
 }

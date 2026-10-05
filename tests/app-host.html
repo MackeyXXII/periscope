@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Periscope app host (test tooling)</title>
+<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<!--
+  Test tooling for Periscope. Never linked from the demo.
+
+  The app host for whole-app tests (docs/04-module-design.md, M10 "Lives in"): the same static
+  elements as index.html (lang, viewport meta, stylesheet link, the static #startup-failure
+  message, an #app root, one module script), but the script hands start() the options the test
+  page provides, so that a test can inject a fixture loader, a stubbed loader or a seeded random
+  source. Loaded only by appFrame() in tests/lib/dom.mjs, inside a same-origin <iframe>:
+
+    window.parent.__periscopeAppHost = { options(): object, started(error | null): void }
+
+  The host also records, for M10-U3, whether anything had been rendered into #app before
+  #startup-failure left the document: window.__periscopeStartup.
+-->
+<p id="startup-failure">The demo could not load. It makes no network requests. If you opened this file directly from your disk, some browsers block it; please use the hosted version.</p>
+<div id="app"></div>
+<script type="module">
+const host = window.parent !== window ? window.parent.__periscopeAppHost : undefined;
+const startup = { removed: false, appFilledBeforeRemoval: null, appAdditions: 0 };
+window.__periscopeStartup = startup;
+
+const observer = new MutationObserver((records) => {
+  for (const r of records) {
+    if (startup.removed) break;
+    const app = document.getElementById('app');
+    if (r.type === 'childList' && app && (r.target === app || app.contains(r.target)) && r.addedNodes.length > 0) {
+      startup.appAdditions += 1;
+    }
+    const gone = Array.from(r.removedNodes).some(
+      (n) => n.id === 'startup-failure' || (n.querySelector && n.querySelector('#startup-failure')),
+    );
+    if (gone) {
+      startup.removed = true;
+      startup.appFilledBeforeRemoval = startup.appAdditions > 0;
+    }
+  }
+});
+observer.observe(document.documentElement, { childList: true, subtree: true });
+
+let failure = null;
+try {
+  const options = host && typeof host.options === 'function' ? host.options() : {};
+  let main;
+  try {
+    main = await import('../assets/js/main.js');
+  } catch (error) {
+    throw new Error(
+      `module under test could not be imported: assets/js/main.js (${error && error.message}). ` +
+        'Before the module is implemented this failure is expected (test-first rule).',
+    );
+  }
+  if (typeof main.start !== 'function') {
+    throw new Error('assets/js/main.js does not export start(): the M10 shell is not implemented yet (test-first rule)');
+  }
+  await main.start(options);
+} catch (error) {
+  failure = error instanceof Error ? error : new Error(String(error));
+}
+if (host && typeof host.started === 'function') host.started(failure);
+</script>
+</body>
+</html>

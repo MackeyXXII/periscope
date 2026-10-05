@@ -2,25 +2,17 @@
 // Written from docs/04-module-design.md (M1) and docs/03-architecture.md (section 4) before
 // pipeline/freeze-core.mjs or pipeline/freeze.mjs exists (test-first rule).
 //
-// PROVISIONAL INTERFACE. The module design fixes the call
+// The interface is fixed in docs/03-architecture.md, section 4:
 //   freeze({ inputs, verification, schemas, frozenOn, pipelineRunOn })
-//     -> { ok: true, files: Map<repository path, file text> } | { ok: false, errors }
-// but not the shape of its arguments, the order of arrays in the output, or the driver's command
-// line. These tests, and the fixtures in tests/fixtures/pipeline/ and tests/fixtures/expected-data/,
-// assume the following, reported to the Orchestrator for the Architect to confirm or change:
-//   inputs        an object keyed by the pipeline/output/ file name ('signals.json', 'trends.json',
-//                 'readings.json', 'interrogations.json', 'conversations.json', 'brief.json',
-//                 'readiness.json', 'governance.json', 'log.json'), each value the parsed JSON.
-//   verification  the parsed verification.json: { entities: [{ type, id, hash, verdict, note }] }
-//                 (F-3), hash = SHA-256 hex of the entity's canonical JSON. Entities are matched by
-//                 id (identifiers are unique across types by their prefixes).
-//   schemas       SCHEMAS from tests/lib/schemas.mjs (file name -> parsed schema).
-//   output        arrays keep their input order; each reveal bundle holds its trend's readings in
-//                 readings.json order; the manifest's modules are sorted by code point and include
-//                 data/freeze.js itself; conversation modules exist only if conversations.json has
+//     -> { ok: true, files: Map<repository path, file text> } | { ok: false, errors }; never throws
+//   inputs        keyed by pipeline/output/ file name, each value the parsed JSON.
+//   verification  { entities: [{ type, id, hash, verdict, note }] }, matched by id; hash is the
+//                 SHA-256 hex of the entity's canonical JSON.
+//   output        arrays keep their input order; the manifest's modules are sorted by code point
+//                 and include data/freeze.js; conversation modules only if conversations.json has
 //                 entries.
-//   driver        `node pipeline/freeze.mjs`, run with the repository root as working directory,
-//                 reads pipeline/output/ and writes data/, with no arguments.
+//   driver        `node pipeline/freeze.mjs [--frozen-on YYYY-MM-DD] [--pipeline-run-on YYYY-MM-DD]`,
+//                 run from the repository root, reads pipeline/output/ and writes data/.
 
 import { test } from '../lib/harness.mjs';
 import { assert } from '../lib/assert.mjs';
@@ -126,7 +118,7 @@ test('M1-U11 the freeze core refuses unverified, edited or invalid entities and 
   assert.none(problems, 'freeze-core refusals that did not happen');
 });
 
-test('M1-U11 the Node freeze driver exits non-zero and leaves data/ byte-identical when the core refuses', { needs: ['fs'], timeout: 30000 }, async () => {
+test('M1-U11 the Node freeze driver, given the date flags, exits non-zero and leaves data/ byte-identical when the core refuses', { needs: ['fs'], timeout: 60000 }, async () => {
   const fs = await nodeBuiltin('node:fs/promises');
   const os = await nodeBuiltin('node:os');
   const path = await nodeBuiltin('node:path');
@@ -138,41 +130,61 @@ test('M1-U11 the Node freeze driver exits non-zero and leaves data/ byte-identic
       throw new Error(`module under test is missing: ${required} (expected before implementation, test-first rule)`);
     });
   }
+  const flags = ['--frozen-on', FROZEN_ON, '--pipeline-run-on', PIPELINE_RUN_ON];
+  const temps = [];
 
-  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'periscope-freeze-'));
-  try {
-    // A minimal copy of the repository: the drivers, the interpreter, the schemas and the fixture
-    // pipeline output with one verdict struck; data/ holds a sentinel file.
+  // A minimal copy of the repository: the drivers, the interpreter, the schemas and the fixture
+  // pipeline output, optionally with one verdict struck; data/ holds a sentinel file.
+  async function copy(struck) {
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'periscope-freeze-'));
+    temps.push(tmp);
     for (const rel of ['pipeline/freeze.mjs', 'pipeline/freeze-core.mjs', 'tests/lib/mini-schema.mjs']) {
       await fs.mkdir(path.dirname(path.join(tmp, rel)), { recursive: true });
       await fs.copyFile(path.join(repo, rel), path.join(tmp, rel));
     }
     await fs.cp(path.join(repo, 'schemas'), path.join(tmp, 'schemas'), { recursive: true });
     await fs.cp(path.join(repo, 'tests/fixtures/pipeline'), path.join(tmp, 'pipeline/output'), { recursive: true });
-    const verificationPath = path.join(tmp, 'pipeline/output/verification.json');
-    const verification = JSON.parse(await fs.readFile(verificationPath, 'utf8'));
-    const struck = 'sig-2026-03-04-zebra-gamma';
-    verification.entities.find((e) => e.id === struck).verdict = 'struck';
-    await fs.writeFile(verificationPath, `${JSON.stringify(verification, null, 2)}\n`);
+    if (struck) {
+      const verificationPath = path.join(tmp, 'pipeline/output/verification.json');
+      const verification = JSON.parse(await fs.readFile(verificationPath, 'utf8'));
+      verification.entities.find((e) => e.id === struck).verdict = 'struck';
+      await fs.writeFile(verificationPath, `${JSON.stringify(verification, null, 2)}\n`);
+    }
     await fs.mkdir(path.join(tmp, 'data'), { recursive: true });
     await fs.writeFile(path.join(tmp, 'data/sentinel.js'), '// sentinel: must survive a refused freeze\n');
+    return tmp;
+  }
+  const run = (tmp) => cp.spawnSync(process.execPath, [path.join(tmp, 'pipeline/freeze.mjs'), ...flags], { cwd: tmp, encoding: 'utf8', timeout: 25000 });
+  const snapshot = async (tmp) => {
+    const out = {};
+    for (const f of await listFiles(url.pathToFileURL(path.join(tmp, 'data') + path.sep))) {
+      out[f] = await fs.readFile(path.join(tmp, 'data', f), 'utf8');
+    }
+    return out;
+  };
 
-    const snapshot = async () => {
-      const out = {};
-      for (const f of await listFiles(url.pathToFileURL(path.join(tmp, 'data') + path.sep))) {
-        out[f] = await fs.readFile(path.join(tmp, 'data', f), 'utf8');
-      }
-      return out;
-    };
-    const before = await snapshot();
-    const run = cp.spawnSync(process.execPath, [path.join(tmp, 'pipeline/freeze.mjs')], { cwd: tmp, encoding: 'utf8', timeout: 25000 });
-    const after = await snapshot();
+  try {
+    // Control: with the flags and nothing struck, the driver succeeds and honours the dates, so the
+    // refusal below is caused by the struck verdict, not by the flags.
+    const ok = await copy(null);
+    const control = run(ok);
+    assert.equal(control.status, 0, `driver exit status on the unmodified fixture (${control.stderr})`);
+    assert.equal(
+      await fs.readFile(path.join(ok, 'data/freeze.js'), 'utf8'),
+      await readText(repoUrl('tests/fixtures/expected-data/freeze.js')),
+      'data/freeze.js written with the flagged dates',
+    );
 
-    assert.notEqual(run.status, 0, 'driver exit status');
-    assert.ok(`${run.stdout}${run.stderr}`.includes(struck), `the driver reports the refused entity ${struck}`);
+    const struck = 'sig-2026-03-04-zebra-gamma';
+    const tmp = await copy(struck);
+    const before = await snapshot(tmp);
+    const refused = run(tmp);
+    const after = await snapshot(tmp);
+    assert.notEqual(refused.status, 0, 'driver exit status');
+    assert.ok(`${refused.stdout}${refused.stderr}`.includes(struck), `the driver reports the refused entity ${struck}`);
     assert.deepEqual(after, before, 'data/ after the refused freeze');
   } finally {
-    await fs.rm(tmp, { recursive: true, force: true });
+    for (const tmp of temps) await fs.rm(tmp, { recursive: true, force: true });
   }
 });
 

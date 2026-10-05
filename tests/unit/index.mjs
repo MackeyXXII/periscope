@@ -16,6 +16,10 @@ export const TEST_FILES = Object.freeze([
   './m4-interpretation.test.mjs',
   './m5-brief.test.mjs',
   './m5-brief.browser.mjs',
+  './m7-readiness.test.mjs',
+  './m7-readiness.browser.mjs',
+  './m10-shell.test.mjs',
+  './m10-shell.browser.mjs',
 ]);
 
 /** Imports every listed file; calls onError(file, error) for each one that fails to load. */
