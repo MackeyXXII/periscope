@@ -72,6 +72,7 @@ to be written into the documents, and into `traceability.md`, before G2 is recor
 | O-3 | The three foresight practices stay as R2 names them: scanning, trend analysis and scenario work. The Verifier still checks them against the thesis when it re-opens p. 9. |
 | F-9 | Node is installed on the build machine (v24.21.0, checked on 5 Oct). `node --test` runs from the repository root. |
 | DM-11 | **Not needed. The architecture's default stands:** with Node installed, the text-based tests run under Node, and no `fetch()` exists anywhere in the repository, tests included. |
+| D-1 | Miguel restated the three level names in chat: level one "AI for analysis augmentation", level two "AI as creative sparring partner", level three "AI integrated and customized into workflow". They match the D-1 entry of 4 Oct word for word. The status stays `unverified` until the Verifier has re-opened p. 9 of the report itself (CLAUDE.md). |
 | F5 | **F5 ships as the static screen `F5-ST`.** `SCENARIO_FLOW` stays `"static"`. The conversation questions (O-1, F-7) are out of scope for this release. |
 
 **Can F3 and F4 now be dynamic? (Orchestrator's check, 5 October 2026.)** Yes, both. Neither has
