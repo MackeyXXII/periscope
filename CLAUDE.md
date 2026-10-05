@@ -32,7 +32,10 @@ than working around it.**
 4. **Every factual claim is sourced.** A dated URL, a short quote at most, paraphrase preferred.
    Unverifiable claims are struck, not softened.
 5. **Honest labelling.** Every element is labelled as one of: `real`, `ai-generated`, `frozen`,
-   `fictional`, `replay`. Viewers trigger no live AI calls at any point.
+   `fictional`, `replay`, `yours` (text the viewer types; added by DM-1, 4 Oct 2026). The label
+   states origin; `frozen` is carried demo-wide and used as an element label only for assembled
+   containers; composite items carry per-part labels (DM-2). Viewers trigger no live AI calls at
+   any point.
 
 ## Current V-Model state
 
@@ -60,7 +63,9 @@ Test-first rule: for every module, the Test Engineer writes the paired test from
 - **Vanilla HTML, CSS and JavaScript. No build step, no bundler, no framework, no package manager.**
 - **No CDN, no external fonts, no remote images, no analytics.** Everything is in the repository.
 - **No `fetch()` and no XHR at runtime.** Frozen content ships as ES modules in `data/`
-  (`export default { ... }`), imported directly, so the demo also works from `file://`.
+  (`export default { ... }`), imported as modules. The demo works from GitHub Pages or any local
+  static server; from `file://` only in browsers that permit module scripts there (Firefox), and
+  elsewhere it shows a clear message and stops (DM-6, 4 Oct 2026).
 - Hosted on GitHub Pages from the `main` branch, root folder. `.nojekyll` is present.
 - Responsive and legible on laptop and phone. English interface.
 - No inline secrets, no API keys — there is nothing to authenticate against at runtime.
