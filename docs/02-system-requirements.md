@@ -571,8 +571,8 @@ the outcomes withheld, and what actually happened by September 2026, from a date
 writes nothing, and the viewer's own F1 judgements are not part of it (C-1, K-5).
 
 **How the replay judgements are produced (K-7, decided 4 October 2026).** The past judgements are
-written by the Rival Readers and the Interrogator from the early-2026 signals only, with the
-outcomes withheld from them. Only afterwards does the Verifier attach each dated outcome. The
+written by the Rival Readers and the Interrogator from the early-2026 signals, with the
+outcomes withheld from their inputs. Only afterwards does the Verifier attach each dated outcome. The
 Trend Analyst then writes a calibration note against the outcome (O-2, decided 5 October 2026),
 labelled `ai-generated` (DM-10). The set must include at least one judgement that did not hold,
 and it is shown exactly as it was written. The replay statement names who wrote the judgements and
@@ -857,8 +857,8 @@ F5 ships as the static screen `F5-ST`; `SCENARIO_FLOW` stays `"static"`; the int
 designed, not built, and its tests are deferred.
 
 **K-7. Who writes the replay judgements, and how hindsight is kept out.** *Resolved, 4 Oct 2026:*
-the Rival Readers and the Interrogator write them from the early-2026 signals only, outcomes
-withheld; the Verifier attaches the dated outcomes afterwards; the set includes at least one
+the Rival Readers and the Interrogator write them from the early-2026 signals, outcomes
+withheld from their inputs; the Verifier attaches the dated outcomes afterwards; the set includes at least one
 judgement that did not hold; the replay statement names who wrote them and when. DM-10 labels the
 calibration notes `ai-generated`; O-2 (5 Oct 2026) assigns them to the Trend Analyst. Written into
 F4, with the B5 limit on what "withheld" can claim.
