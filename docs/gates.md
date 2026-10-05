@@ -75,6 +75,15 @@ to be written into the documents, and into `traceability.md`, before G2 is recor
 | D-1 | Miguel restated the three level names in chat: level one "AI for analysis augmentation", level two "AI as creative sparring partner", level three "AI integrated and customized into workflow". They match the D-1 entry of 4 Oct word for word. The status stays `unverified` until the Verifier has re-opened p. 9 of the report itself (CLAUDE.md). |
 | F5 | **F5 ships as the static screen `F5-ST`.** `SCENARIO_FLOW` stays `"static"`. The conversation questions (O-1, F-7) are out of scope for this release. |
 
+**G2 conditions decided by Miguel, 5 October 2026 (evening).**
+
+| Item | Decision |
+|---|---|
+| R7 exemption | **Confirmed.** R7 has no flow. It is designed, not built, and its own L1 acceptance ("documented in the architecture only") is met by architecture section 11 and the optional `role` field. |
+| Readiness findings and level assignments | **Confirmed as proposed.** Both are part of the persona dossier, written in the dossier pass in Claude Code, and labelled `fictional`. Levels are assigned there by the thesis rule (D-1). If an interpretive agent ends up writing or assigning them instead, they must be labelled `ai-generated` (Red-team condition). |
+| Governance argument struck entirely (N6) | Open: Miguel asked for elaboration before deciding. |
+| G2 | Open: Miguel decides after the N6 item. |
+
 **Can F3 and F4 now be dynamic? (Orchestrator's check, 5 October 2026.)** Yes, both. Neither has
 any viewer input; "dynamic" here means rendered in full from frozen data rather than as a static
 fallback. With O-2 assigned, the design has no gap left. What remains is content, on the G3 path:
