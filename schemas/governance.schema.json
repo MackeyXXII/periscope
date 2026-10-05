@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://periscope.invalid/schemas/governance.schema.json",
   "title": "Governance",
-  "description": "Container for the governance screen (R8, F3 step 4, A-2). Two lists and a sourced argument. The statements required by L2 are pinned by identifier, so the screen cannot ship without them. Every statement in either list names the tests that verify it (verifiedBy), which turns a claim about the demo into a checkable one; that is why the container, and with it both lists, is labelled real (DM-2). The argument is drafted by the Architect during G3 from the Scout's frozen regulatory source list (Q-5 outcome, 5 Oct 2026), so every argument paragraph carries its own required label, fixed to ai-generated, and at least one dated source. Shipped in data/governance.js.",
+  "description": "Container for the governance screen (R8, F3 step 4, A-2). Two lists and a sourced argument, which may be empty if verification strikes every paragraph (N6 option (b)). The statements required by L2 are pinned by identifier, so the screen cannot ship without them. Every statement in either list names the tests that verify it (verifiedBy), which turns a claim about the demo into a checkable one; that is why the container, and with it both lists, is labelled real (DM-2). The argument is drafted by the Architect during G3 from the Scout's frozen regulatory source list (Q-5 outcome, 5 Oct 2026), so every argument paragraph carries its own required label, fixed to ai-generated, and at least one dated source. Shipped in data/governance.js.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "implemented", "notImplemented", "argument", "label", "provenance"],
@@ -59,9 +59,9 @@
       ]
     },
     "argument": {
-      "description": "What own-data ingestion would require before it could be built, as paragraphs in reading order. This is one continuous argument, not a list of peers, so its order is the order of the reasoning. Each paragraph states conditions, not advice (C-6), and cites at least one dated source that the Verifier has opened; a paragraph it cannot tie to a listed source is cut, not softened. If no paragraph passes, the fallback is a single paragraph citing the GDPR's own definition of personal data (gates.md, Q-5). minItems stays 1: if even the fallback is struck, this container cannot be frozen, and (proposed, Miguel to confirm at G2; Red-team finding N6) G4 is a no-go for that content, because the governance route would show F3-E2 and F3-E2 must not ship.",
+      "description": "What own-data ingestion would require before it could be built, as paragraphs in reading order. This is one continuous argument, not a list of peers, so its order is the order of the reasoning. Each paragraph states conditions, not advice (C-6), and cites at least one dated source that the Verifier has opened; a paragraph it cannot tie to a listed source is cut, not softened. If no paragraph passes, the fallback is a single paragraph citing the GDPR's own definition of personal data (gates.md, Q-5). minItems is 0 (N6 option (b), decided by Miguel, 5 Oct 2026): if even the fallback is struck, the array is empty, the container still freezes, and the screen ships both lists with the withheld sentence (F3-S3a) instead of an argument. Nothing unverified ships, and F3-E2 still must not ship.",
       "type": "array",
-      "minItems": 1,
+      "minItems": 0,
       "items": {
         "type": "object",
         "additionalProperties": false,

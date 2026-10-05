@@ -145,7 +145,8 @@ Scout gathers the regulatory sources in the same offline run as the signals, and
 as a source list in `pipeline/output/`. During G3 the Architect drafts the argument from that list
 only: it has no web tools and needs none, and any sentence it cannot tie to a listed source is cut.
 The Verifier then checks every paragraph against an opened, dated source, or strikes it. The
-schedule, the one-paragraph fallback and the go or no-go rule are recorded in `gates.md`. Miguel
+schedule and the one-paragraph fallback are recorded in `gates.md`; if even the fallback is struck,
+the screen ships with the argument withheld (N6 option (b), section 5.5). Miguel
 does not write the argument; he accepts or strikes it at G3 and records his reason.
 
 ## 4. The freeze step
@@ -608,13 +609,18 @@ since the Q-5 outcome, a required `label` fixed to `ai-generated`, because the A
 The argument's paragraphs are in reading order: this is one continuous argument, not a list of
 peers. M1-U17 checks the labels.
 
-**If the argument fails verification entirely (proposed, Miguel to confirm at G2; Red-team finding
-N6).** The schema keeps `argument` at `minItems: 1`; it is not relaxed to let an empty argument
-through. If every paragraph, including the one-paragraph GDPR fallback in `gates.md`, is struck,
-`governance.json` cannot pass the freeze, the governance route would show `F3-E2`, and `F3-E2`
-must not ship, any more than `F1-E3` may. G4 is then a no-go for that content: the demo does not go
-live with the governance screen in its error state, and Miguel decides at G4 how to proceed. This
-narrows the Q-5 fallback's "Miguel decides go or no-go at G4" to a default of no-go.
+**If the argument fails verification entirely (Red-team finding N6; option (b), decided by Miguel,
+5 Oct 2026).** The schema sets `argument` to `minItems: 0`. If every paragraph, including the
+one-paragraph GDPR fallback in `gates.md`, is struck, the container freezes with an empty
+`argument` and the screen ships in state `F3-S3a`, "Governance screen, argument withheld": both
+lists, unchanged, and in place of the argument exactly one sentence, "The argument for own-data
+ingestion is not shown in this build because its claims did not pass verification." The sentence
+is interface copy, a withheld notice under C-5 rule 6, so it carries no label; no argument heading
+and no empty argument region are rendered. This is honest because R8's acceptance asks only that
+the screen state what is and is not implemented, which the two lists do, and nothing unverified
+ships. It replaces the no-go proposed earlier and the Q-5 fallback's "Miguel decides go or no-go
+at G4": an empty argument is no longer a G4 question. `F3-E2` remains a defence against a container
+that fails to load or validate, and still must not ship, any more than `F1-E3` may.
 
 **RevealBundle** and **FreezeManifest** are shipping containers, not content. They are never
 rendered as elements of their own, so they carry no label or provenance; the entities inside them
@@ -1245,9 +1251,9 @@ the design so that work can continue; they need his decision.
   `practiceKey` enumeration in `common.schema.json`, the matching `PRACTICE_KEYS` in
   `vocabulary.js` (M1-U5 keeps them equal), the three `contains` clauses in
   `readiness-profile.schema.json`, and the C-4 row in Level 2, and it goes back to Miguel.
-- **Governance argument struck entirely (Red-team finding N6). Proposed, Miguel to confirm at
-  G2.** G4 is a no-go for that content; the schema keeps `minItems: 1` and `F3-E2` must not ship
-  (section 5.5).
+- **Governance argument struck entirely (Red-team finding N6). Decided by Miguel, 5 Oct 2026:
+  option (b).** `argument` has `minItems: 0`; an empty argument ships as `F3-S3a`, both lists and
+  the withheld sentence; `F3-E2` still must not ship (section 5.5).
 
 ## 15. Record of decisions
 
@@ -1280,7 +1286,7 @@ marked **open**.
 | D-1 Maturity framework and levels | 4 Oct 2026, in part | Report identified; a level per practice, the lower level when between two. **Open: the Verifier re-opens p. 9 before G3, then Miguel sets the status to verified**; until then `LEVEL_NAME_UNVERIFIED` everywhere | Section 5.4; M1-U18, M1-U20, M7-U2, M7-U8, M7-U10 |
 | K-5 F1 judgements in F4 | 4 Oct 2026 | No; revisit only if G5 viewers miss them. **Open until G5** | C-1 in Level 2; F4 replay statement |
 | Category findings (Red-team B1) | **Proposed, Miguel to confirm at G2** | Part of the persona dossier, written in the dossier pass in Claude Code on 5 and 6 Oct, about the fictional company, labelled `fictional` | Section 5.3; `readiness-profile.schema.json` `finding` |
-| Governance argument struck entirely (Red-team N6) | **Proposed, Miguel to confirm at G2** | G4 is a no-go for that content; `argument` keeps `minItems: 1`; `F3-E2` must not ship | Section 5.5; `governance.schema.json` |
+| Governance argument struck entirely (Red-team N6) | Decided by Miguel, 5 Oct 2026 | Option (b), replacing the proposed no-go: `argument` has `minItems: 0`; if every paragraph is struck, the screen ships both lists and the withheld sentence (`F3-S3a`); `F3-E2` must not ship | Section 5.5; `governance.schema.json`; M1-U6, M7-U11, M7-U12 |
 
 **Red-team findings applied on 5 October 2026 without needing a decision.** They make the design
 match what was already decided, so I applied them on my own authority and record them here:
