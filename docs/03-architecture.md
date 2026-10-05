@@ -2,9 +2,12 @@
 
 **Status: authored by the Architect on 19 September 2026; revised on 5 October 2026 to apply
 Miguel's G2 decisions of 4 October 2026 (K-1 to K-7, Q-1 to Q-7, D-1, DM-1 to DM-10), the Q-5
-debate outcome of 5 October 2026 and the Level 2 revision of the same day. Awaiting G2. Input:
-`02-system-requirements.md`. The decisions are recorded, with their dates, in section 15; the items
-that are still open are marked there and in section 14. Requests to Level 2 are in section 13.**
+debate outcome, confirmed by Miguel on 5 October 2026, and the Level 2 revision of the same day;
+revised again on 5 October 2026 to apply Miguel's decisions of that day (O-2, O-3, F-9, DM-11 and
+F5 as a static screen) and the Red-team Reviewer's G2 findings (B1, B2, B4, B5 and N3 to N8).
+Awaiting G2. Input: `02-system-requirements.md`. The decisions are recorded, with their dates, in
+section 15; the items that are still open, and the defaults proposed for Miguel to confirm at G2,
+are marked there and in section 14. Requests to Level 2 are in section 13.**
 
 This document says how Periscope is put together: the layers, how content travels from an offline
 pipeline into a static page, what the data contracts are and why each field exists, how the page
@@ -39,14 +42,16 @@ once, offline, by a pipeline of agents; it was verified claim by claim, then fro
 JavaScript data files that the page imports. The page lets a viewer read a weekly brief, open a
 trend, record a gut reading, and only then see three rival readings side by side, in an order drawn
 at random, answer questions about them and commit a judgement with a written rationale. After
-committing, the viewer can write what they have heard in their own conversations and how the trend
-could play out, and only then see questions to take into their next conversations. Everything the
-viewer types lives in the memory of one browser tab, carries the label `yours`, and disappears on
-reload. The architecture's job is to make the invariants structural rather than a matter of care: a
-reading cannot be ranked because no contract has anywhere to put a rank and no list order is taken
-from the data; a reading cannot leak before the gut reading because its file is not loaded until
-then; a judgement cannot be committed without a rationale because the contract, the validator and
-the button all refuse it.
+committing, the viewer can open a screen that describes scenario work from the founder's own
+conversations; in this release that screen is static, with no input and no machine content
+(decision of 5 October 2026, section 6.4). Everything the viewer types lives in the memory of one
+browser tab, carries the label `yours`, and disappears on reload. The architecture's job is to make
+the invariants structural rather than a matter of care: a reading cannot be ranked because no
+contract has anywhere to put a rank and no list order is taken from the data; a reading cannot leak
+before the gut reading because its file is not loaded until then, and the function that loads it is
+reachable only through the function that records the gut reading, which itself refuses an empty
+gut call; a judgement cannot be committed without a rationale because the contract, the runtime
+validator, the session function that records it and the button all refuse it (section 7.1).
 
 ## 2. Layers
 
@@ -87,7 +92,7 @@ flowchart LR
     SC["Scout (M3)"] --> SJ["signals.json<br/>regulatory sources"]
     TA["Trend Analyst (M4)"] --> TJ["trends.json"]
     RR["Rival Readers x3 (M4)"] --> RJ["readings.json"]
-    IN["Interrogator (M4)"] --> IJ["interrogations.json<br/>conversations.json"]
+    IN["Interrogator (M4)"] --> IJ["interrogations.json<br/>conversations.json (empty this release)"]
     BE["Brief Editor (M5)"] --> BJ["brief.json"]
     AR["Architect, from the Scout's<br/>regulatory sources (Q-5)"] --> GJ["governance.json"]
     OT["readiness.json, log.json<br/>(M7, M8)"]
@@ -102,7 +107,7 @@ flowchart LR
   subgraph Shipped["Committed, served by GitHub Pages"]
     D1["data/freeze.js<br/>data/signals.js<br/>data/trends.js<br/>data/brief.js"]
     D2["data/reveal/&lt;trendId&gt;.js<br/>readings + interrogation"]
-    D4["data/conversation/&lt;trendId&gt;.js<br/>F5 questions"]
+    D4["data/conversation/&lt;trendId&gt;.js<br/>F5 questions: designed, not written this release"]
     D3["data/readiness.js<br/>data/governance.js<br/>data/log.js"]
   end
   SJ & TJ & RJ & IJ & BJ & GJ & OT & VR --> FZ
@@ -122,16 +127,20 @@ Three differences between the raw and shipped layouts are deliberate:
   `data/reveal/<trendId>.js`, holding exactly its three Readings and its Interrogation. That is
   what lets the page load one trend's readings, and only that trend's, at the moment the viewer
   records a gut reading (section 6.3).
-- **Conversation questions are split out by trend as well.** `conversations.json` becomes one
-  module per trend, `data/conversation/<trendId>.js`, loaded only after the viewer has recorded
-  their own scenario in F5 (section 6.4).
+- **Conversation questions would be split out by trend as well.** In the interactive F5 design,
+  `conversations.json` becomes one module per trend, `data/conversation/<trendId>.js`, loaded only
+  after the viewer has recorded their own scenario (section 6.4). In this release F5 is static and
+  conversation questions are out of scope (decision of 5 October 2026), so `conversations.json` is
+  an empty array and the freeze writes no conversation module.
 - **A freeze manifest is added.** `data/freeze.js` records the freeze date and the list of modules
   written. The demo-wide statement on every screen needs the freeze date before any content module
-  has loaded, and the list tells the page whether F5's questions exist in this build.
+  has loaded; the list lets the tests compare the directory with what the freeze wrote, and in the
+  deferred interactive F5 would tell the page whether conversation questions exist.
 
 No text is changed in the translation. The freeze step wraps and regroups; it never edits.
 
-**The governance argument (Q-5 outcome, 5 October 2026, pending Miguel's confirmation at G2).** The
+**The governance argument (Q-5 outcome, debated and confirmed by Miguel on 5 October 2026; O-4
+closed).** The
 Scout gathers the regulatory sources in the same offline run as the signals, and they are frozen
 as a source list in `pipeline/output/`. During G3 the Architect drafts the argument from that list
 only: it has no web tools and needs none, and any sentence it cannot tie to a listed source is cut.
@@ -141,23 +150,20 @@ does not write the argument; he accepts or strikes it at G3 and records his reas
 
 ## 4. The freeze step
 
-**What it is.** A pure function and two thin drivers. The function,
+**What it is.** A pure function and one thin driver. The function,
 `pipeline/freeze-core.mjs`, takes the parsed contents of `pipeline/output/`, the verification
 record and the schemas, and returns either the complete set of `data/` files as text or a list of
-errors. It performs no input or output of its own, so it runs identically under Node and in a
-browser, and it is unit-tested with in-memory inputs. It uses only language built-ins and the Web
-Crypto API (`crypto.subtle.digest('SHA-256', …)`), which Node 22 and every current browser provide
-under the same name, and the project's own schema interpreter (section 6.2).
+errors. It performs no input or output of its own, so it is unit-tested with in-memory inputs, in
+both test runners. It uses only language built-ins and the Web Crypto API
+(`crypto.subtle.digest('SHA-256', …)`), which Node 22 and every current browser provide under the
+same name, and the project's own schema interpreter (section 6.2).
 
-- `pipeline/freeze.mjs` is the Node driver (Node 22.7 or later): it reads the files, calls the
-  core, and writes `data/` only if the core succeeded, all at once; on failure it writes nothing,
-  prints every error (each naming the entity's identifier) and exits non-zero.
-- `pipeline/freeze.html` is the browser driver, for a build machine without Node (section 14,
-  F-9). Opened from a local static server or from the published site, it loads the same JSON files
-  with ES import attributes (`import(path, { with: { type: 'json' } })`), so it makes no `fetch()`
-  and needs no decision under DM-11; it calls the same core, shows any errors, and otherwise offers
-  each output file for download, to be placed in `data/` unchanged. It is offline tooling, never
-  linked from the demo.
+- `pipeline/freeze.mjs` is the Node driver (Node 22.7 or later; the build machine has v24.21.0,
+  checked on 5 October 2026, F-9): it reads the files, calls the core, and writes `data/` only if
+  the core succeeded, all at once; on failure it writes nothing, prints every error (each naming
+  the entity's identifier) and exits non-zero. It is the only freeze path. The browser driver
+  `pipeline/freeze.html` designed earlier for a machine without Node is dropped from the design
+  (Red-team finding N8), since Node is installed and one driver is one less thing to keep honest.
 
 **The core's interface.** This adopts the provisional interface the Test Engineer wrote M1-U11 and
 M1-U13 against, which is sound.
@@ -185,7 +191,8 @@ freeze({ inputs, verification, schemas, frozenOn, pipelineRunOn })
 `readings.json` order. This order carries no meaning, because the page imposes its own orders
 (C-4), and keeping it makes the output a pure function of the input. The manifest's `modules` are
 sorted by code point and include `data/freeze.js` itself. Conversation modules are written only if
-`conversations.json` has entries, one per trend; partial coverage fails M1-U9.
+`conversations.json` has entries, one per trend; partial coverage fails M1-U9. In this release the
+file is an empty array (F5 static, section 6.4), so none is written.
 
 **The driver's command line.** From the repository root: `node pipeline/freeze.mjs`, reading
 `pipeline/output/` and writing `data/`. Two optional flags, `--frozen-on YYYY-MM-DD` and
@@ -201,21 +208,20 @@ committed and reviewed like any other file. Nothing runs when the site is deploy
 runs when a viewer opens it. It is a content operation with a reviewable diff, closer to exporting
 a spreadsheet than to compiling code.
 
-**Who runs it, and when.** The Orchestrator, at G3 (5 October 2026), in this order:
+**Who runs it, and when.** The Orchestrator, at G3 (6 October 2026, morning), in this order:
 
 1. The runtime pipeline has finished, the Architect's governance draft has been through the
    Verifier, and the Verifier has written `pipeline/output/verification.json` (F-3).
-2. The Orchestrator runs either driver.
-3. The Orchestrator runs the M1 unit tests against the new `data/`, under `node --test` or from the
-   browser runner `tests/run.html` (`04-module-design.md`, "What the Test Engineer should know").
+2. The Orchestrator runs `node pipeline/freeze.mjs` with both date flags.
+3. The Orchestrator runs the M1 unit tests against the new `data/` under `node --test`
+   (`04-module-design.md`, "What the Test Engineer should know").
 4. The Orchestrator commits `pipeline/output/` and `data/` together, in one commit whose message
    names the G3 date, and sets `CONTENT_FROZEN` in `tests/lib/stage.mjs` in the same commit. Miguel
    decides G3 on that commit; the Red-team Reviewer reviews the same commit.
 
 **What the freeze guarantees, and where the guarantee really lives.** The script enforces each
 property below, but the guarantee is the M1 test that checks it against the committed files,
-because a test holds whoever produced `data/`, including a person who places downloaded files by
-hand.
+because a test holds whoever produced `data/`, including a person who edits a file by hand.
 
 - *Nothing unverified ships.* The core refuses if any entity lacks a `pass` verdict in the
   verification record, or if the SHA-256 hash of the entity's canonical JSON (keys sorted
@@ -253,8 +259,8 @@ the loading design needs; one holds shared definitions.
 | `judgement.schema.json` | Entity, in-session | never shipped; created in the tab | Yes |
 | `readiness-profile.schema.json` | Entity | `data/readiness.js` | Yes |
 | `log-entry.schema.json` | Entity | `data/log.js`, array | Yes |
-| `conversation-questions.schema.json` | Entity (F5, A-11) | `data/conversation/<trendId>.js` | Yes |
-| `scenario-record.schema.json` | Entity, in-session (F5, A-11) | never shipped; created in the tab | Yes |
+| `conversation-questions.schema.json` | Entity (F5, A-11); designed, not built this release | `data/conversation/<trendId>.js` (none written this release) | Yes, in the interactive design |
+| `scenario-record.schema.json` | Entity, in-session (F5, A-11); designed, not built this release | never shipped; would be created in the tab | Yes, in the interactive design |
 | `brief.schema.json` | Container (A-2) | `data/brief.js` | Yes, as the brief header |
 | `governance.schema.json` | Container (A-2) | `data/governance.js` | Yes, as the governance screen |
 | `reveal-bundle.schema.json` | Shipping container | `data/reveal/<trendId>.js` | No |
@@ -274,6 +280,25 @@ could be carried at all. Counts that the UI needs (how many signals were withhel
 runtime, never stored. The one place a digit string is stored on purpose is a report's page number,
 which locates a claim and orders nothing (section 5.4). The M1 unit tests check this rule and a
 banned-name list that covers the four names in the invariant plus their near synonyms.
+
+**The banned-name lists, and where each applies (Red-team finding N3).** There are two lists, and
+the difference between them is deliberate.
+
+- *The core list* (`BANNED_NAME_TOKENS` in `vocabulary.js`: score, rank, confidence, priority,
+  weight, likelihood, probability, importance, rating, featured, highlight, recommended, top, best,
+  winner and their inflections, as M1-U2 lists them) applies to schema property names, to every key
+  in every content module, and to the runtime deep scan `findBannedKeys`.
+- *The extended list* (strength, urgency, severity, impact, primary, preferred, pinned, position,
+  order, index) applies **only to schema property names**, under `properties` at any depth and in
+  every `required` array. It lives in M1-U2's test file, not in `vocabulary.js`, because the page
+  never needs it. Applying it to schema property names is enough: every object is closed, so no
+  content key can exist that is not a schema property name, and a check of content keys or of the
+  runtime scan would add nothing. Applying it more widely would break legitimate names that order
+  things for display or locate them, all of which are code, not data: `lensOrder`,
+  `drawLensOrder`, `orderReadings`, `orderSignals`, `orderEntries` and the order rule C-4 itself.
+  No schema property name today contains any of the ten tokens (checked on 5 October 2026), so the
+  extension costs nothing now and stops a `primarySignal`, `pinnedReading` or `impactLevel` field
+  later.
 
 **Enumerations are allowlisted.** A text enumeration can carry a ranking as easily as a number can
 ("high", "medium", "low"). The schemas use exactly six enumerations: the honesty label, the lens,
@@ -353,17 +378,35 @@ vocabulary itself:
 | Entity or part | Label | Fixed by |
 |---|---|---|
 | Signal; replay signal; replay outcome; readiness framework citation | `real` | `const` |
-| Signal summary and relevance note; replay signal summary; outcome summary; calibration note (DM-10); next-level description | `ai-generated` | `generatedText` |
+| Signal summary and relevance note; replay signal summary; outcome summary; calibration note (DM-10, O-2); maturity explanation (O-2, B1); next-level description (O-2) | `ai-generated` | `generatedText` |
 | Trend, Reading, Interrogation, ConversationQuestions | `ai-generated` | `generatedLabel` (now a `const`) |
 | Governance container, covering both lists | `real` | `const` |
 | Governance argument paragraph (Q-5) | `ai-generated` | `const`, required on every item |
-| ReadinessProfile, covering answers, findings, level assignments and explanations | `fictional` | `const` |
+| ReadinessProfile, covering the dossier answers, the category findings and the level assignments (`levelName`, `betweenLevels`) | `fictional` | `const` |
 | LogEntry; past judgement | `replay` | `const` |
 | Brief | `frozen` | `const` |
 | Judgement; ScenarioRecord | `yours` | `const` |
 
 Tracewell's name, wherever it appears as content, is shown as `fictional` by the screen that
 renders it; this is a rendering rule (M9), not a field.
+
+**Why a maturity explanation is `ai-generated` while the level it explains is `fictional`
+(Red-team finding B1, 5 October 2026).** O-2 gave the explanations to the Trend Analyst. Under
+DM-2 the label states origin, so agent-written prose cannot hide under the profile's `fictional`
+label merely because its subject is the invented team; it is `generatedText`, exactly like the
+next-level description beside it. The assignment itself, the level name and the between-levels
+record, is a statement about Tracewell and stays covered by `fictional`. The earlier draft of this
+table put the explanations under `fictional` while section 14 said all of O-2's outputs were
+`ai-generated`; the contract now settles it the second way.
+
+**Who writes the category findings (proposed, Miguel to confirm at G2).** Each readiness category
+holds a prose `finding`, and until now no agent owned it. The proposed default is that findings are
+part of the persona dossier: written in the dossier pass in Claude Code on 5 and 6 October 2026,
+about the fictional company, transcribed into `readiness.json` with the answers (F-4), and covered
+by the profile's `fictional` label. This is honest under DM-2's rule that content about the
+invented team is `fictional`, and it keeps findings on the same footing as the answers they
+summarise. If Miguel prefers findings labelled by their machine author instead, the change is one
+line: `finding` becomes `generatedText`, with a matching M1-U6 mutant and M9-U6 case.
 
 ### 5.4 Entity by entity: the fields a reviewer would question
 
@@ -446,14 +489,19 @@ renders it; this is a rendering rule (M9), not a field.
 maturity level for each foresight practice (A-10, A-13).
 
 - *No numbers.* A category holds answers (question and answer pairs from the persona dossier) and a
-  prose `finding`. There is no score, no bar value, no traffic-light enumeration. M7-U3 checks that
-  the screen renders no meter, progress bar or width-scaled element either.
+  prose `finding` (from the dossier as well, under the default proposed in section 5.3). There is
+  no score, no bar value, no traffic-light enumeration. M7-U3 checks that the screen renders no
+  meter, progress bar or width-scaled element either.
 - *The five categories are forced by key* (DM-8: strategic alignment, resources, knowledge, culture,
   data, confirmed by the thesis). Here array order is meaningful, and the schema says so: it is the
   order in which the paper presents the categories (C-4), never an order of findings.
 - *One maturity entry per practice, not one per venture (D-1).* `maturity.practices` holds exactly
   three entries, keyed `scanning`, `trend-analysis` and `scenario-work`, in the order R2 names the
-  methods. Whether those are the right three is open item O-3 (section 14).
+  methods. Miguel kept these three on 5 October 2026 (O-3); the Verifier still checks them against
+  the thesis when it re-opens p. 9.
+- *`explanation` carries its own label.* It is written by the Trend Analyst (O-2), so its `text` is
+  `generatedText`, labelled `ai-generated`, while the level it explains stays `fictional`
+  (section 5.3, B1). It cites the report with a page.
 - *A level is a name, never a number.* Storing "level 2 of 3" would put an ordinal scale into the
   data. Each practice holds `levelName` only.
 - *`betweenLevels` makes the lower-level rule checkable.* When Tracewell's account of a practice
@@ -464,8 +512,8 @@ maturity level for each foresight practice (A-10, A-13).
   in the explanation. When the account does not fall between two levels, the field is an explicit
   `null`.
 - *`nextLevel` is no longer pinned to null (K-2, A-13).* For each practice it holds either the next
-  level's name, the report's description of it (paraphrased, `generatedText`, so labelled
-  `ai-generated`) and a page citation; or, where the assigned level is the highest the report
+  level's name, the report's description of it (paraphrased by the Trend Analyst, `generatedText`,
+  so labelled `ai-generated`) and a page citation; or, where the assigned level is the highest the report
   describes, only `noLevelAboveCitation`, and the page renders the fixed sentence "The report
   describes no level above this one." The two cases are disjoint closed shapes, so no flag is
   needed to tell them apart. The description is the report's, never the demo's advice; its six
@@ -493,17 +541,35 @@ maturity level for each foresight practice (A-10, A-13).
   `ai-generated`.
 - *`asOfDate`, `authoredOn`, `authoredBy` and `outcome.attachedOn` record K-7 in the data.* The
   past judgement is presented as of early 2026, but it was written on `authoredOn` by the agents in
-  `authoredBy` (the Rival Readers and the Interrogator), from the original signals only, and the
-  Verifier attached the outcome afterwards, on `attachedOn`. M8-U7 checks `asOfDate ≤ authoredOn ≤
-  attachedOn ≤ frozenOn`, as well as `asOfDate` falling on or after the latest signal and before the
-  outcome's publication. The replay statement and each entry state who wrote the judgement and
-  when, from these fields.
+  `authoredBy` (the Rival Readers and the Interrogator), from the original signals, with the
+  outcome withheld from their inputs, and the Verifier attached the outcome afterwards, on
+  `attachedOn`. M8-U7 checks `asOfDate ≤ authoredOn ≤ attachedOn ≤ frozenOn`, as well as `asOfDate`
+  falling on or after the latest signal and before the outcome's publication. The replay statement
+  and each entry state who wrote the judgement and when, from these fields.
+- *What "withheld" can and cannot claim (Red-team finding B5).* Withholding the outcome from the
+  agents' inputs is something the pipeline controls; withholding it from the model is not. The
+  agents run on Opus 5.5, whose training data extends to June 2026, so an outcome published before
+  then may be part of its general knowledge. The replay statement therefore says both, in two fixed
+  phrases that M8-U4 checks and Level 2 F4 step 1 uses verbatim: "the outcomes were withheld from
+  the agents' inputs" and "the model's general knowledge extends to mid-2026 and may include some
+  of these outcomes". It never says the judgements were written "from those signals only" or "using those signals
+  only". The
+  Verifier records, for each entry, whether its outcome predates the model's knowledge cutoff (June
+  2026), in the verification record (F-3), so that Miguel and the Red-team can see at G3 which
+  entries are most exposed. That record is review material, not a field of the entry: nothing in
+  the contract could be tallied into "how many the model could have known".
 - *No verdict field.* There is no `held: true`, no hit or miss enumeration, nothing that could be
   tallied into a hit rate. That at least one judgement did not hold is a review check at G3, not a
   data check.
 - *Replay signals are embedded, not referenced.* They come from the replay window (1 January to
   31 March 2026, DM-9) and have no relevance note, so they are not `Signal` entities.
 - *`role` is optional,* on the entry, as the constraint specifies (R7).
+
+**Designed, not built in this release.** The next two contracts belong to the interactive F5. Under
+Miguel's decision of 5 October 2026, F5 ships as the static screen `F5-ST` and conversation
+questions are out of scope, so no content of either kind is written and no code creates or loads
+it. The contracts are kept, and still validated by the T-level contract tests, so that the
+interactive flow can be built later without redesign (section 6.4).
 
 **ConversationQuestions** (F5, A-11). For one trend, one to three questions, each ending with a
 question mark, labelled `ai-generated`, written by the Interrogator in the same offline run.
@@ -533,11 +599,22 @@ to `BRIEF_SIGNAL_CAP`, which DM-9 defines as a maximum; zero signals is valid an
 **Governance.** The governance screen's content is a schema because R8's acceptance depends on it
 and because it makes regulatory claims that must be sourced. The seven statements Level 2 requires
 (four implemented, three not) are pinned by identifier, so the screen cannot ship without them.
-Every "implemented" statement names the tests that verify it (`verifiedBy`), which is why the
-container, and with it both lists, is labelled `real` under DM-2. Every paragraph of the argument
-carries at least one dated source and, since the Q-5 outcome, a required `label` fixed to
-`ai-generated`, because the Architect drafts it. The argument's paragraphs are in reading order:
-this is one continuous argument, not a list of peers. M1-U17 checks the labels.
+Every statement in both lists names the tests that verify it (`verifiedBy`): for an implemented
+item, the tests that show it works; for a not-implemented item, the tests that show the feature is
+absent, such as the storage audit for `cross-session-persistence` or M8-U8 for `role-aware-model`
+(Red-team finding N5, 5 October 2026). That is why the container, and with it both lists, is
+labelled `real` under DM-2. Every paragraph of the argument carries at least one dated source and,
+since the Q-5 outcome, a required `label` fixed to `ai-generated`, because the Architect drafts it.
+The argument's paragraphs are in reading order: this is one continuous argument, not a list of
+peers. M1-U17 checks the labels.
+
+**If the argument fails verification entirely (proposed, Miguel to confirm at G2; Red-team finding
+N6).** The schema keeps `argument` at `minItems: 1`; it is not relaxed to let an empty argument
+through. If every paragraph, including the one-paragraph GDPR fallback in `gates.md`, is struck,
+`governance.json` cannot pass the freeze, the governance route would show `F3-E2`, and `F3-E2`
+must not ship, any more than `F1-E3` may. G4 is then a no-go for that content: the demo does not go
+live with the governance screen in its error state, and Miguel decides at G4 how to proceed. This
+narrows the Q-5 fallback's "Miguel decides go or no-go at G4" to a default of no-go.
 
 **RevealBundle** and **FreezeManifest** are shipping containers, not content. They are never
 rendered as elements of their own, so they carry no label or provenance; the entities inside them
@@ -577,7 +654,7 @@ CDN to load one from. The design has two validators with deliberately different 
   `maxLength`, `allOf`, `oneOf`, `not`, `if`/`then`/`else`, `$ref`, `$defs`, and the annotations
   `$schema`, `$id`, `title`, `description`). It throws on any keyword it does not know, so a schema
   can never quietly use a rule that nothing enforces (M1-U7). The interpreter is tooling, used by
-  the tests and the freeze drivers, and never ships to the page.
+  the tests and the freeze core, and never ships to the page.
 - **In the browser: the invariant-guarding checks.** `assets/js/contracts/validate.js` is a
   hand-written set of check functions, one per entity and container, including the freeze manifest
   (`checkFreezeManifest`); their signatures are fixed in `04-module-design.md`, M1. It implements the structural checks Level 2 lists in each
@@ -610,10 +687,11 @@ CDN to load one from. The design has two validators with deliberately different 
 | F1, reveal bundle | Exactly three Readings whose lenses and identifiers match the Trend's references; each with non-empty text, at least one evidence and one counter-evidence item with dated sources, and a disconfirming condition; an Interrogation with one to three questions per group, each ending with "?"; labels; no banned field | `F1-E3` |
 | F1, judgement | Intuition present; order of the three timestamps; committed lens; rationale with a non-whitespace character; label `yours` | Commit refused |
 | F2 | Per signal: URL, publisher, both dates, summary, relevance note, label; quote within `QUOTE_MAX_WORDS`; brief container shape and count within `BRIEF_SIGNAL_CAP` | `F2-W1` per signal, `F2-E1` for the brief |
-| F3 | Five categories, each with answers and a finding; three practices; the placeholder rule while unverified; once verified, level names in `MATURITY_LEVEL_NAMES`, the lower-level rule, the next-level rule; governance container shape and argument labels | `F3-E1`, `F3-E2` |
+| F3 | Five categories, each with answers and a finding; three practices; the placeholder rule while unverified; once verified, level names in `MATURITY_LEVEL_NAMES`, the lower-level rule, the next-level rule, and `ai-generated` on every explanation and next-level description; governance container shape, `verifiedBy` on every item of both lists, and argument labels | `F3-E1`, `F3-E2` |
 | F4 | Per entry: signal dates in the replay window, outcome source dated after the signals, the K-7 date order, non-empty rationale and calibration note, labels | `F4-W1` per entry, `F4-E1` for the log |
-| F5, questions | One to three questions, each non-empty and ending with "?"; `trendId` matches; label in vocabulary; no banned field | `F5-E2` |
-| F5, scenario record | Both fields hold a non-whitespace character; `recordedAt` later than the Judgement's `committedAt`; label `yours` | Record refused |
+| F5, static (`F5-ST`), this release | The route's trend identifier, against the trend list; nothing else, because the screen renders no content and loads no F5 data | As Level 2 states for an unknown trend |
+| F5, questions (deferred) | One to three questions, each non-empty and ending with "?"; `trendId` matches; label in vocabulary; no banned field | `F5-E2` |
+| F5, scenario record (deferred) | Both fields hold a non-whitespace character; `recordedAt` later than the Judgement's `committedAt`; label `yours` | Record refused |
 
 ### 6.3 Readings stay out of the page until the intuition is recorded (DM-4, ratified 4 October 2026)
 
@@ -633,8 +711,9 @@ sequence is:
    names with reading identifiers, which are not reading content) and the trend's drawn lens order,
    and nothing else about the trend.
 2. The viewer chooses a gut call and activates "Record my gut reading".
-3. M6 writes the intuition record into session state, freezes it, and disables the gut-reading
-   controls.
+3. M6 writes the intuition record into session state through `recordIntuition`, which throws
+   unless `canRecord(draft)` holds, so no call can produce a record without a gut call; it freezes
+   the record and disables the gut-reading controls.
 4. M6 calls `loadReveal(trendId)`, which dynamically imports that trend's bundle and validates it.
 5. M6 stamps `readingsRevealedAt` through `markReadingsRevealed(session, trendId, now)`, the only
    function that sets it, and creates the reading elements in the trend's lens order
@@ -669,11 +748,31 @@ checked after it loads, and if it fails the readings are withheld in `F1-E3`. Th
 every bundle is still proved before the demo ships (M1-U1, M1-U9), so `F1-E3` must not occur in a
 shipped build.
 
-### 6.4 The same gate for F5's conversation questions (A-11)
+### 6.4 F5: static in this release, and the gate designed for its interactive form (A-11)
 
-F5 has the same shape as F1: the founder writes first, and only then does machine content appear.
-Level 2 requires that, before the scenario is recorded, the page contains no conversation question
-"by the same standard as F1's rule for readings". F1's standard is not merely "not rendered"; it is
+**What ships (decision of 5 October 2026).** F5 ships as the static screen `F5-ST`.
+`SCENARIO_FLOW` in `constants.js` stays `"static"`, and conversation questions are out of scope
+for this release, which closes F-7 and O-1 as "not in this release". Of the two options for the
+interactive code, building it behind the switch or deferring it, the design takes the second: the
+interactive F5 code is **not built**. `renderScenario` in `assets/js/screens/scenario.js` checks
+the route's trend identifier and renders `F5-ST`, a heading and a short description of scenario
+work from the founder's own conversations, with no input field, no AI-generated content and no
+data module of its own; it is interface copy, so it carries no honesty label (section 8). The
+loader has no `loadConversation`, `assets/js/state/scenario.js` is not written, and the session
+never reaches the `scenario-recorded` stage. The reason is the deadline: an interactive flow that
+is built but switched off still has to be tested, reviewed and kept honest, and it would show
+nothing a viewer could see.
+
+**What is kept.** The contracts (`conversation-questions.schema.json`,
+`scenario-record.schema.json`), the freeze core's handling of an empty `conversations.json`, the
+`#/scenario/<trendId>` route and the link to it from `F1-S4`. The tests that only the interactive
+flow needs are kept in `04-module-design.md` with the status "Deferred (F5 static, decision of 5
+October 2026)", so the design below can be built later without being re-derived.
+
+**The design for the interactive form (deferred).** F5 has the same shape as F1: the founder
+writes first, and only then does machine content appear. Level 2 required that, before the
+scenario is recorded, the page contain no conversation question "by the same standard as F1's rule
+for readings". F1's standard is not merely "not rendered"; it is
 "not loaded". The questions could have travelled inside the reveal bundle, which is already loaded
 by the time F5 opens; but then they would sit in module state from the moment the readings were
 revealed, before the founder had written a word of their scenario. So they ship separately:
@@ -683,22 +782,25 @@ revealed, before the founder had written a word of their scenario. So they ship 
 - loaded only by `loadConversation(trendId)` in the M1 loader, which has the same guards as
   `loadReveal` (identifier pattern, membership in the trend list, injected importer);
 - called only by M6's "Record my scenario" handler, after the ScenarioRecord has been written and
-  its two fields locked.
+  its two fields locked; `recordScenario` would throw unless `canRecordScenario(draft)` holds.
 
-M6-U20 tests it the way M6-U1 and M6-U2 test the readings. The cost is one more loader function and
-one more regrouping in the freeze step; the gain is that one rule, "the founder's own step is
-recorded before the machine's content is loaded", holds in both places without a qualification.
+M6-U20 (deferred) tests it the way M6-U1 and M6-U2 test the readings. The cost is one more loader
+function and one more regrouping in the freeze step; the gain is that one rule, "the founder's own
+step is recorded before the machine's content is loaded", holds in both places without a
+qualification.
 
-**How the page chooses between the interactive flow and the static fallback `F5-ST`.** Two
-conditions must both hold for F5 to run interactively: the build switch `SCENARIO_FLOW` in
-`constants.js` is `"interactive"`, and the freeze manifest lists a conversation module for every
-trend. Otherwise every scenario route that passes the trend checks shows `F5-ST`, which contains no
-input field and no AI-generated content. `scenarioMode(manifest, trends, flow)` in
-`assets/js/state/scenario.js` decides this as a pure function (M6-U24). `SCENARIO_FLOW` starts as
-`"static"`, because the conversation questions do not exist until O-1 is closed; the Orchestrator
-sets it to `"interactive"` in the G3 freeze commit if the questions passed the Verifier, and sets it
-back to `"static"` if the build is behind at midday on 6 October. The switch is a string, not a
-boolean, so the no-boolean rule needs no exception, and it is a build setting, not content.
+**How a later build would choose between the interactive flow and `F5-ST` (deferred).** Two
+conditions would both have to hold: `SCENARIO_FLOW` is `"interactive"`, and the freeze manifest
+lists a conversation module for every trend; otherwise every scenario route shows `F5-ST`.
+`scenarioMode(manifest, trends, flow)` in `assets/js/state/scenario.js` would decide this as a pure
+function (the deferred part of M6-U24). The switch is a string, not a boolean, so the no-boolean
+rule needs no exception, and it is a build setting, not content. In this release it is `"static"`
+and M1-U15 requires exactly that value.
+
+**Why the static screen keeps invariant 2 trivially.** `F5-ST` shows no machine content at all,
+so there is nothing to keep behind the founder's step. M6-U24 checks that it holds no input field,
+no element labelled `ai-generated` and no conversation question, and that nothing under
+`data/conversation/` is requested.
 
 ## 7. Session state, screen addressing and the random order of the readings
 
@@ -717,12 +819,30 @@ Each trend's progress moves through these stages, in one direction only:
 |---|---|---|
 | `awaiting-intuition` | The trend's lens order; draft gut call and reason (mutable) | `F1-S1` |
 | `intuition-recorded` | Frozen intuition record; `readingsRevealedAt`; draft prompt answers, committed lens and rationale (mutable) | `F1-S2`, `F1-S3` |
-| `committed` | Frozen Judgement | `F1-S4`; `F5-S1` with draft scenario fields (mutable) |
-| `scenario-recorded` | Frozen Judgement; frozen scenario fields and `recordedAt`; question notes (mutable while the screen is open) | `F5-S2` |
+| `committed` | Frozen Judgement | `F1-S4` (and `F5-ST`, which reads nothing from the session) |
+| `scenario-recorded` (deferred, interactive F5 only) | Frozen Judgement; frozen scenario fields and `recordedAt`; question notes (mutable while the screen is open) | `F5-S2` |
 
-Frozen here means `Object.freeze`: once recorded, the intuition record, the Judgement and the
-scenario fields cannot be changed by any code path, which is how "locked read-only for the rest of
-the session" is enforced below the UI.
+Frozen here means `Object.freeze`: once recorded, the intuition record and the Judgement cannot be
+changed by any code path, which is how "locked read-only for the rest of the session" is enforced
+below the UI.
+
+**The gates hold below the UI as well (Red-team finding B4, 5 October 2026).** A disabled button
+is a gate only for a viewer who clicks; a session function that accepts any draft would let a
+defect in a screen, or a future screen, record what the button refuses. So the session functions
+repeat the button's rule and add the contract's:
+
+- `recordIntuition(session, trendId, draft, now)` throws unless `canRecord(draft)` holds: no gut
+  call, no intuition record, and therefore no route to `loadReveal`.
+- `commitJudgement(session, trendId, draft, now)` throws unless `canCommit(draft)` holds **and**
+  the Judgement it has assembled passes `checkJudgement` (intuition present, timestamp order,
+  rationale, label, session provenance). A refused call changes nothing: the trend stays at
+  `intuition-recorded`.
+- In the deferred interactive F5, `recordScenario` would throw unless `canRecordScenario(draft)`
+  holds.
+
+Invariants 2 and 3 are therefore enforced four times: by the contract, by the runtime validator,
+by the state function and by the button, and M6-U3 and M6-U5 test the state-function layer
+directly, without a DOM.
 
 ### 7.2 Addressing screens by URL fragment (C-7, DM-7)
 
@@ -738,8 +858,8 @@ list and the identifier pattern before it is ever used to build a module path, s
 fragment such as `#/trend/../../x` cannot make the loader import an arbitrary file (M1-U12).
 
 **Nothing the viewer types enters the URL.** The browser's history is a form of storage. The
-fragment carries only the screen address, never a gut call, answer, rationale or scenario text
-(M6-U14, M6-U25).
+fragment carries only the screen address, never a gut call, answer or rationale (M6-U14; in the
+deferred interactive F5, scenario text too, M6-U25).
 
 ### 7.3 The random order of the three readings (Q-2, decided 4 October 2026)
 
@@ -785,7 +905,7 @@ position is the only thing that differs, and the note tells the viewer that it m
 
 No code touches `localStorage`, `sessionStorage`, IndexedDB, cookies, the Cache API or a service
 worker (M10-U2). Every text field sets `autocomplete="off"` so that the browser's own form history
-does not keep the viewer's words either (M6-U14, M6-U25). Reloading the page discards everything,
+does not keep the viewer's words either (M6-U14). Reloading the page discards everything,
 as C-1 requires, and draws new reading orders.
 
 ## 8. Honesty labels in the page (A-7)
@@ -811,9 +931,10 @@ so a test can find every one and check both forms (M9-U1). The display forms are
 
 Granularity follows section 5.3: one label for each entity element, and an additional label for
 each part that carries its own. Peers always carry byte-identical label markup (the three readings,
-the conversation questions), so a label never distinguishes one item from its peers. The viewer's
-text carries `yours` on every input field and on every read-only echo of it, in F1 and F5, which is
-what makes R2's "who did what" directly visible.
+the signals in the brief), so a label never distinguishes one item from its peers. The viewer's
+text carries `yours` on every input field and on every read-only echo of it, in F1 (and, in the
+deferred interactive F5, there too), which is what makes R2's "who did what" directly visible. The
+static `F5-ST` has no content element, so it carries no label; its text is interface copy.
 
 **Interface copy is not content.** Headings, buttons, ordering notes, error and withheld notices,
 the demo-wide statement and the replay statement carry no `data-content` and no label (M9-U8). The
@@ -849,17 +970,17 @@ hosted version."
 
 | Route | Browser | Expected result |
 |---|---|---|
-| Local static server, offline | Current Chromium (Chrome or Edge) | F1 to F5 complete; no request outside the page's own files |
+| Local static server, offline | Current Chromium (Chrome or Edge) | F1 to F4 complete and `F5-ST` shown; no request outside the page's own files |
 | Local static server, offline | Current Firefox | Same |
-| `file://` | Current Firefox | F1 to F5 complete; no network request |
+| `file://` | Current Firefox | F1 to F4 complete and `F5-ST` shown; no network request |
 | `file://` | Current Chromium | `G-E1` shown with its `file://` sentence, nothing else renders, no network request |
 | `file://` | Safari | Not covered; no macOS machine in the toolchain is assumed |
 
-**The same limit applies to the tooling.** The browser test runner `tests/run.html` and the browser
-freeze driver `pipeline/freeze.html` are module pages too, and load JSON through import
-attributes, so they need a static origin: a local static server, or the published site itself,
-since GitHub Pages serves the whole repository root. From `file://` in Chromium they cannot start,
-and they say so.
+**The same limit applies to the browser test runner.** `tests/run.html` is a module page too, and
+loads JSON through import attributes, so it needs a static origin: a local static server, or the
+published site itself, since GitHub Pages serves the whole repository root. From `file://` in
+Chromium it cannot start, and it says so. With Node installed (F-9), a local static server is one
+line, so this costs no push.
 
 ## 10. Module boundaries and dependency direction
 
@@ -883,7 +1004,7 @@ flowchart TD
   subgraph Offline["Offline (never runs for a viewer)"]
     M2["M2 Persona and scanning brief"]
     M3["M3 Scan pipeline"]
-    M4["M4 Interpretation pipeline<br/>incl. conversation questions"]
+    M4["M4 Interpretation pipeline<br/>(conversation questions designed, not run)"]
     M1S["M1 Contracts, schemas and freeze step"]
   end
   M10 --> M5 & M6 & M7 & M8
@@ -989,17 +1110,20 @@ to prove that the record is the viewer's and was made after the committed judgem
 M6's session state, applies the same gate pattern as F1 (the founder's step recorded and frozen
 before the machine's content is loaded), and is reached only from M6's own `F1-S4`. A new module
 would have needed either a cross-module edge into M6's session or a second session object; keeping
-it in M6 adds no edge to the dependency graph. Its unit tests are M6-U18 to M6-U26, including the
-static fallback `F5-ST` (M6-U24). The conversation questions themselves are content written by the
-Interrogator, so their content tests sit in M4 (M4-U10, M4-U11).
+it in M6 adds no edge to the dependency graph. Its unit tests are M6-U18 to M6-U26. Since the
+decision of 5 October 2026, F5 ships as the static `F5-ST`, tested by M6-U24, and the tests that
+only the interactive flow needs (M6-U18 to M6-U23, M6-U25, M6-U26, the deferred part of M6-U24,
+M1-U19, the `loadConversation` part of M1-U12, and the conversation-question content tests M4-U10
+and M4-U11) are kept with the status "Deferred (F5 static, decision of 5 October 2026)".
 
 **A-12. The sixth label.** `yours` is in `common.schema.json` and is to be in `vocabulary.js`
 (M1-U5 keeps them equal). Judgement and ScenarioRecord carry the constant `yours`.
 
 **A-13. ReadinessProfile under K-2 and D-1.** One maturity entry per foresight practice, with the
 lower-level rule recorded in `betweenLevels`; `nextLevel` unpinned, holding the next level's name,
-the report's description (`ai-generated`) and a page citation, or the "no level above" citation.
-Still no number, no level index and no boolean (section 5.4).
+the report's description (`ai-generated`) and a page citation, or the "no level above" citation;
+the explanation of each assigned level is `ai-generated` too (B1). Still no number, no level index
+and no boolean (section 5.4).
 
 **A-14. Tests touched by the decisions.** All revised in `04-module-design.md`: M6-U7 (seeded
 random order and the new note), M7-U2 and M7-U7 (the unverified texts) with M7-U8 to M7-U10 for the
@@ -1020,9 +1144,12 @@ invariant.
   `data/conversation/<trendId>.js`. F5's dependency flag can say that the shipping question is
   settled (section 6.4), and that `F5-ST` is shown when `SCENARIO_FLOW` is `"static"` or when the
   build has no conversation modules; O-1 then reduces to the Interrogator's instructions.
+  *Superseded in part on 5 October 2026:* F5 ships as `F5-ST` only and conversation questions are
+  out of scope for this release, so Level 2 needs only to say that the contract exists as a design
+  and that nothing interactive ships.
 - **C-R5. O-4 is answered.** The Q-5 outcome assigns the governance argument to the Architect, a
   build agent, so its label is `ai-generated` and no seventh label is needed. F3's "Expected labels"
-  can say so, and O-4 can be closed once Miguel confirms the Q-5 outcome at G2.
+  can say so. Miguel confirmed the Q-5 outcome on 5 October 2026, so O-4 is closed.
 - **C-R6. F5's module.** The NF verification table says "F5's modules are to be assigned by the
   Architect": F5 is in M6. NF1's integration row and NF3's unit row can name M6 for F5.
 - **C-R7. Past judgement authors in F4 step 2.** "Naming the agents who wrote it" is served by
@@ -1033,13 +1160,21 @@ invariant.
   "N signal(s)" and "N entr(y/ies)". The design reads this as notation and renders "1 signal was
   withheld because it failed …" and "N signals were withheld because they failed …", and likewise
   "1 entry was withheld because it lacked …" and "N entries were withheld because they lacked …"
-  (`04-module-design.md`, "DOM hooks"). I ask the Requirements Engineer to confirm this reading or
-  give the exact wording.
+  (`04-module-design.md`, "DOM hooks"). **Done:** the Requirements Engineer applied this wording to
+  Level 2 in commit 4571efd (Red-team finding N7).
+- **C-R9. The replay statement's two required phrases (Red-team finding B5, 5 October 2026).** F4
+  step 1 must not say the past judgements were written "using those signals only". It should
+  contain, verbatim, "the outcomes were withheld from the agents' inputs" and "the model's general
+  knowledge extends to mid-2026 and may include some of these outcomes". M8-U4 checks both phrases
+  exactly as written here; the Requirements Engineer is applying the same wording to Level 2 in
+  parallel.
 
 ## 14. Follow-ups and open items for the Orchestrator
 
-These do not need Miguel. They are consequences of the contracts for other agents' instructions,
-which I may not edit, and two open items Level 2 hands to the Orchestrator.
+Most of these do not need Miguel. They are consequences of the contracts for other agents'
+instructions, which I may not edit, and the open items Level 2 handed to the Orchestrator, now
+mostly closed. The two items marked "proposed, Miguel to confirm at G2" are defaults written into
+the design so that work can continue; they need his decision.
 
 - **F-1. The Interrogator writes the intuition prompt into the Trend** (open since 19 September).
   The intuition prompt goes to the Trend's `intuitionPrompt` field in `trends.json`, and
@@ -1052,53 +1187,67 @@ which I may not edit, and two open items Level 2 hands to the Orchestrator.
   the SHA-256 hash of its canonical JSON (keys sorted recursively, no whitespace, UTF-8), a verdict
   (`pass` or `struck`) and a note, as `pipeline/output/verification.json` in the shape
   `{ entities: [{ type, id, hash, verdict, note }] }` that the freeze core reads (section 4).
-- **F-4. Someone transcribes the readiness answers and the replay entries into JSON** (open). The
-  Cowork outputs are Markdown; `readiness.json` and `log.json` must be written against the schemas
-  and pass the Verifier. Under K-7, the replay judgements are written by the Rival Readers and the
-  Interrogator with outcomes withheld, and the Verifier fills in `outcome` and `attachedOn`.
+  **New Verifier duty (Red-team finding B5).** For every replay entry, the Verifier also records
+  whether the entry's outcome predates the model's knowledge cutoff (June 2026), as an extra key
+  `outcomeVsCutoff` with the value `"before"` or `"after"` on that entry's record. The freeze core
+  ignores the key; it is review material for Miguel and the Red-team at G3, and it never reaches
+  `data/`.
+- **F-4. Someone transcribes the readiness answers, the category findings and the replay entries
+  into JSON** (open). The dossier outputs are Markdown; `readiness.json` and `log.json` must be
+  written against the schemas and pass the Verifier. Under the default proposed in section 5.3, the
+  category findings come from the dossier pass of 5 and 6 October 2026, labelled `fictional`. Under
+  K-7, the replay judgements are written by the Rival Readers and the Interrogator with the outcomes
+  withheld from their inputs, and the Verifier fills in `outcome` and `attachedOn`.
 - **F-5. The briefs need a machine-checkable "Named entities" table** (open), with columns Name,
   Kind, Source URL, Date, for M2-U1.
 - **F-6. `traceability.md`** — updated in this revision.
-- **F-7. O-1: the Interrogator's instructions need a section for conversation questions.** One to
-  three per trend, in `pipeline/output/conversations.json` against
-  `conversation-questions.schema.json`: each asks whom the founder could ask, or what to listen for,
-  in a conversation outside the company; a question, not advice; no lens presupposed; no C-6 term;
-  the same for every viewer. Until it exists and passes, `SCENARIO_FLOW` stays `"static"` and F5
-  ships as `F5-ST`.
+- **F-7. O-1: conversation questions. Closed on 5 October 2026: out of scope for this release.**
+  F5 ships as `F5-ST`, `SCENARIO_FLOW` stays `"static"`, and the Interrogator writes no
+  conversation questions; `pipeline/output/conversations.json` is an empty array. For a later
+  release the instruction would be: one to three per trend, against
+  `conversation-questions.schema.json`; each asks whom the founder could ask, or what to listen
+  for, in a conversation outside the company; a question, not advice; no lens presupposed; no C-6
+  term; the same for every viewer.
 - **F-8. Q-5 schedule.** The Scout's instructions need the regulatory-source task for the same run
   (GDPR and related EU sources, each with URL and dates), written to `pipeline/output/` as a source
   list; the Architect then drafts the argument during G3 on the timetable in `gates.md`.
-- **F-9. No Node runtime on the build machine.** Nothing in the design depends on Node: tests run
-  from `tests/run.html` and the freeze from `pipeline/freeze.html`, both from a static origin. But
-  without Node the build machine has no local static server either, so the browser runner can only
-  be used from the published site, after a push, and every test that reads raw file text skips
-  there unless DM-11 is approved. **Recommendation:** install Node **22.7 or later** on the build
-  machine; that is the minimum for `node --test` to load JSON through import attributes with no
-  `package.json` in the repository. It adds no dependency to the project (still no package
-  manager, nothing in the repository changes), gives `node --test` and a one-line static server,
-  and removes a push from every test cycle. This needs Miguel's consent, since it is his machine.
+- **F-9. Node on the build machine. Resolved on 5 October 2026.** Node v24.21.0 is installed,
+  above the minimum of 22.7 at which `node --test` loads JSON through import attributes with no
+  `package.json`. `node --test` runs from the repository root; the freeze runs through the Node
+  driver `pipeline/freeze.mjs`, and the browser driver `pipeline/freeze.html` is dropped (N8). It
+  adds no dependency to the project: still no package manager, nothing in the repository changes.
+  Tests that read a file as raw text run under Node and are skipped in the browser runner with the
+  reason "needs Node"; DM-11 is not needed.
 - **F-10. `test-plan.md`** (Test Engineer). Invariant audit 5 still lists five labels; it should
   list the six and refer to C-5. The tooling note should point to the runner contract in
   `04-module-design.md`.
 
 **Open items handed over by Level 2.**
 
-- **O-2. Nobody owns the maturity explanations, the next-level descriptions or the replay
-  calibration notes.** All three are labelled `ai-generated` by contract, so a pipeline agent must
-  write them; a person writing them would need a seventh label, the problem Q-5 avoided.
-  **Recommendation:** give all three to the **Trend Analyst**, in a short G3 pass after the main
-  run, working only from the persona dossier, the report pages the Verifier supplies when it
-  re-opens p. 9, and, for calibration notes, the entry after the Verifier has attached the outcome.
-  The Trend Analyst is the one interpretive agent that wrote none of the replay judgements (K-7
-  gave those to the Rival Readers and the Interrogator), so no agent grades its own judgement, and
-  it already writes synthesis prose under C-6. The Verifier checks all three. Until assigned, F3
-  ships as `F3-S2` and F4 cannot meet its exit criterion.
-- **O-3. The list of foresight practices.** F3 assumes the three methods R2 names (scanning, trend
-  analysis, scenario work); the thesis is the authority. **Recommendation:** keep the three for G2,
-  and have the Verifier confirm the list when it re-opens p. 9. If the thesis differs, the change is
-  confined to the `practiceKey` enumeration in `common.schema.json`, the matching `PRACTICE_KEYS` in
+- **O-2. The maturity explanations, the next-level descriptions and the replay calibration notes.
+  Closed on 5 October 2026: the Trend Analyst writes all three.** All three are `generatedText`,
+  labelled `ai-generated`, by contract (the maturity explanation became so under B1; until then the
+  contract left it under the profile's `fictional` label, which contradicted this item). The Trend
+  Analyst writes them in a short G3 pass after the main run, working only from the persona dossier,
+  the report pages the Verifier supplies when it re-opens p. 9, and, for calibration notes, the
+  entry after the Verifier has attached the outcome. It is the one interpretive agent that wrote
+  none of the replay judgements (K-7 gave those to the Rival Readers and the Interrogator), so no
+  agent grades its own judgement, and it already writes synthesis prose under C-6. The Verifier
+  checks all three. If they are missing at G3, F3 ships as `F3-S2` and F4 cannot meet its exit
+  criterion.
+- **Category findings (Red-team finding B1). Proposed, Miguel to confirm at G2.** No agent owned
+  the readiness `finding`. Proposed default: the findings are part of the persona dossier, written
+  in the dossier pass in Claude Code on 5 and 6 October 2026, about the fictional company, labelled
+  `fictional` (section 5.3).
+- **O-3. The list of foresight practices. Closed on 5 October 2026.** The three practices stay as
+  R2 names them: scanning, trend analysis and scenario work. The Verifier still checks the list
+  against the thesis when it re-opens p. 9. If the thesis differs, the change is confined to the
+  `practiceKey` enumeration in `common.schema.json`, the matching `PRACTICE_KEYS` in
   `vocabulary.js` (M1-U5 keeps them equal), the three `contains` clauses in
-  `readiness-profile.schema.json`, and the C-4 row in Level 2.
+  `readiness-profile.schema.json`, and the C-4 row in Level 2, and it goes back to Miguel.
+- **Governance argument struck entirely (Red-team finding N6). Proposed, Miguel to confirm at
+  G2.** G4 is a no-go for that content; the schema keeps `minItems: 1` and `F3-E2` must not ship
+  (section 5.5).
 
 ## 15. Record of decisions
 
@@ -1112,7 +1261,7 @@ marked **open**.
 | DM-1 Label for the viewer's text | 4 Oct 2026 | (a) A sixth label, `yours`, added to `CLAUDE.md` | `common.schema.json` `label`; Judgement and ScenarioRecord `const`; section 8; M9-U1, M9-U2 |
 | DM-2 Label semantics | 4 Oct 2026 | The element label states origin; `frozen` is demo-wide and an element label only for the brief; composite items carry per-part labels | Section 5.3; every label in the contracts fixed accordingly; `generatedText`; M9-U6, M9-U8, M9-U9 |
 | DM-3 Null source fields for generated and viewer entities | 4 Oct 2026 | Ratified | Section 5.2; `provenance` |
-| DM-4 Per-trend reveal bundles loaded after the intuition record | 4 Oct 2026 | Ratified | Section 6.3; extended to F5 in section 6.4 |
+| DM-4 Per-trend reveal bundles loaded after the intuition record | 4 Oct 2026 | Ratified | Section 6.3; extended to the deferred interactive F5 in section 6.4 |
 | DM-5 Level 2 change and `F1-E3` | 4 Oct 2026 | Accepted; applied by the Requirements Engineer on 5 Oct | Section 6.3; M6-U11 |
 | DM-6 The `file://` claim | 4 Oct 2026 | (a) `CLAUDE.md` narrowed | Section 9 |
 | DM-7 Entry screen | 4 Oct 2026 | The weekly brief, `#/brief`; under Q-6 it does not affect NF4 | Section 7.2; M10-U5 |
@@ -1120,24 +1269,39 @@ marked **open**.
 | DM-9 Constants | 4 Oct 2026 | `BRIEF_SIGNAL_CAP` 5 (a maximum), `READING_WPM` 200, `QUOTE_MAX_WORDS` 15, replay window 2026-01-01 to 2026-03-31, three questions per interrogation group | `constants.js`; brief and question-group `maxItems`; M1-U5, M1-U15 |
 | DM-10 Calibration notes | 4 Oct 2026 | Labelled `ai-generated`, following K-7 | `log-entry.schema.json`; M8-U9 |
 | K-2 The next complement | 4 Oct 2026 | Shown as what the WEF/OECD report describes for the next level, cited, never as advice | `nextLevel`; M7-U8, M7-U9 |
-| K-6 Scenario work | 4 Oct 2026 | Flow F5, with a static fallback | Sections 5.4, 6.4; M6-U18 to M6-U26 |
+| K-6 Scenario work | 4 Oct 2026; narrowed 5 Oct 2026 | Flow F5, with a static fallback. On 5 Oct: F5 ships as the static `F5-ST` only; `SCENARIO_FLOW` stays `"static"`; conversation questions out of scope for this release; interactive F5 code deferred, not built | Sections 5.4, 6.4; M6-U24 (built); M6-U18 to M6-U23, M6-U25, M6-U26, M1-U19, M4-U10, M4-U11 and parts of M1-U12 and M6-U24 deferred |
 | K-7 Replay authorship | 4 Oct 2026 | Rival Readers and Interrogator, outcomes withheld, Verifier attaches outcomes; at least one judgement that did not hold | `authoredBy`, `attachedOn`; M8-U4, M8-U7 |
 | Q-2 Order of the readings | 4 Oct 2026 | Random per page load, seed injected by tests | Section 7.3; M6-U7 |
-| Q-5 Author of the governance argument | Debated 5 Oct 2026 | The Architect drafts from the Scout's frozen source list; argument paragraphs `ai-generated`; lists `real`. **Open: Miguel confirms at G2** | `governance.schema.json`; section 3; M1-U17 |
+| Q-5 Author of the governance argument | Debated and confirmed 5 Oct 2026 | The Architect drafts from the Scout's frozen source list; argument paragraphs `ai-generated`; lists `real`. O-4 closed | `governance.schema.json`; section 3; M1-U17 |
+| O-2 Author of explanations, next-level descriptions, calibration notes | 5 Oct 2026 | The Trend Analyst, in a short G3 pass; all three `ai-generated`, checked by the Verifier | Sections 5.3, 5.4, 14; `readiness-profile.schema.json` `explanation.text`; M7, M8 inputs; M9-U6 |
+| O-3 The foresight practices | 5 Oct 2026 | The three R2 names stay; the Verifier still checks them against the thesis | `practiceKey`; section 5.4 |
+| F-9 Node on the build machine | 5 Oct 2026 | Installed, v24.21.0; `node --test` runs from the repository root | Section 4 (Node driver only); `04-module-design.md`, runner contract |
+| DM-11 Test tooling reads files by same-origin requests | 5 Oct 2026 | Not needed: the default stands, no `fetch()` anywhere in the repository, tests included; raw-text tests run under Node and skip in the browser with "needs Node" | `04-module-design.md`, runner contract |
 | D-1 Maturity framework and levels | 4 Oct 2026, in part | Report identified; a level per practice, the lower level when between two. **Open: the Verifier re-opens p. 9 before G3, then Miguel sets the status to verified**; until then `LEVEL_NAME_UNVERIFIED` everywhere | Section 5.4; M1-U18, M1-U20, M7-U2, M7-U8, M7-U10 |
-| DM-11 Test tooling reads files by same-origin requests | **Open, new on 5 Oct 2026** | See below | `04-module-design.md`, runner contract |
 | K-5 F1 judgements in F4 | 4 Oct 2026 | No; revisit only if G5 viewers miss them. **Open until G5** | C-1 in Level 2; F4 replay statement |
+| Category findings (Red-team B1) | **Proposed, Miguel to confirm at G2** | Part of the persona dossier, written in the dossier pass in Claude Code on 5 and 6 Oct, about the fictional company, labelled `fictional` | Section 5.3; `readiness-profile.schema.json` `finding` |
+| Governance argument struck entirely (Red-team N6) | **Proposed, Miguel to confirm at G2** | G4 is a no-go for that content; `argument` keeps `minItems: 1`; `F3-E2` must not ship | Section 5.5; `governance.schema.json` |
 
-**DM-11. May the browser test runner read repository files as text by same-origin `fetch()`?**
-Until Miguel decides, the answer in the repository is no: there is no `fetch()` or XHR anywhere,
-tests and tooling included. JSON (schemas, pipeline output) and JavaScript modules (fixtures,
-`data/`, code under test) load in both runners through `import()`, JSON with import attributes, so
-neither needs `fetch()`, and nor does `pipeline/freeze.html`. What a browser cannot do without
-`fetch()` is read a file as raw text, which the static audits, the Markdown brief checks and the
-byte-for-byte comparisons need; in the browser runner those tests are reported as skipped with the
-reason "needs Node or DM-11", and they run under Node. `CLAUDE.md` forbids `fetch()` "at runtime",
-which I read as the demo's runtime, so the proposal is: allow `fetch()` only in `tests/lib/env.mjs`,
-only for relative, same-origin paths; no file in `index.html`, `assets/`, `data/` or `pipeline/`
-may contain it (M10-U1 unchanged); no demo page links to the runner. **Recommendation: allow**, if
-Node cannot be installed (F-9); if Node is installed, DM-11 matters only for running the text-based
-tests from the browser, and can be declined at no cost.
+**Red-team findings applied on 5 October 2026 without needing a decision.** They make the design
+match what was already decided, so I applied them on my own authority and record them here:
+
+- *B1:* the maturity explanation is `generatedText`, labelled `ai-generated` (section 5.3).
+- *B2:* the 5 October decisions above, applied throughout this document and Level 4.
+- *B4:* `recordIntuition` and `commitJudgement` refuse what their gate functions refuse, and
+  `commitJudgement` also refuses a Judgement that fails `checkJudgement` (section 7.1).
+- *B5:* the replay statement's two fixed phrases and the Verifier's per-entry cutoff record
+  (section 5.4, C-R9, F-3).
+- *N3:* the extended banned-name list for schema property names (section 5.1).
+- *N4:* the lens-word rule extended to signal relevance notes (M3-U6).
+- *N5:* `verifiedBy` on every not-implemented item (section 5.5).
+- *N7:* C-R8 marked done (section 13).
+- *N8:* `pipeline/freeze.html` dropped (section 4).
+
+**DM-11, for the record.** The question was whether the browser test runner may read repository
+files as text by same-origin `fetch()`. With Node installed it is not needed, and Miguel recorded
+on 5 October 2026 that the default stands: there is no `fetch()` or XHR anywhere in the
+repository, tests and tooling included. JSON (schemas, pipeline output) and JavaScript modules
+(fixtures, `data/`, code under test) load in both runners through `import()`, JSON with import
+attributes. What a browser cannot do without `fetch()` is read a file as raw text, which the static
+audits, the Markdown brief checks and the byte-for-byte comparisons need; those tests run under
+Node and are reported in the browser runner as skipped with the reason "needs Node".

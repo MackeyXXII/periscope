@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://periscope.invalid/schemas/readiness-profile.schema.json",
   "title": "ReadinessProfile",
-  "description": "Tracewell's position across the five readiness categories of Jöhnk et al. (2021) and, for each foresight practice, on the WEF/OECD (2025) maturity levels. The whole profile describes a fictional team and is labelled fictional; the framework citations are real and labelled so; each next-level description is written by an agent and labelled ai-generated. There is no numeric field anywhere, no level index and no boolean: a category holds answers and a prose finding; a practice holds a level name, never a level number (A-10, A-13). While maturity.status is unverified, every practice's level is the literal LEVEL_NAME_UNVERIFIED and its explanation, between-levels note and next level are null (D-1). Verified level names are never enumerated in this schema: their only home in the code is MATURITY_LEVEL_NAMES in assets/js/contracts/vocabulary.js, so replacing the placeholder with the verified names is a one-place change (docs/03-architecture.md section 5.4). Shipped in data/readiness.js.",
+  "description": "Tracewell's position across the five readiness categories of Jöhnk et al. (2021) and, for each foresight practice, on the WEF/OECD (2025) maturity levels. The profile describes a fictional team and is labelled fictional, which covers the answers, the findings and the level assignments; the framework citations are real and labelled so; each maturity explanation and each next-level description is written by the Trend Analyst (O-2) and carries its own label, ai-generated. There is no numeric field anywhere, no level index and no boolean: a category holds answers and a prose finding; a practice holds a level name, never a level number (A-10, A-13). While maturity.status is unverified, every practice's level is the literal LEVEL_NAME_UNVERIFIED and its explanation, between-levels note and next level are null (D-1). Verified level names are never enumerated in this schema: their only home in the code is MATURITY_LEVEL_NAMES in assets/js/contracts/vocabulary.js, so replacing the placeholder with the verified names is a one-place change (docs/03-architecture.md section 5.4). Shipped in data/readiness.js.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "subject", "framework", "categories", "maturity", "label", "provenance"],
@@ -73,7 +73,7 @@
           }
         },
         "finding": {
-          "description": "Prose only: what the answers show about this category. No level, grade or strength word is carried in a separate field, and C-6 applies to the prose.",
+          "description": "Prose only: what the answers show about this category. No level, grade or strength word is carried in a separate field, and C-6 applies to the prose. Proposed, Miguel to confirm at G2 (Red-team finding B1): findings are part of the persona dossier, written in the dossier pass in Claude Code on 5-6 Oct 2026, about the fictional company, and covered by the profile's fictional label.",
           "$ref": "common.schema.json#/$defs/text"
         }
       }
@@ -170,7 +170,7 @@
           ]
         },
         "explanation": {
-          "description": "Why Tracewell's practice sits at this level, drawing on the dossier answers, citing the report with a page. Covered by the profile's fictional label, since it describes the fictional team.",
+          "description": "Why Tracewell's practice sits at this level, drawing on the dossier answers, citing the report with a page. Written offline by the Trend Analyst in its G3 pass (O-2, decided 5 Oct 2026), so its text is generatedText and carries its own label, ai-generated (DM-2 per-part labels; Red-team finding B1). The level assignment it explains (levelName, betweenLevels) stays covered by the profile's fictional label, because it is a statement about the invented team.",
           "oneOf": [
             { "type": "null" },
             {
@@ -178,14 +178,14 @@
               "additionalProperties": false,
               "required": ["text", "citation"],
               "properties": {
-                "text": { "$ref": "common.schema.json#/$defs/text" },
+                "text": { "$ref": "common.schema.json#/$defs/generatedText" },
                 "citation": { "$ref": "common.schema.json#/$defs/reportCitation" }
               }
             }
           ]
         },
         "nextLevel": {
-          "description": "What the report describes for the level above the assigned one (K-2), never advice. Either the next level's name with the report's description, paraphrased and labelled ai-generated, and a page citation; or, where the assigned level is the highest the report describes, only the citation that shows it, and the UI renders the fixed sentence 'The report describes no level above this one.' Null while unverified. There is no flag distinguishing the two cases: the shapes are disjoint closed objects.",
+          "description": "What the report describes for the level above the assigned one (K-2), never advice. Either the next level's name with the report's description, paraphrased by the Trend Analyst (O-2) as generatedText and so labelled ai-generated, and a page citation; or, where the assigned level is the highest the report describes, only the citation that shows it, and the UI renders the fixed sentence 'The report describes no level above this one.' Null while unverified. There is no flag distinguishing the two cases: the shapes are disjoint closed objects.",
           "oneOf": [
             { "type": "null" },
             {

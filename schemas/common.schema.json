@@ -32,7 +32,7 @@
       ]
     },
     "practiceKey": {
-      "description": "The foresight practices that each receive a maturity level (D-1): the three methods R2 names, in the order R2 names them. The list is to be confirmed against the thesis by the Verifier (open item O-3). Must equal PRACTICE_KEYS in vocabulary.js (M1-U5).",
+      "description": "The foresight practices that each receive a maturity level (D-1): the three methods R2 names, in the order R2 names them. Kept as R2 names them by Miguel's decision of 5 Oct 2026 (O-3 closed); the Verifier still checks the list against the thesis when it re-opens p. 9. Must equal PRACTICE_KEYS in vocabulary.js (M1-U5).",
       "enum": ["scanning", "trend-analysis", "scenario-work"]
     },
     "date": {
@@ -120,7 +120,7 @@
       "pattern": "^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$"
     },
     "generatedText": {
-      "description": "A part of a composite entity that was written offline by an agent while the entity as a whole has another origin (DM-2, per-part labels): a real signal's English summary and relevance note, a replay outcome's paraphrase, a calibration note (DM-10), a next-level description. The label is fixed to ai-generated.",
+      "description": "A part of a composite entity that was written offline by an agent while the entity as a whole has another origin (DM-2, per-part labels): a real signal's English summary and relevance note, a replay outcome's paraphrase, a calibration note (DM-10), a maturity explanation and a next-level description (the last three by the Trend Analyst, O-2). The label is fixed to ai-generated.",
       "type": "object",
       "additionalProperties": false,
       "required": ["text", "label"],

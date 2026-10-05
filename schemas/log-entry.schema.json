@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://periscope.invalid/schemas/log-entry.schema.json",
   "title": "LogEntry",
-  "description": "One entry in the decision log's retrospective replay: real signals published between REPLAY_WINDOW_START and REPLAY_WINDOW_END (1 Jan to 31 Mar 2026), a judgement written for the fictional Tracewell team from those signals alone with the outcome withheld, the real outcome by September 2026 with a dated source attached afterwards by the Verifier, and a qualitative calibration note (K-7, DM-10). A composite under DM-2: the entry as a whole is replay; each original signal and the outcome are real; every paraphrase inside them and the calibration note are ai-generated. There is no verdict field (held / did not hold) and no field that could be tallied across entries. Shipped in data/log.js as an array.",
+  "description": "One entry in the decision log's retrospective replay: real signals published between REPLAY_WINDOW_START and REPLAY_WINDOW_END (1 Jan to 31 Mar 2026), a judgement written for the fictional Tracewell team from those signals, with the outcome withheld from the agents' inputs (the model's general knowledge extends to mid-2026 and may include some outcomes; Red-team finding B5), the real outcome by September 2026 with a dated source attached afterwards by the Verifier, and a qualitative calibration note (K-7, DM-10). A composite under DM-2: the entry as a whole is replay; each original signal and the outcome are real; every paraphrase inside them and the calibration note are ai-generated. There is no verdict field (held / did not hold) and no field that could be tallied across entries. Shipped in data/log.js as an array.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "originalSignals", "pastJudgement", "outcome", "calibrationNote", "label", "provenance"],
@@ -46,7 +46,7 @@
       }
     },
     "pastJudgement": {
-      "description": "A judgement presented as of asOfDate and attributed to the fictional team, but actually written on authoredOn by the agents named in authoredBy, from the original signals only, with the outcome withheld (K-7). Both dates and the authors are in the data, so the replay statement and each entry can say who wrote it and when. There is deliberately no intuition record: inventing one would be a fabrication.",
+      "description": "A judgement presented as of asOfDate and attributed to the fictional team, but actually written on authoredOn by the agents named in authoredBy, from the original signals, with the outcome withheld from their inputs (K-7). This does not claim the authors knew nothing of the outcome: the model's training data extends to June 2026 and may include it, which the replay statement says and the Verifier records per entry (Red-team finding B5). Both dates and the authors are in the data, so the replay statement and each entry can say who wrote it and when. There is deliberately no intuition record: inventing one would be a fabrication.",
       "type": "object",
       "additionalProperties": false,
       "required": ["lens", "rationale", "asOfDate", "authoredOn", "authoredBy", "label"],
@@ -58,7 +58,7 @@
           "$ref": "common.schema.json#/$defs/date"
         },
         "authoredOn": {
-          "description": "The date the judgement text was actually written. On or before outcome.attachedOn (M8-U7), which is how the data records that the outcome was withheld from the authors.",
+          "description": "The date the judgement text was actually written. On or before outcome.attachedOn (M8-U7), which is how the data records that the outcome was withheld from the authors' inputs.",
           "$ref": "common.schema.json#/$defs/date"
         },
         "authoredBy": {
