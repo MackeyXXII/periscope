@@ -643,7 +643,8 @@ writing date and authors, an outcome with a working source dated after the signa
 calibration note labelled `ai-generated`; the replay statement contains every element listed in
 step 1, including the two phrases "the outcomes were withheld from the agents' inputs" and "the
 model's general knowledge extends to mid-2026 and may include some of these outcomes", and none of
-the phrases "signals only", "signals alone" or "without knowledge of the outcome", and is visible on
+the phrases "signals only", "those signals only", "from those signals alone" or "using only"
+(case-insensitive), and is visible on
 arrival at every NF5 viewport; entries follow the C-4 order; no aggregate or verdict icon appears;
 and the G3 verification record shows at least one entry whose judgement did not hold and states,
 for every entry, whether its outcome predates June 2026.
@@ -729,18 +730,19 @@ questions: `ai-generated`, with identical label markup on each.
 | `F5-S1` | Scenario pending | Trend title; the committed judgement, read-only; the two fields; "Record my scenario", disabled until both fields hold text, with the line naming what is missing | Every conversation question, from the DOM |
 | `F5-S2` | Scenario recorded | The two regions described above, with the optional note fields; the statement about the questions; the not-saved statement | Editing of the two recorded fields; any evaluation |
 | `F5-E2` | Questions withheld | The recorded fields, read-only, and "The conversation questions for this trend were withheld because their content failed validation. What you wrote is kept for this session." This state must not ship | Every conversation question |
-| `F5-ST` | Static fallback | A heading "Scenario work from your own conversations" and three sentences of description: that scenario work starts from what the founder has heard outside the company; that the founder writes how the trend could play out before seeing anything the machine prepared; and that the machine then offers questions to take into the next conversations. Then: "In this build the scenario step is described only. No questions are shown, because this screen cannot first record your own scenario." | Every input field and every AI-generated question |
+| `F5-ST` | Static fallback | A heading "Scenario work from your own conversations" and three sentences of description: that scenario work starts from what the founder has heard outside the company; that the founder writes how the trend could play out before seeing anything the machine prepared; and that the machine then offers questions to take into the next conversations. Then: "In this build the scenario step is described only: there is nothing to write here, and no conversation questions were prepared for this release." | Every input field and every AI-generated question |
 | `F1-E0`, `F1-E1`, `F1-E2` | Trend unavailable | As in F1, on the scenario route | — |
 | `G-E1`, `G-E2` | Application-wide | As in C-3 | — |
 
-The static fallback shows no AI-generated content at all, because showing questions without first
-recording the founder's own scenario would put machine content before the founder's step.
+The static fallback shows no AI-generated content at all. In this release no conversation questions
+exist; in the design, showing them without first recording the founder's own scenario would put
+machine content before the founder's step, so `F5-ST` would show none even if they existed.
 
 ### Exit criterion
 
 **For this release (`F5-ST`).** F5 is satisfied when every scenario route that passes the trend
 checks, with or without a committed Judgement, shows `F5-ST` with its heading and sentences, with no
-input field and no `ai-generated` element anywhere in the page, and with no request for a
+input field and no `ai-generated` or `yours` element anywhere in the page, and with no request for a
 conversation module; `SCENARIO_FLOW` is `"static"`; and `data/` contains no conversation module.
 R2's scenario method is then described rather than demonstrated, and the traceability matrix says
 so.
@@ -911,6 +913,10 @@ interactive design), **C-R5** (O-4 answered by the Q-5 outcome),
 **C-R6** (F5 lives in M6) and **C-R7** (F4 precondition 2 names the past judgement's authors and the
 date the outcome was attached) were requested after the Architect's revision of 5 October 2026.
 None touches an invariant. All four are applied, on 5 October 2026.
+
+**C-R9** (the replay statement's two required phrases, Red-team finding B5) was requested in the
+same revision. It strengthens invariant 4 and is applied in F4 step 1 and the F4 exit criterion, on
+5 October 2026.
 
 ### Items opened at Level 2, and their closure
 
