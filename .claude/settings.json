@@ -12,7 +12,14 @@
       "Bash(git commit:*)",
       "Bash(node --test:*)",
       "Bash(grep:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebSearch",
+      "WebFetch",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\")",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && node --test:*)",
+      "Bash(node pipeline/freeze.mjs:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)"
     ],
     "deny": [
       "Read(./.env)",

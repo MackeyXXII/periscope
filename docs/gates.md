@@ -6,7 +6,7 @@ propose; the Red-team Reviewer may block; Miguel approves. Record every outcome 
 | Gate | Covers | Target date | Outcome | What has to happen now |
 |---|---|---|---|---|
 | G1 | Level 1 user requirements R1–R8 and the four working assumptions | 16 Sept 2026 | **Approved** | Nothing. L1 is frozen. |
-| G2 | Level 2 system requirements, Level 3 architecture, Level 4 module design, test plan | 5 Oct 2026 | **Open, ready for decision.** The Red-team Reviewer blocked the first version on 5 Oct (B1 to B5), all five were fixed, and on re-check it signed off with conditions: the three items in `g2-decision-pack.md` | Miguel decides the three items and G2 in chat, using `docs/g2-decision-pack.md`. |
+| G2 | Level 2 system requirements, Level 3 architecture, Level 4 module design, test plan | 5 Oct 2026 | **Approved, 5 Oct 2026**, by Miguel in chat, after Red-team sign-off with conditions; all three conditions decided (below) | Apply the N6 option (b) change to L2, L3, L4, the governance schema and its tests; then Level 5 and the G3 content work run. |
 | G3 | Content freeze: runtime pipeline output verified and frozen into `data/` | 6 Oct 2026, morning | Not started | After G2: write the persona dossier, scanning brief and replay candidates; update the runtime agents' instructions (F-1 to F-5, F-8, O-2); run the pipeline once; the Verifier re-opens p. 9 of the WEF/OECD report; Red-team review of the content; Miguel decides G3 and the D-1 level-name status. M1, M9 and the M10 shell are built in parallel. |
 | G4 | System test pass at the four Q-7 viewports, Red-team audit, deploy to GitHub Pages | 6 Oct 2026, evening | Not started | After G3: build M5 to M8 tests-first, then integration and system tests. Miguel pushes to `main`, because agents may not push. |
 | G5 | Acceptance by real viewers | From 7 Oct 2026 (Wels career fair, 7 and 8 Oct) | Not started | A rehearsal walk as a hiring manager on the morning of 7 Oct, then two to three unfamiliar viewers. |
@@ -81,8 +81,8 @@ to be written into the documents, and into `traceability.md`, before G2 is recor
 |---|---|
 | R7 exemption | **Confirmed.** R7 has no flow. It is designed, not built, and its own L1 acceptance ("documented in the architecture only") is met by architecture section 11 and the optional `role` field. |
 | Readiness findings and level assignments | **Confirmed as proposed.** Both are part of the persona dossier, written in the dossier pass in Claude Code, and labelled `fictional`. Levels are assigned there by the thesis rule (D-1). If an interpretive agent ends up writing or assigning them instead, they must be labelled `ai-generated` (Red-team condition). |
-| Governance argument struck entirely (N6) | Open: Miguel asked for elaboration before deciding. |
-| G2 | Open: Miguel decides after the N6 item. |
+| Governance argument struck entirely (N6) | **Option (b), not the proposed no-go.** R8's L1 acceptance only requires the screen to state what is and is not implemented, which the two lists do. If every argument paragraph, including the one-paragraph GDPR fallback, is struck, the screen ships both lists and one sentence saying the argument is not shown because its claims did not pass verification. Nothing unverified ships. The schema allows an empty `argument`, L2 gains a screen state for it, and a test covers it. `F3-E2` still must not ship. |
+| G2 | **Approved, 5 October 2026.** Level 5 and the G3 content work may start. |
 
 **Can F3 and F4 now be dynamic? (Orchestrator's check, 5 October 2026.)** Yes, both. Neither has
 any viewer input; "dynamic" here means rendered in full from frozen data rather than as a static
