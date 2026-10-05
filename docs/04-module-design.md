@@ -84,6 +84,50 @@ before G3.
   - **Q**: has a conversation-questions part against `data/`, skipped with the reason
     "SCENARIO_FLOW is static (O-1)" while the switch is `'static'`.
 
+## DOM hooks: the one vocabulary every screen uses
+
+Tests find elements by these attributes and by the exact visible texts Level 2 fixes, never by
+class names or position. The Implementer adds them; no other `data-` attribute is needed by any
+test. Hooks are behaviour-free: no CSS selects on them except `data-badge`, and they carry no
+content beyond the identifiers shown.
+
+| Attribute | Placed on | Values |
+|---|---|---|
+| `data-content` | Every rendered content element (C-5): an entity, or a part with its own label | present, no value |
+| `data-label` | The same element as `data-content`, and only there: the honesty label of that element | one of the six vocabulary values |
+| `data-badge` | The visible badge returned by `renderLabel`, inside its content element (for a form control, beside it within the same wrapper) | the same vocabulary value; never `data-label` |
+| `data-area` | A screen region | `readings`, `interrogation`, `judgement`, `what-you-wrote`, `conversation-questions`, `signals`, `entries`, `maturity`, `next-level`, `governance-implemented`, `governance-not-implemented`, `governance-argument` |
+| `data-control` | A lens control: a group of `<input type="radio" value="<lens>">` | `gut-call`, `judgement` |
+| `data-reading` | One reading element | its lens |
+| `data-question` | One interrogation question (F1) or conversation question (F5) | its question `id` |
+| `data-field` | A text field the viewer types into; answer and note fields also carry `data-question-id="<questionId>"` | `reason`, `answer`, `rationale`, `heard`, `playout`, `note` |
+| `data-echo` | A read-only echo of the viewer's entry (`F1-S4`, F5) | `gut-call`, `reason`, `answer`, `committed-lens`, `rationale`, `heard`, `playout` |
+| `data-hint` | The line saying what is still missing | `commit`, `scenario` |
+| `data-signal` | One signal element in the brief | its signal `id` |
+| `data-entry` | One log entry element | its entry `id` |
+| `data-practice` | One practice in the maturity view | its practice key |
+| `data-category` | One readiness category | its category key |
+
+These ratify the hooks the M6, M8 and M9 tests assumed (`tests/lib/screens.mjs`), add the ones the
+other screens need, and replace the `data-region` attribute named earlier for M7 with `data-area`,
+so that there is one region attribute. Buttons and links are found by their exact visible text.
+
+**Labels and badges.** `data-label` marks the labelled element, `data-badge` the badge that shows
+it. Because the badge never carries `data-label`, a count of `data-label` values is a count of
+labelled elements, which makes M9-U9 unambiguous.
+
+**Withheld notices, singular and plural.** Level 2 writes these notices as "N signal(s) …" and
+"N entr(y/ies) …", a notation for both numbers. The page renders proper English:
+
+| Notice | N = 1 | N > 1 |
+|---|---|---|
+| `F2-W1` | "1 signal was withheld because it failed the provenance check." | "N signals were withheld because they failed the provenance check." |
+| `F4-W1` | "1 entry was withheld because it lacked a dated outcome source or failed validation." | "N entries were withheld because they lacked a dated outcome source or failed validation." |
+
+Checked against C-6: neither contains a forbidden or advisory term, and neither ranks anything; the
+count is of withheld items, computed at runtime, as `03-architecture.md` section 5.1 allows. The
+Requirements Engineer is asked to confirm this reading (C-R8).
+
 ---
 
 ## M1 Data contracts
@@ -263,7 +307,7 @@ M6 only, `session`, `flow` and `now`. A screen ignores keys it does not use.
 | M5-U2 *(seeded)* | In `F2-S1`, the words of the screen's `textContent` (split on whitespace) divided by `READING_WPM` (200) is at most 10. Fails if the estimate exceeds ten minutes. | Content source | browser | I, G3 |
 | M5-U3 | `orderSignals` returns signals by `publishedOn` newest first, ties by `id` ascending, for ten permutations of the brief's signals produced with `seededRandom` seeds 1 to 10, and always the same order. Fails if any permutation yields a different order. | Fixture signals (two share a date) | both | I |
 | M5-U4 | Every signal in the brief appears in at least one Trend's `signalIds`; the test reports orphans by identifier. Fails on any orphan. | Content source | both | T, G3 |
-| M5-U5 | With two signals failing the per-signal check (one without `publishedOn`, one without a relevance note), the screen contains no text from either and contains "2 signal(s) were withheld because they failed the provenance check." Fails if any withheld text renders or the notice is missing or miscounted. | `tests/fixtures/invalid/brief-two-bad-signals.js` | browser | I |
+| M5-U5 | With two signals failing the per-signal check (one without `publishedOn`, one without a relevance note), the screen contains no text from either and contains "2 signals were withheld because they failed the provenance check." (with one failing signal, "1 signal was withheld because it failed the provenance check.") Fails if any withheld text renders or the notice is missing or miscounted. | `tests/fixtures/invalid/brief-two-bad-signals.js` | browser | I |
 | M5-U6 | Every signal element in `F2-S1` has the same tag and class list, and the same sequence of direct children by tag and class list. Deeper structure is not compared, because a signal in two trends legitimately holds two links where others hold one (M5-U7); the links share one template. No element carries a class, attribute or text marking it new, pinned, featured or relevant; "Listed by publication date. The order says nothing about importance." is present. Fails on any template difference, marker or missing note. | Content source | browser | I |
 | M5-U7 | A signal that belongs to two trends shows two links, in alphabetical order of trend title, each `href` equal to `routes.trend(id)`. Fails if links are missing, out of order or point elsewhere. | Fixture shared signal | browser | I |
 | M5-U8 | No count, level or marker of relevance: the interface text the screen adds around the fixture fields contains no "high", "medium", "low" or "relevance:"; no signal element contains a position number ("1.", "#1"); there is no `<meter>` or `<progress>`. Fails on any. | Content source | browser | I |
@@ -285,17 +329,35 @@ M6 only, `session`, `flow` and `now`. A screen ignores keys it does not use.
 | **Lives in** | `assets/js/screens/trend-index.js`, `trend.js`, `scenario.js`; `assets/js/state/session.js`, `lens-order.js`, `scenario.js`. Tests: `tests/unit/m6-judgement.test.mjs`, `m6-judgement.browser.mjs`, `m6-scenario.test.mjs`, `m6-scenario.browser.mjs`. |
 | **Invariant most at risk** | **Invariant 2, intuition before AI.** This module holds the only code paths that load readings and conversation questions. One early call to `loadReveal`, one pre-rendered hidden element, or one reading string in an attribute breaks the invariant while the screen still looks correct. |
 
-**Interface.** State: `createSession({ random = Math.random } = {})`,
-`lensOrderFor(session, trendId)`, `drawLensOrder(random)`, `orderReadings(readings, lensOrder)`,
-`canRecord(draft)`, `canCommit(draft)`, `whatIsMissing(draft)`,
-`recordIntuition(session, trendId, draft, now)`, `commitJudgement(session, trendId, draft, now)`,
-`canRecordScenario(draft)`, `whatIsMissingScenario(draft)`,
-`recordScenario(session, trendId, draft, now)`, `setQuestionNote(session, trendId, questionId,
-text)`, `snapshotScenario(session, trendId)`, `scenarioMode(manifest, trends, flow)`. Render:
-`renderTrendIndex(root, ctx)`, `renderTrend(root, ctx, trendId)`, `renderScenario(root, ctx,
-trendId)`, where `ctx` holds `session`, `loader` (so a test can inject spies for `loadReveal` and
-`loadConversation`), `routes`, `manifest`, `flow` and `now`. The seeded shuffle is specified in
-`03-architecture.md`, section 7.3.
+**Interface.** This adopts the drafts and return shapes the M6 tests assumed, and adds the one
+missing function, `markReadingsRevealed`. `now` is always an ISO timestamp string, as returned by
+`ctx.now()`. Every function that records something throws if called out of stage order or a second
+time; the screen never calls one out of order, so a throw is a defect.
+
+| File | Function | Takes | Returns |
+|---|---|---|---|
+| `state/session.js` | `createSession({ random = Math.random } = {})` | a random source | the session object |
+| | `lensOrderFor(session, trendId)` | | the trend's frozen lens order, drawn on first call |
+| | `canRecord(draft)` | `{ gutCall, reason }`; no lens is `gutCall: null` | boolean |
+| | `recordIntuition(session, trendId, draft, now)` | draft as above | the frozen intuition record `{ gutCall, reason, recordedAt }`; an empty or whitespace reason becomes `null` |
+| | `markReadingsRevealed(session, trendId, now)` | | the stamped `readingsRevealedAt`. Called by `renderTrend` after `loadReveal` has succeeded and before the reading elements are created; throws if no intuition record exists or it was already stamped |
+| | `canCommit(draft)` | `{ committedLens, rationale }`; no lens is `committedLens: null` | boolean |
+| | `whatIsMissing(draft)` | as `canCommit` | the hint text: "Choose a reading and write a rationale to commit your judgement.", "Choose a reading to commit your judgement.", "Write a rationale to commit your judgement.", or `""` when nothing is missing |
+| | `commitJudgement(session, trendId, draft, now)` | `{ committedLens, rationale, promptAnswers }`; `promptAnswers` an array of `{ questionId, answer }`, blank answers omitted, possibly empty or absent | the frozen Judgement; throws if `markReadingsRevealed` has not been called for the trend |
+| | `stageOf(session, trendId)` | | `'awaiting-intuition'`, `'intuition-recorded'`, `'committed'` or `'scenario-recorded'` |
+| `state/lens-order.js` | `drawLensOrder(random)`, `orderReadings(readings, lensOrder)` | see `03-architecture.md`, section 7.3 | frozen arrays |
+| `state/scenario.js` | `canRecordScenario(draft)` | `{ whatWasHeard, howItCouldPlayOut }` | boolean |
+| | `whatIsMissingScenario(draft)` | as above | "Write what you have heard and how the trend could play out to record your scenario.", "Write what you have heard to record your scenario.", "Write how the trend could play out to record your scenario.", or `""` |
+| | `recordScenario(session, trendId, draft, now)` | as above | the frozen `{ trendId, whatWasHeard, howItCouldPlayOut, recordedAt }`; throws without a committed Judgement or if `now` is not later than its `committedAt` |
+| | `setQuestionNote(session, trendId, questionId, text)` | an empty or whitespace text removes the note | `undefined` |
+| | `snapshotScenario(session, trendId)` | | a ScenarioRecord as in `scenario-record.schema.json` |
+| | `scenarioMode(manifest, trends, flow)` | | `'interactive'` or `'static'`; throws on partial coverage |
+
+Render: `renderTrendIndex(root, ctx)`, `renderTrend(root, ctx, trendId)`, `renderScenario(root,
+ctx, trendId)`, each returning a promise that settles when the screen has rendered, where `ctx`
+holds `session`, `loader` (so a test can inject spies for `loadReveal` and `loadConversation`),
+`routes`, `manifest`, `flow` and `now`. The seeded shuffle is specified in `03-architecture.md`,
+section 7.3.
 
 **F1 tests.**
 
@@ -354,8 +416,9 @@ through one injection point: `createLoader({ importer, levelNames = MATURITY_LEV
 `levelNames` to `checkReadiness`, and the test passes the same list to `renderReadiness`. A test
 may instead stub `loadReadiness` to return the verified fixture; both are acceptable, and the page
 uses neither option. **DOM hooks:** the maturity view is the element with
-`data-region="maturity"`, and the next-level area within it is the element with
-`data-region="next-level"`; M7-U2, M7-U7 and M7-U8 locate them by these attributes.
+`data-area="maturity"`, and the next-level area within it is the element with
+`data-area="next-level"`; M7-U2, M7-U7 and M7-U8 locate them by these attributes (see "DOM
+hooks" above).
 
 | ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
 |---|---|---|---|---|
@@ -395,7 +458,7 @@ last). Render: `renderLog(root, ctx)`.
 | M8-U3 | `orderEntries` returns entries by earliest original-signal `publishedOn`, oldest first, ties by `id` ascending, for ten `seededRandom` permutations; the date in each entry `id` equals its earliest signal's date. Fails on any different order or disagreeing identifier. | Fixture log | both | I |
 | M8-U4 | The replay statement is the first content in `F4-S1`, `F4-S0`, `F4-W1` and `F4-E1`, before any entry, and contains: "retrospective replay"; "1 January" and "31 March 2026"; "fictional"; "Rival Reader" and "Interrogator"; "withheld"; "Verifier"; "some" (with no number of entries anywhere in it); "AI-generated"; that the judgements are not the viewer's and that judgements from this session do not appear; and the writing date as formatted by M9's `formatDate`, or the first and last when they differ. Fails on any missing element, a count, or a statement not first. | Fixture logs with one and with two writing dates | browser | I |
 | M8-U5 | `F4-S1` contains no aggregate or verdict: no text matching `\d+\s*(of|/)\s*\d+` or `%`; no `<svg>`, `<img>`, `<canvas>`, `<meter>` or `<progress>` inside any entry; every entry element has the same class list. Fails on any. | Content source log | browser | I |
-| M8-U6 | An entry whose outcome lacks a source date is withheld: none of its text is rendered, and "1 entr(y/ies) were withheld because they lacked a dated outcome source or failed validation." is shown. Fails otherwise. | `tests/fixtures/invalid/log-undated-outcome.js` | browser | I |
+| M8-U6 | An entry whose outcome lacks a source date is withheld: none of its text is rendered, and "1 entry was withheld because it lacked a dated outcome source or failed validation." is shown. Fails otherwise. | `tests/fixtures/invalid/log-undated-outcome.js` | browser | I |
 | M8-U7 | K-7 dates. For every entry: `pastJudgement.asOfDate` is on or after the latest original signal's `publishedOn` and before the outcome's `publishedOn`; and `asOfDate` ≤ `pastJudgement.authoredOn` ≤ `outcome.attachedOn` ≤ `provenance.frozenOn`. Fails on any date out of order. | Content source log | both | T, G3 |
 | M8-U8 | R7 is designed for, not built: no LogEntry in the content has a `role`; no file in `assets/js/` other than `contracts/validate.js` contains the property access `.role` or `["role"]` (the ARIA attribute set with `setAttribute` is unaffected). Fails on any fixture role or page-code read. | Content source; `assets/js/` via the file inventory | both | T, I, G3 |
 | M8-U9 | Entry structure and labels: each entry renders, in document order, its original signal(s), the past judgement, the outcome and the calibration note; the past judgement line shows the as-of date, states that the Tracewell team is fictional, and names its authors and writing date; labels are `replay` on the entry and the past judgement, `real` on each signal and the outcome, `ai-generated` on each signal summary, the outcome summary and the calibration note. Fails on any order or label difference. | Content source log | browser | I |
@@ -409,7 +472,7 @@ last). Render: `renderLog(root, ctx)`.
 |---|---|
 | **Purpose** | Render every honesty label, every source citation, every date and the demo-wide statement, identically everywhere, so that NF2 and NF3 hold by construction rather than screen by screen. |
 | **Inputs** | Label values, `sourceRef` and `reportCitation` objects, dates, the freeze manifest. |
-| **Outputs** | DOM fragments: `renderLabel(value)`, `renderSource(ref)`, `renderQuote(text, sourceLanguage, publisher)`, `renderDemoStatement(manifest)`; text: `formatDate(isoDate)` (for example "5 October 2026"). |
+| **Outputs** | `labels.js`: `renderLabel(value)`, returning `<span class="label-badge" data-badge="<value>">` with the text `LABEL_DISPLAY[value]` and no `data-label`; the screen places it inside the element that carries `data-content` and `data-label`. `sources.js`: `renderSource(ref)`, returning a `<span class="source">` holding the `<a>` and then the publisher, the formatted date and, for a `reportCitation`, "p. <page>"; `renderQuote(text, sourceLanguage, publisher)`, returning a `<span class="quote">` holding the `<q lang>` and then the publisher; `formatDate(isoDate)`, returning text such as "5 October 2026". `statement.js`: `renderDemoStatement(manifest)`, returning a `<p class="demo-statement">` with no `data-content` or `data-label`. Each throws on invalid input, as the tests state. |
 | **Entities touched** | The label and provenance parts of every entity; FreezeManifest. |
 | **May import** | M1 only. |
 | **Lives in** | `assets/js/honesty/labels.js`, `sources.js`, `statement.js`. Tests: `tests/unit/m9-honesty.test.mjs`, `tests/unit/m9-honesty.browser.mjs`. |
@@ -417,15 +480,15 @@ last). Render: `renderLog(root, ctx)`.
 
 | ID | What is asserted, and when it fails | Inputs and fixtures | Runner | Status |
 |---|---|---|---|---|
-| M9-U1 *(seeded)* | On every screen of a full walk (brief; trend card to `F1-S4`; `F5-S2` in interactive mode; readiness, both fixtures; governance; log), every element with `data-content` has a `data-label` in the six-value vocabulary and a visible badge whose text is `LABEL_DISPLAY[value]`. Viewer entries pass with `yours`. Fails on any content element lacking either form or carrying another value. | `tests/app-host.html` with fixture loader; `flow: 'interactive'` | browser | I |
-| M9-U2 | `formatDate('2026-10-05')` is "5 October 2026". `renderLabel` throws for `"verified"`, `""`, `undefined`, `"AI"` and `"Yours"`, and for each of the six values returns an element with that `data-label` and the badge text from `LABEL_DISPLAY`. Fails if an invalid value is accepted, a valid one throws, or a text differs. | None | both (`formatDate`), browser (`renderLabel`) | I |
+| M9-U1 *(seeded)* | On every screen of a full walk (brief; trend card to `F1-S4`; `F5-S2` in interactive mode; readiness, both fixtures; governance; log), run either through the app host with `start({ loader, flow: 'interactive', levelNames })` or by calling each screen's render function with the same context (both are acceptable; M9-U4 covers the shell), every element with `data-content` has a `data-label` in the six-value vocabulary and a visible badge whose text is `LABEL_DISPLAY[value]`. Viewer entries pass with `yours`. Fails on any content element lacking either form or carrying another value. | `tests/app-host.html` with fixture loader; `flow: 'interactive'` | browser | I |
+| M9-U2 | `formatDate('2026-10-05')` is "5 October 2026". `renderLabel` throws for `"verified"`, `""`, `undefined`, `"AI"` and `"Yours"`, and for each of the six values returns an element with `data-badge` equal to the value, no `data-label`, and the badge text from `LABEL_DISPLAY`. Fails if an invalid value is accepted, a valid one throws, or a text differs. | None | both (`formatDate`), browser (`renderLabel`) | I |
 | M9-U3 | `renderSource` returns an `<a>` whose `href` equals the URL and starts with `https://`, with `target="_blank"` and `rel` containing `noopener` and `noreferrer`, followed by visible text with the publisher and the formatted publication date, and, for a `reportCitation`, the page; it throws for a reference without `publishedOn`. Fails on any missing attribute or text, or an undated source rendering. | Fixture references | browser | I |
 | M9-U4 | Every route (`#/brief`, `#/trends`, `#/trend/trend-fixture-alpha`, `#/scenario/trend-fixture-alpha`, `#/readiness`, `#/governance`, `#/log`, and `#/nothing`) renders the demo-wide statement with the freeze date from the manifest. Fails if any screen lacks it or shows another date. | `tests/app-host.html` | browser | I |
 | M9-U5 | Peers carry byte-identical label markup: the three reading elements on a trend card; the conversation questions in `F5-S2`; the signal elements in `F2-S1`. Fails on any difference. | Fixture content | browser | I |
 | M9-U6 | Per-part labels: a Signal's summary and relevance note show their own `ai-generated` label; in a LogEntry, each original signal, its summary, the past judgement, the outcome, its summary and the calibration note show their own; each governance argument paragraph shows `ai-generated`; each next-level description shows `ai-generated` (verified fixture). Fails if a part with its own label shows the entity's label instead, or none. | Fixture content | browser | I |
 | M9-U7 | `renderQuote` wraps the quote in `<q>` with `lang` equal to `sourceLanguage`, follows it with the publisher, and throws for a quote longer than `QUOTE_MAX_WORDS` (a 16-word quote throws; a 15-word quote renders). Fails on wrong markup, missing attribution or a long quote rendering. | None | browser | I |
 | M9-U8 | Interface copy is not content (C-5 rule 6): across the full walk of M9-U1, no `h1` to `h6`, `button` or `label` element carries `data-label`; and no element whose text is an ordering note, error or withheld notice, the demo-wide statement or the replay statement carries `data-content` or `data-label`. Fails on any. | As M9-U1 | browser | I |
-| M9-U9 | `frozen` is an element label only on the brief (DM-2): across the full walk of M9-U1, exactly one element carries `data-label="frozen"`, the brief header in `F2-S1`. Fails on any other element with that label, or none. | As M9-U1 | browser | I |
+| M9-U9 | `frozen` is an element label only on the brief (DM-2): across the full walk of M9-U1, exactly one element carries `data-label="frozen"`, the brief header in `F2-S1` (its badge carries `data-badge="frozen"`, not `data-label`, and is not counted). Fails on any other element with that label, or none. | As M9-U1 | browser | I |
 
 ---
 
@@ -438,7 +501,7 @@ last). Render: `renderLog(root, ctx)`.
 | **Outputs** | The running page; `G-E1`; `G-E2`. |
 | **Entities touched** | FreezeManifest only. |
 | **May import** | M1, M5, M6, M7, M8, M9. Its leaf file `shell/routes.js` imports nothing and is the only M10 file others may import. |
-| **Lives in** | `index.html` (only: `lang`, viewport meta, stylesheet link, the static `#startup-failure` message, an `#app` root, one module script calling `start()`); `assets/js/main.js` (exports `start({ loader, random })`); `assets/js/shell/router.js`, `routes.js`, `nav.js`; `assets/css/main.css`. Tests: `tests/unit/m10-shell.test.mjs`, `tests/unit/m10-shell.browser.mjs`; whole-app tests load `tests/app-host.html`, which has the same static elements as `index.html` and calls `start()` with the options the test page provides. |
+| **Lives in** | `index.html` (only: `lang`, viewport meta, stylesheet link, the static `#startup-failure` message, an `#app` root, one module script calling `start()`); `assets/js/main.js` (exports `start({ loader, random, flow = SCENARIO_FLOW, levelNames = MATURITY_LEVEL_NAMES } = {})`; `index.html` calls `start()` with no argument, so the page always uses `Math.random`, the build's `SCENARIO_FLOW` and the vocabulary's level names, and only the app host passes options; `flow` goes into the M6 context and `levelNames` to `createLoader` and `renderReadiness`); `assets/js/shell/router.js`, `routes.js`, `nav.js`; `assets/css/main.css`. Tests: `tests/unit/m10-shell.test.mjs`, `tests/unit/m10-shell.browser.mjs`; whole-app tests load `tests/app-host.html`, which has the same static elements as `index.html` and calls `start()` with the options the test page provides. |
 | **Invariant most at risk** | **Invariant 5's clause "viewers trigger no live AI calls", and NF1.** The shell is where a convenient web font, a CDN copy of a library, an analytics snippet or a prefetch hint would be added, and any of them turns a self-contained demo into one that talks to the network. |
 
 **Permitted import edges** (checked by M10-U4). Paths are relative to `assets/js/`; an edge is

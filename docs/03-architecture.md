@@ -636,7 +636,8 @@ sequence is:
 3. M6 writes the intuition record into session state, freezes it, and disables the gut-reading
    controls.
 4. M6 calls `loadReveal(trendId)`, which dynamically imports that trend's bundle and validates it.
-5. M6 stamps `readingsRevealedAt` and creates the reading elements in the trend's lens order
+5. M6 stamps `readingsRevealedAt` through `markReadingsRevealed(session, trendId, now)`, the only
+   function that sets it, and creates the reading elements in the trend's lens order
    (`F1-S2`), or shows `F1-E3` if validation failed.
 
 Before step 4 the reading text is not in the DOM, not in any JavaScript object, and not in the
@@ -705,7 +706,8 @@ boolean, so the no-boolean rule needs no exception, and it is a build setting, n
 
 `assets/js/state/session.js` (M6) exports `createSession({ random = Math.random } = {})`, which
 returns a plain object holding a `Map` from trend identifier to that trend's progress. `main.js`
-calls it once at start-up, from `start({ loader, random })`, and passes the object to the screens
+calls it once at start-up, from `start({ loader, random, flow, levelNames })` (every option
+defaults to the shipped value, and `index.html` passes none), and passes the object to the screens
 that need it. It is not attached to `window` and not held in a module-level singleton, so each unit
 test can create a fresh session, with its own random source.
 
@@ -789,8 +791,11 @@ as C-1 requires, and draws new reading orders.
 ## 8. Honesty labels in the page (A-7)
 
 Every rendered content element carries its label twice. The machine-readable form is a
-`data-label` attribute whose value is one of the six vocabulary words. The visible form is a short
-text badge rendered by M9 next to the element. Both come from the same call, `renderLabel(value)`,
+`data-label` attribute whose value is one of the six vocabulary words, on the content element
+itself. The visible form is a short text badge rendered by M9 inside the element (beside it, for a
+form control); the badge carries `data-badge`, never `data-label`, so every `data-label` in the
+page marks exactly one labelled element. The full DOM-hook vocabulary is in
+`04-module-design.md`. Both come from the same call, `renderLabel(value)`,
 which throws for any value outside the vocabulary. Content elements are marked with `data-content`,
 so a test can find every one and check both forms (M9-U1). The display forms are defined once, in
 `vocabulary.js`:
@@ -1007,7 +1012,7 @@ Invariant audit 5 in `test-plan.md` is the Test Engineer's to update (F-10).
 Level 2 is the Requirements Engineer's. C-R1 (`F1-E3`, the precondition split, exit criterion 2),
 C-R2 (`F1-E0`) and C-R3 (`G-E2` and the `file://` sentence in `G-E1`), requested here on 19
 September 2026, were applied by the Requirements Engineer on 5 October 2026. The architecture as
-revised needs four further small changes, which I request rather than make. None touches an
+revised needs five further small changes, which I request rather than make. None touches an
 invariant.
 
 - **C-R4. F5's contract and switch exist.** In C-2, the "Conversation questions" row can drop "The
@@ -1024,6 +1029,12 @@ invariant.
   `pastJudgement.authoredBy`, and K-7's "outcomes withheld" by `outcome.attachedOn ≥ authoredOn`.
   F4 precondition 2 could add "the agents who wrote it, and the date the outcome was attached" to
   its list, so that `F4-W1` covers them.
+- **C-R8. Singular and plural of the withheld notices.** `F2-W1` and `F4-W1` are written as
+  "N signal(s)" and "N entr(y/ies)". The design reads this as notation and renders "1 signal was
+  withheld because it failed …" and "N signals were withheld because they failed …", and likewise
+  "1 entry was withheld because it lacked …" and "N entries were withheld because they lacked …"
+  (`04-module-design.md`, "DOM hooks"). I ask the Requirements Engineer to confirm this reading or
+  give the exact wording.
 
 ## 14. Follow-ups and open items for the Orchestrator
 
