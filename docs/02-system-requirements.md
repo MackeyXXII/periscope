@@ -388,7 +388,7 @@ signal as a whole, its title, source, date and any quote: `real`. Its summary an
 |---|---|---|---|
 | `F2-S1` | Brief listed | As in steps 1 and 2 | Any signal visually distinguished from the others; any count, level or marker of relevance |
 | `F2-S0` | Brief empty | "This brief contains no signals." | — |
-| `F2-W1` | Some signals withheld | The remaining signals as in `F2-S1`, plus "N signal(s) were withheld because they failed the provenance check." | The withheld signals, entirely |
+| `F2-W1` | Some signals withheld | The remaining signals as in `F2-S1`, plus, for one signal, "1 signal was withheld because it failed the provenance check." and, for N greater than one, "N signals were withheld because they failed the provenance check." | The withheld signals, entirely |
 | `F2-S2` | Signal without a resolvable trend | The signal as normal, with "No trend card for this signal in this build." in place of the link. This also appears for every signal under `F1-E0`. This state is a defect caught by the M5 unit test (every brief signal must resolve to at least one trend) and must not ship | — |
 | `F2-E1` | Brief data invalid | "The weekly brief could not be shown because its content failed validation." | All signals |
 | `G-E1`, `G-E2` | Application-wide | As in C-3 | — |
@@ -590,7 +590,7 @@ calibration note is prose only. Entries appear in the C-4 order.
 |---|---|---|---|
 | `F4-S1` | Log listed | The replay statement, then the entries as in step 2 | Aggregates, verdict icons, any entry visually distinguished |
 | `F4-S0` | Log empty | The replay statement and "This build contains no replay entries." | — |
-| `F4-W1` | Some entries withheld | As `F4-S1`, plus "N entr(y/ies) were withheld because they lacked a dated outcome source or failed validation." | The withheld entries, entirely |
+| `F4-W1` | Some entries withheld | As `F4-S1`, plus, for one entry, "1 entry was withheld because it lacked a dated outcome source or failed validation." and, for N greater than one, "N entries were withheld because they lacked a dated outcome source or failed validation." | The withheld entries, entirely |
 | `F4-E1` | Log data invalid | The replay statement and "The decision log could not be shown because its content failed validation." | All entries |
 | `G-E1`, `G-E2` | Application-wide | As in C-3 | — |
 
