@@ -359,6 +359,107 @@ button:disabled {
   text-underline-offset: 0.15em;
 }
 
+/* ------------------------------------------------------------------ trend card and trend index (M6)
+   Layout only. The three readings share .peer and every class inside it; nothing below selects one
+   reading, signal or trend differently from its peers. */
+
+.trend-head h1 {
+  margin-bottom: 0.5rem;
+}
+
+.trend-summary,
+.intuition-prompt {
+  max-width: var(--measure);
+}
+
+.lens-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.lens-option {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.field-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.field-head .label-badge {
+  margin-left: 0;
+}
+
+.reading-lens {
+  margin-top: 0;
+}
+
+.reading-part {
+  margin: 1rem 0 0.25rem;
+}
+
+.claims {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.claim {
+  margin-bottom: 0.5rem;
+}
+
+.question-group {
+  margin-top: 1.25rem;
+}
+
+.question-item {
+  max-width: var(--measure);
+}
+
+.question {
+  margin-bottom: 0.5rem;
+}
+
+.skip-row {
+  margin: 0 0 1rem;
+}
+
+.echo-list {
+  margin: 0 0 1rem;
+}
+
+.echo-list dt {
+  font-weight: 600;
+}
+
+.echo-list dd {
+  margin: 0 0 0.75rem;
+}
+
+/* Before and after the readings: stacked on a phone, side by side on a wide screen. */
+.side-by-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 0 0 1.5rem;
+}
+
+@media (min-width: 48rem) {
+  .side-by-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.side-by-side h3 {
+  margin-top: 0;
+}
+
 /* ------------------------------------------------------------------ honesty badges (M9, C-5)
    One shape for every value; the hue tells the origins apart and all hues share one lightness and
    one weight, so no label looks more important than another. Peers carry identical badges. */
