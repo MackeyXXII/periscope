@@ -3,7 +3,7 @@
     "id": "reading-ai-agents-in-observability-noise",
     "trendId": "trend-ai-agents-in-observability",
     "lens": "noise",
-    "text": "These are announcements by large vendors about a part of the market Tracewell does not sell into. Tracewell's product is the pipeline: redaction before storage, volume cuts and EU hosting. The incident assistant is an add-on. Monitoring AI agents is a new product line for companies that buy their way in, as Dynatrace did with a deal it valued at 915 million US dollars, and the one sign of demand comes from a vendor's own survey. The signals do not show that mid-sized software suppliers in Upper Austria run AI agents or ask for them to be watched. For a four-person team with about nine months of runway, following this now spends attention on someone else's roadmap.",
+    "text": "These are announcements by large vendors about a part of the market Tracewell does not sell into. Tracewell's product is the pipeline: redaction before storage, volume cuts and EU hosting. The incident assistant is an add-on. Monitoring AI agents is a new product line for companies that buy their way in, as Dynatrace agreed to do in a deal it valued at 915 million US dollars, and the one sign of demand comes from a vendor's own survey. The signals do not show that mid-sized software suppliers in Upper Austria run AI agents or ask for them to be watched. For a four-person team with about nine months of runway, following this now spends attention on someone else's roadmap.",
     "evidence": [
       {
         "claim": "Dynatrace agreed to buy Arize, an AI observability and LLM evaluation company, in a deal it valued at 915 million US dollars, with closing expected late in its current fiscal quarter or early in the next and subject to regulatory review.",
@@ -231,7 +231,7 @@
     ],
     "counterEvidence": [
       {
-        "claim": "The NISG 2026 entered into force on 1 October 2026, incident reporting applies from that day, affected entities must register by 1 January 2027, and a new Federal Office for Cybersecurity supervises them.",
+        "claim": "The Austrian business service portal announced that the NISG 2026 enters into force on 1 October 2026, that incident reporting applies from that day, that affected entities must register by 1 January 2027, and that a new Federal Office for Cybersecurity supervises them.",
         "source": {
           "url": "https://www.usp.gv.at/aktuelles/newsliste/NIS-2.html",
           "publisher": "Unternehmensserviceportal (USP)",
@@ -338,7 +338,7 @@
     "id": "reading-eu-austrian-data-and-security-dates-threat",
     "trendId": "trend-eu-austrian-data-and-security-dates",
     "lens": "threat",
-    "text": "Rules with fixed dates are landing on a team that has taken no legal advice. The Cyber Resilience Act's reporting obligations have applied since 11 September 2026, and the Commission's July guidance addresses the two areas Tracewell's Collector distribution and hosted backend touch: remote data processing and free and open-source software. The EDPB's new test for anonymous data, no isolation, no linkage and no inference, is strict, and pseudonymised telemetry may not pass it, which limits what Tracewell can claim to customers. Austria's NISG 2026 entered into force on 1 October. For four people, compliance work competes directly with product work. The signals do not show what customers will ask of suppliers.",
+    "text": "Rules with fixed dates are landing on a team that has taken no legal advice. The Cyber Resilience Act's reporting obligations have applied since 11 September 2026, and the Commission's July guidance addresses the two areas Tracewell's Collector distribution and hosted backend touch: remote data processing and free and open-source software. The EDPB's new test for anonymous data, no isolation, no linkage and no inference, is strict, and pseudonymised telemetry may not pass it, which limits what Tracewell can claim to customers. Austria's NISG 2026 was set to enter into force on 1 October. For four people, compliance work competes directly with product work. The signals do not show what customers will ask of suppliers.",
     "evidence": [
       {
         "claim": "The Commission's guidance on the Cyber Resilience Act addresses the Act's scope for remote data processing solutions and for free and open-source software, and restates that reporting obligations apply from 11 September 2026 and the main obligations from 11 December 2027.",
@@ -539,7 +539,7 @@
     "id": "reading-opentelemetry-default-collection-threat",
     "trendId": "trend-opentelemetry-default-collection",
     "lens": "threat",
-    "text": "OpenTelemetry-native was Tracewell's point of difference, and the signals show it becoming the ordinary starting point. Since version 9.3, Elastic's own agent is built on an OpenTelemetry Collector distribution, carries existing configurations over unchanged and accepts OTLP data. An OpenTelemetry survey reports that 65 per cent of respondents run vanilla components without vendor distributions, the kind of product Tracewell ships. When Elastic and others take OpenTelemetry data, a customer can move its telemetry away from Tracewell as easily as it moved it in. The stable Kubernetes processor also brought breaking configuration changes that a four-person team must carry into its own distribution. The survey had 81 respondents, and the signals do not show how Tracewell's own customers choose.",
+    "text": "OpenTelemetry-native was Tracewell's point of difference, and the signals show it becoming the ordinary starting point. Since version 9.3, Elastic's own agent is built on an OpenTelemetry Collector distribution, carries existing configurations over unchanged and accepts OTLP data. An OpenTelemetry survey reports that 65 per cent of respondents run vanilla components rather than vendor distributions, and a vendor distribution is the kind of product Tracewell ships. When Elastic and others take OpenTelemetry data, a customer can move its telemetry away from Tracewell as easily as it moved it in. The stable Kubernetes processor also brought breaking configuration changes that a four-person team must carry into its own distribution. The survey had 81 respondents, and the signals do not show how Tracewell's own customers choose.",
     "evidence": [
       {
         "claim": "Elastic explained that from version 9.3 its Elastic Agent is built on the Elastic Distribution of OpenTelemetry Collector, runs existing inputs as receivers with configurations carried over unchanged, and accepts OTLP data alongside its traditional collection.",
@@ -553,7 +553,7 @@
         "signalId": "sig-2026-08-17-elastic-agent-otel-collector"
       },
       {
-        "claim": "An OpenTelemetry survey of 81 users on Prometheus-compatible backends reports that 65 per cent run vanilla components without vendor distributions, which is the form in which Tracewell packages its Collector.",
+        "claim": "An OpenTelemetry survey of 81 users on Prometheus-compatible backends reports that 65 per cent run vanilla components rather than a vendor distribution, while Tracewell packages its Collector as a vendor distribution.",
         "source": {
           "url": "https://opentelemetry.io/blog/2026/otel-prometheus-interoperability/",
           "publisher": "OpenTelemetry",

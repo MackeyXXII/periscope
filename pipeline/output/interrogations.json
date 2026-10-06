@@ -5,7 +5,7 @@
     "provenanceChecks": [
       {
         "id": "q-ai-agents-in-observability-provenance-one",
-        "text": "All five signals come from vendors describing their own products. Which of them could you check against a source that does not sell observability, and where?"
+        "text": "All five signals were published by vendors. Which of them could you check against a source that does not sell observability, and where?"
       },
       {
         "id": "q-ai-agents-in-observability-provenance-two",

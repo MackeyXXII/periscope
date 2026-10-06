@@ -5,10 +5,10 @@
     "name": "The five categories of AI readiness, Jöhnk, Weißert and Wyrtki (2021)",
     "citation": {
       "url": "https://doi.org/10.1007/s12599-020-00676-7",
-      "publisher": "Business & Information Systems Engineering",
+      "publisher": "Springer Nature",
       "title": "Ready or Not, AI Comes — An Interview Study of Organizational AI Readiness Factors",
-      "publishedOn": "2026-10-05",
-      "retrievedOn": "2026-10-05"
+      "publishedOn": "2020-12-22",
+      "retrievedOn": "2026-10-06"
     },
     "label": "real"
   },
@@ -145,7 +145,10 @@
     "publisher": null,
     "publishedOn": null,
     "retrievedOn": null,
-    "producedBy": ["persona-researcher", "trend-analyst"],
+    "producedBy": [
+      "persona-researcher",
+      "trend-analyst"
+    ],
     "producedOn": "2026-10-06",
     "frozenOn": "2026-10-06"
   }
