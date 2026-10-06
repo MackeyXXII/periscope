@@ -1,0 +1,370 @@
+[
+  {
+    "id": "sig-2026-07-08-edpb-anonymisation-guidelines",
+    "title": "EDPB sheds light on anonymisation and web scraping for generative AI and adopts final version of guidelines on blockchain",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "At its July 2026 plenary the European Data Protection Board adopted Guidelines 02/2026 on Anonymisation, replacing the 2014 Article 29 Working Party opinion. Data counts as anonymous only if it passes three criteria: no record isolation, no linkage and no inference, assessed through either a contextual or a simplified approach. The guidelines are open for public consultation until 30 October 2026.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "Tracewell strips or pseudonymises personal data in customer telemetry, so the EDPB's test for when data stops being personal bears on its design and its claims.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://www.edpb.europa.eu/news/edpb-sheds-light-on-anonymisation-and-web-scraping-for-generative-ai-and-adopts-final-version_en",
+      "publisher": "EDPB",
+      "publishedOn": "2026-07-08",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-07-27-commission-cra-guidance",
+    "title": "Commission publishes new guidance to support timely Cyber Resilience Act implementation",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "The European Commission published non-binding guidance on applying the Cyber Resilience Act, following a consultation earlier in 2026. It addresses the scope for remote data processing solutions and free and open-source software, substantial modification, support periods, reporting and the required security assessment, and includes 67 practical examples aimed partly at microenterprises and SMEs. The page restates that reporting obligations apply from 11 September 2026 and the main obligations from 11 December 2027.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "Tracewell ships a Collector distribution and runs a hosted backend, and this guidance addresses how the Cyber Resilience Act treats remote processing and open-source software.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://digital-strategy.ec.europa.eu/en/library/commission-publishes-new-guidance-support-timely-cyber-resilience-act-implementation",
+      "publisher": "European Commission",
+      "publishedOn": "2026-07-27",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-07-27-grafana-agentic-operations-tools",
+    "title": "Grafana Labs Ships Six Tools That Power Agentic Operations From Planning to Production",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "Grafana Labs released six AI-related tools: Assistant Investigations for AI-assisted root cause analysis, Assistant Workspace, Assistant Automations for scheduled prompts, a Grafana Cloud MCP server, an agent-oriented CLI called gcx, and Agent Observability, which the company describes as OpenTelemetry-native monitoring of AI systems including token usage and cost.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "A named competitor now ships AI incident investigation and AI-system monitoring built on OpenTelemetry, the same ground as Tracewell's incident assistant.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://grafana.com/press/2026/07/27/grafana-labs-ships-six-tools-that-power-agentic-operations-from-planning-to-production/",
+      "publisher": "Grafana Labs",
+      "publishedOn": "2026-07-27",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-08-04-grafana-adaptive-telemetry-profiles",
+    "title": "Grafana Labs Gives Every Observability Signal an Intelligent Optimization Layer, Completing Adaptive Telemetry Suite with Adaptive Profiles GA",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "Grafana Labs made Adaptive Profiles generally available, so that its Adaptive Telemetry suite, which decides automatically which telemetry to keep and which to drop, now covers metrics, logs, traces and profiles. The company states that customers using several of these components report 30 to 50 per cent reductions in total telemetry costs on average.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "Cost was the most cited selection criterion in the brief's survey, and this release extends automated volume reduction by a named competitor to all four signals.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://grafana.com/press/2026/08/04/grafana-labs-gives-every-observability-signal-an-intelligent-optimization-layer-completing-adaptive-telemetry-suite-with-adaptive-profiles-ga/",
+      "publisher": "Grafana Labs",
+      "publishedOn": "2026-08-04",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-08-06-datadog-second-quarter-results",
+    "title": "Datadog Announces Second Quarter 2026 Financial Results",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "Datadog reported second-quarter 2026 revenue of 1.12 billion US dollars, up 36 per cent year on year, and about 4,720 customers with annual recurring revenue of 100,000 US dollars or more. Among its product highlights it listed general availability of Bits Code, Bits Chat and Bits Agent Builder, an autonomous Bits AI for incident detection, investigation and remediation, and a Bring Your Own Cloud option for deploying Datadog inside customer environments.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "A principal Dynatrace competitor reports autonomous incident remediation and deployment inside customer environments, both close to Tracewell's product and hosting questions.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/0001561550/000162828026053829/ex-991x20260630x8k.htm",
+      "publisher": "Datadog",
+      "publishedOn": "2026-08-06",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-08-13-austria-start-up-fund-of-funds",
+    "title": "Dachfonds für Start-ups soll Anfang 2027 starten",
+    "sourceLanguage": "de",
+    "summary": {
+      "text": "ORF reported that the Austrian government's fund of funds for start-ups is to start in the first quarter of 2027. State Secretary Elisabeth Zehetner told the APA news agency that the state will contribute 100 million euros, 400 million euros are to come from institutional investors, the fund manager will be tendered in autumn 2026, and the fund will invest in venture capital funds that back start-ups, scale-ups and university spin-offs.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "The brief lists the planned Austrian fund of funds as a funding source to watch, and this report gives its size and start date.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://orf.at/stories/3439020/",
+      "publisher": "ORF",
+      "publishedOn": "2026-08-13",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-08-13-dynatrace-to-acquire-arize",
+    "title": "Dynatrace to Acquire AI Observability Leader Arize",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "Dynatrace announced an agreement to acquire Arize, a San Francisco company offering an AI observability and LLM evaluation platform. Dynatrace valued the deal at 915 million US dollars, about 815 million in cash plus replacement equity awards, with closing expected late in its current fiscal quarter or early in the following one, subject to regulatory review.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "The incumbent with its main R&D site in Linz is buying into observability of AI systems, one of the technology shifts the brief asks the Scout to watch.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://www.dynatrace.com/news/press-release/dynatrace-to-acquire-arize/",
+      "publisher": "Dynatrace",
+      "publishedOn": "2026-08-13",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-08-17-elastic-agent-otel-collector",
+    "title": "Elastic Agent now runs as an OpenTelemetry Collector: Less memory overhead, zero config changes",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "Elastic explained that from version 9.3 its Elastic Agent is built on the Elastic Distribution of OpenTelemetry Collector instead of supervising separate Beats subprocesses. Existing Beats inputs run as receivers inside the OpenTelemetry pipeline, so configurations carry over unchanged, and the agent accepts OTLP data alongside its traditional collection.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "Another principal competitor now ships the OpenTelemetry Collector as its default agent, which bears on how distinct an OpenTelemetry-native position remains for Tracewell.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://www.elastic.co/observability-labs/blog/opentelemetry-collector-elastic-agent",
+      "publisher": "Elastic",
+      "publishedOn": "2026-08-17",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-09-07-dash0-signalcontrol",
+    "title": "SignalControl is now available",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "Dash0 made SignalControl available in every account: an ingestion pipeline that filters, samples and aggregates telemetry before it is stored, computes rate, error and duration metrics from all spans before sampling, and can run in Dash0's cloud or at the edge in a customer's Kubernetes cluster. With it Dash0 moved to billing a small ingestion fee plus storage for retained data only.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "An OpenTelemetry-native start-up named in the brief now prices on retained rather than ingested telemetry, tied to its own volume-reduction pipeline.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://www.dash0.com/changelog/signalcontrol-now-available",
+      "publisher": "Dash0",
+      "publishedOn": "2026-09-07",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-09-08-austria-nis2-implementation-starts",
+    "title": "NIS-2 – Umsetzung startet",
+    "sourceLanguage": "de",
+    "summary": {
+      "text": "The Austrian government's business service portal announced that the NISG 2026 enters into force on 1 October 2026, that affected entities must complete an initial registration by 1 January 2027 through a new portal application called NIS2 Services, and that incident reporting applies from entry into force. It names a new Federal Office for Cybersecurity as supervisor and warns of dubious offers of NISG compliance analyses.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "Tracewell's industrial customers in Upper Austria fall under the NISG 2026, which sets the timetable for what they will ask of software suppliers.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://www.usp.gv.at/aktuelles/newsliste/NIS-2.html",
+      "publisher": "Unternehmensserviceportal (USP)",
+      "publishedOn": "2026-09-08",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-09-08-palo-alto-observability-arr",
+    "title": "Palo Alto Networks (PANW) Q4 2026 Earnings Call Transcript",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "In the transcript of Palo Alto Networks' fiscal fourth-quarter call, held on 1 September 2026, the chief executive and the chief financial officer said observability annual recurring revenue had passed 500 million US dollars, more than doubling since the Chronosphere acquisition closed. The CFO added that the quarter's net new ARR included a nine-figure amount from a large LLM customer moving to Chronosphere from an incumbent vendor.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "This is the first reported figure on Chronosphere inside Palo Alto Networks, the consolidation the brief asks the Scout to follow.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://www.fool.com/earnings/call-transcripts/2026/09/08/palo-alto-networks-panw-q4-2026-earnings-call-transcript/",
+      "publisher": "The Motley Fool",
+      "publishedOn": "2026-09-08",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-09-10-plug-and-play-linz-industrial-ai",
+    "title": "Plug and Play kommt nach Linz",
+    "sourceLanguage": "de",
+    "summary": {
+      "text": "tech2b reported that Plug and Play will set up its first EU Center of Excellence for Physical and Industrial AI on the Johannes Kepler University Linz campus, presented at a press conference in Linz with the Upper Austrian government. tech2b coordinates the centre for Upper Austria, and KEBA, Primetals Technologies, SWIETELSKY, TGW Logistics and voestalpine are named as anchor partners for pilots between start-ups and regional industry.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "A new industrial-AI programme on the JKU campus, run with tech2b, adds a Linz route to industrial pilot customers of the kind Tracewell sells to.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://www.tech2b.at/en/news/plug-and-play-kommt-nach-linz/",
+      "publisher": "tech2b",
+      "publishedOn": "2026-09-10",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-09-16-otel-k8s-attributes-processor-v1",
+    "title": "Kubernetes attributes processor reaches v1.0.0 milestone",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "The OpenTelemetry project announced that the Collector's Kubernetes attributes processor, which enriches telemetry with Kubernetes metadata, reached version 1.0.0 and meets the project's stable criteria for testing, benchmarking, documentation and telemetry. The post, by contributors from Elastic and Datadog, notes that it follows the Kubernetes semantic conventions becoming stable in June 2026 and that the update brings breaking configuration changes covered by a migration guide.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "Stability of Collector components and semantic conventions after graduation is a technology shift the brief names, and Tracewell ships a Collector distribution.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://opentelemetry.io/blog/2026/k8s-attributes-processor-v1/",
+      "publisher": "OpenTelemetry",
+      "publishedOn": "2026-09-16",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-09-18-splunk-agent-observability",
+    "title": "Observe, Evaluate, and Guardrail Your AI Agents With Agent Observability",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "Splunk, part of Cisco, described Agent Observability, a product for evaluating, tracing and guarding AI agents, with token and cost tracking across coding agents and LLM providers and support for OpenTelemetry-based tracing. It builds on Cisco's acquisition of Galileo earlier in 2026 and is offered on premises, in Splunk Observability Cloud and through Cisco Cloud Control.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "Cisco, a principal competitor named in the brief, now offers observability of AI agents, one of the technology shifts the brief lists.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://www.splunk.com/en_us/blog/observability/observe-evaluate-and-guardrail-your-ai-agents-with-agent-observability.html",
+      "publisher": "Splunk",
+      "publishedOn": "2026-09-18",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-09-22-new-relic-observability-forecast",
+    "title": "Announcing the 2026 Observability Forecast",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "New Relic published its 2026 Observability Forecast, based on 2,575 IT and engineering respondents. It reports that the average organisation used about five observability tools in 2026 against about four in 2025 while about half prefer a single platform, that two-thirds say AI writes or substantially rewrites more than half their code each week, and that a quarter have autonomous AI agents in production without monitoring.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "A vendor survey on how many tools teams run and whether they watch their AI agents speaks to the brief's question of how engineering teams choose observability.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://newrelic.com/blog/observability/announcing-the-2026-observability-forecast",
+      "publisher": "New Relic",
+      "publishedOn": "2026-09-22",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "sig-2026-09-22-otel-prometheus-interoperability-survey",
+    "title": "Prometheus and OpenTelemetry interoperability in 2026: Survey results",
+    "sourceLanguage": "en",
+    "summary": {
+      "text": "An OpenTelemetry blog post reported a survey of 81 users of OpenTelemetry for metrics on Prometheus-compatible backends. The share finding the two hard to use together fell from 29 to 10 per cent; Prometheus exporters still lead for infrastructure metrics (72 per cent) while OpenTelemetry SDKs lead for application metrics (65 per cent); 49 per cent mix both styles; and 65 per cent run vanilla components without vendor distributions.",
+      "label": "ai-generated"
+    },
+    "relevanceNote": {
+      "text": "The brief names Prometheus and OpenTelemetry interoperability as a shift to watch, and this survey reports how teams combine the two in practice.",
+      "label": "ai-generated"
+    },
+    "label": "real",
+    "provenance": {
+      "sourceUrl": "https://opentelemetry.io/blog/2026/otel-prometheus-interoperability/",
+      "publisher": "OpenTelemetry",
+      "publishedOn": "2026-09-22",
+      "retrievedOn": "2026-10-06",
+      "producedBy": ["scout"],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  }
+]
