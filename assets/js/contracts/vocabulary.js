@@ -92,4 +92,8 @@ export const LEVEL_NAME_PLACEHOLDER = 'LEVEL_NAME_UNVERIFIED';
  * the report and Miguel has set the status to verified (D-1). The order is the report's structure,
  * used only to check "lower" and "next"; it is never rendered as a scale.
  */
-export const MATURITY_LEVEL_NAMES = Object.freeze([]);
+export const MATURITY_LEVEL_NAMES = Object.freeze([
+  'AI for analysis augmentation',
+  'AI as creative sparring partner',
+  'AI integrated and customized into workflow',
+]);

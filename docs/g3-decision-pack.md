@@ -1,6 +1,6 @@
 # G3 decision pack — for Miguel, 7 October 2026
 
-**Outcome: G3 approved by Miguel on 6 October 2026 (late evening): route B, level names verified, freeze dated 6 October. Recorded in `gates.md`.**
+**Outcome: G3 approved by Miguel on 6 October 2026 (late evening): route B, level names verified, freeze dated 6 October. Recorded in `gates.md`. The maturity pass followed the same evening: the readiness screen ships verified (`F3-S2v`).**
 
 This is everything you need to decide Gate G3, the content freeze. Reading this page and answering
 the four decisions in section 2 should take about twenty minutes; the freeze and the push in

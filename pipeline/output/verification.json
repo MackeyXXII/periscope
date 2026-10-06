@@ -262,9 +262,9 @@
     {
       "type": "readiness",
       "id": "readiness-tracewell",
-      "hash": "6833bf1dc973d6c05ff35dab534132014a6454edba53b560e43934c3c5c86f36",
+      "hash": "b08342e9b25a65f4371494bdf7fbdef10ab438c139117677e9020aa892c5e929",
       "verdict": "pass",
-      "note": "Pass 3: framework citation now has publisher Springer Nature, publishedOn 2020-12-22 (published online, per the Springer page opened 6 Oct 2026), retrievedOn 2026-10-06. Previously struck; now passes. maturity.status unverified and all levelName LEVEL_NAME_UNVERIFIED, untouched."
+      "note": "Maturity pass (6 Oct 2026, late evening, commit 1a1383c): pass. Level names exactly those on p. 9 (WEF-hosted PDF, Verifier's extract in report-pages.md, 6 Oct 2026). Assignments and betweenLevels match persona-dossier.md (scanning level 1, not between; trend analysis level 2, between 2 and 3; scenario work level 1, between 1 and 2); both between-level explanations state the lower-level rule (D-1) and none attributes per-practice levels to the report. Explanations say only what the dossier accounts and p. 9 support. Next-level descriptions meet K-2 rules 1-5: begin 'The report describes'; no forbidden word, 'next step' or C-6 term; faithful paraphrase of p. 9 keeping every element of the level, none singled out; quotes 6-11 words, each with p. 9. Explanation and description texts labelled ai-generated; container fictional; answers, findings and level assignments unchanged. Citation url is the DOI, accepted under L2 F3 rule 3 (Crossref record matches title and 2025-11-19); page 9 is that of the WEF-hosted copy, the OECD copy behind the DOI is unopened. maturity.status 'verified' was set by the Trend Analyst under Miguel's G3 condition; MATURITY_LEVEL_NAMES in vocabulary.js is still empty and must change with it (M1-U18), or the profile is withheld (F3-E1). Earlier: Jöhnk citation passed in pass 3. Orchestrator, after the maturity pass: \"the lower one\" changed to \"the lower level\" in two explanations (same meaning; M7-U10 wording)."
     },
     {
       "type": "governance",

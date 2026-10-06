@@ -170,8 +170,9 @@ re-checks both.
 | European Data Protection Board | publication | https://www.edpb.europa.eu/news/news/2026/digital-omnibus-edpb-and-edps-support-simplification-and-competitiveness-while_en | 2026-02-11 |
 | Publications Office of the European Union (EUR-Lex) | publication | https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng | 2016-05-04 |
 | Springer Nature | publication | https://doi.org/10.1007/s12599-020-00676-7 | 2020-12-22 |
+| World Economic Forum and OECD | publication | https://doi.org/10.1787/aa573076-en | 2025-11-19 |
 
-The last seven rows were added by the Orchestrator on 6 October 2026: they are the publishers of
+The last eight rows were added by the Orchestrator on 6 October 2026: they are the publishers of
 sources the G3 pipeline cited (signals, readings, the governance argument and the readiness
 framework citation), so that every publisher in data/ is a named entity (M2-U2). Each URL and date
 is the one the Scout or the Verifier opened; the EUR-Lex row could not be opened by the tools and

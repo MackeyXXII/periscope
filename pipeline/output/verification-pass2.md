@@ -286,3 +286,53 @@ Pass 4 result: four signal relevance notes are struck, and each survives once th
 applied. The NISG note and the three readings pass, with one correction proposed on the threat
 reading. Governance remains pending Miguel. Hashes in `verification.json` must be recomputed after
 these edits, because every changed entity changes its hash.
+
+## Maturity pass (6 October 2026, late evening)
+
+This pass checked the `maturity` part of `readiness.json` as it stands at commit 1a1383c: the Trend
+Analyst's explanations and next-level descriptions, the level names, the citation fields and the
+labels. The report material is the Verifier's own extract of p. 9 (`report-pages.md`), made from
+the WEF-hosted PDF opened on 6 October 2026. The PDF was fetched again for this pass, but the fetch
+tool returned it only as binary, and no PDF renderer is available, so the quotes were checked
+against the extract of the same day, not against a fresh reading. Accounts and level assignments
+were compared with `persona-dossier.md` ("Maturity per foresight practice"). No entity file was
+edited.
+
+**Verdict for readiness-tracewell: pass.** Nothing is struck, and no deletion or replacement is
+required.
+
+| Practice | Part | Verdict | Reason |
+|---|---|---|---|
+| all | level names | pass | "AI for analysis augmentation", "AI as creative sparring partner" and "AI integrated and customized into workflow" match p. 9 word for word, including the US spelling "customized". The same strings appear in `levelName`, `betweenLevels` and `nextLevel.levelName`. |
+| all | level assignments (fictional) | pass | They are unchanged from the dossier. Scanning is at level 1, with `betweenLevels` null. Trend analysis is at level 2, between 2 and 3. Scenario work is at level 1, between 1 and 2. In both between-level cases, `lowerLevelName` equals `levelName` and `upperLevelName` is the level directly above it on p. 9. The answers and findings were spot-checked against the dossier and are unchanged. |
+| scanning | explanation | pass | The weekly summaries of pasted-in releases, blog posts and regulatory news, the founders deciding what to discuss, no challenge to their reading and no connection to other tools all come from the dossier. The level-one features cited (simpler research-phase tasks, initial scanning, synthesis, deepening by people, complementary but stand-alone tools) are on p. 9. The text says correctly that summarising signals also appears at level two, and why the account does not reach level two. It says the account is not between levels, as the dossier does. It does not claim the report assigns levels per practice. |
+| trend analysis | explanation | pass | The monthly grouping, the assistant arguing against it, the counter-arguments pasted into the planning document, and a manual step that depends on one person all come from the dossier. Sparring partner, idea generator and stress-testing written content are level two on p. 9. Integration across the whole process and the automation of trends analysis are level three on p. 9. The lower-level rule is stated and attributed to the thesis (D-1), not to the report. |
+| scenario work | explanation | pass | Three futures were sketched on a whiteboard in January 2026, with background reading summarised beforehand and a single unused question about what was missed: all from the dossier. "The futures themselves were drawn without the assistant" is a fair reading of "the founders sketched three futures ... on a whiteboard". "AI tools are purely supplemental" is quoted from p. 9. The level-two features cited (stress-testing written content, suggesting scenarios) are on p. 9. The lower-level rule is stated and attributed to the thesis. |
+| scanning, scenario work | next level (level two), identical text | pass | K-2 rules 1–5 are all met. (1) The text begins "The report describes". (2) A whole-word, case-insensitive search found no forbidden word, no "next step" and no C-6 term. "Next" appears only inside the quoted "the next reported level of maturity". The report's own "must be treated as a complement" is rendered as "treats AI as", so no advisory word is carried in. (4) The text paraphrases the level-two body and italic summary on p. 9 and leaves nothing out. Its quotes run 6, 7 and 11 words, and each is attributed to p. 9. (5) Every element of the level is listed in the report's order, none is singled out, and nothing addresses Tracewell. |
+| trend analysis | next level (level three) | pass | K-2 rules 1–5 are all met. The text begins "The report describes" and contains no forbidden word or C-6 term. It paraphrases the level-three body and italic summary on p. 9, including "currently very rare". Its quotes run 7 and 9 words, with p. 9. All five automated parts are listed in the report's order. "Trends analysis" is listed among them and is not singled out, even though this is the trend-analysis practice. |
+| all | labels | pass | Every `explanation.text` and `nextLevel.description` is labelled `ai-generated`. The container stays `fictional`, which covers the assignments. The framework citation stays `real`. |
+| all | citation fields | pass | Each explanation and next-level citation carries the following fields. `url`: https://doi.org/10.1787/aa573076-en. `publisher`: World Economic Forum and OECD. `title`: AI in Strategic Foresight: Reshaping Anticipatory Governance. `publishedOn`: 2025-11-19. `retrievedOn`: 2026-10-06. `page`: "9". `maturity.report` has the same fields except `page`. |
+
+**On citing the DOI.** I accept it. L2 F3 rule 3, approved at G2, requires the citation to carry the
+DOI link, and it overrides the recommendation in `report-pages.md` to use the WEF PDF URL. The DOI
+is the same work as the copy that was read. Its Crossref record gives the same title, subtitle and
+publication date (2025-11-19), and its resource URL is the OECD page for that title. One limit has to
+stay on record. The page number 9 was read in the WEF-hosted copy, where printed and PDF page numbers
+agree. The OECD-hosted copy behind the DOI has not been opened by any agent, because its landing page
+returned 403. If Miguel opens it, one check is enough: that p. 9 carries the three levels. This is a
+disclosure, not a strike: the report's identity is not in doubt, and only the pagination of the
+second copy is unconfirmed.
+
+**Observations for the Orchestrator (not strikes).**
+
+- `maturity.status` reads `verified`. The Trend Analyst set it in `pipeline/output`; the Verifier did
+  not. The schema says only Miguel sets it. His G3 decision of 6 October 2026 says the status changes
+  once this text passes the Verifier, together with `MATURITY_LEVEL_NAMES` (M1-U18). That condition is
+  now met. However, `MATURITY_LEVEL_NAMES` in `assets/js/contracts/vocabulary.js` is still an empty
+  array. With that array empty and the status `verified`, `checkReadiness` withholds the profile
+  (F3-E1). The two must change in the same commit.
+- This record holds no hashes. `verification.json` must be rebuilt for readiness-tracewell after the
+  freeze driver writes `data/`, because the maturity block changes that entity's hash. The Verifier
+  had no shell in this session, so it could not run `tests/lib/canonical.mjs`.
+- The level-two description appears word for word under both scanning and scenario work. This is
+  correct, because both describe the same level. It is not a ranking signal.

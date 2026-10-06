@@ -49,7 +49,7 @@ than working around it.**
 
 **Re-planned 4 Oct 2026. Hard deadline: demo live on GitHub Pages by the morning of 7 Oct 2026.**
 **Re-planned again 6 Oct 2026** (the overnight run did not run): Miguel's target is a presentable demo live by midday on 7 Oct; the G3 run continues through the 6 Oct afternoon and evening windows and overnight.
-**G3 approved, 6 Oct 2026 (late evening)**: content frozen into `data/` (route B governance; level names verified at p. 9, readiness data still unverified until the maturity pass). **Next gate: G4**, system pass and Miguel's push, 7 Oct before midday. Decisions and the
+**G3 approved, 6 Oct 2026 (late evening)**: content frozen into `data/` (route B governance; level names verified at p. 9 and the readiness profile verified after the maturity pass, so `LEVEL_NAME_UNVERIFIED` is no longer shown). **Next gate: G4**, system pass and Miguel's push, 7 Oct before midday. Decisions and the
 proposed defaults are in `docs/gates.md`; the day-by-day plan is in `docs/00-operating-manual.md`.
 
 Gate rule: no level starts before the level above it is approved by Miguel. Gates are decided by

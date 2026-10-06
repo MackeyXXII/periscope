@@ -183,3 +183,12 @@ Miguel decided the following in Claude Code on 6 October 2026, from `g3-decision
 | Fictional premises | Accepted, together with the B-1 line that says Tracewell is fictional on the brief and every trend card. |
 | Freeze date | 6 October 2026, the day the text was fixed and verified: `node pipeline/freeze.mjs --frozen-on 2026-10-06 --pipeline-run-on 2026-10-06`. |
 | G3 | **Approved.** Miguel pushes to GitHub when told. |
+
+**D-1 completed, 6 October 2026 (late evening).** The condition Miguel set at G3 is met: the Trend
+Analyst wrote the three maturity explanations and the next-level descriptions from the Verifier's
+extract of p. 9 (`pipeline/output/report-pages.md`) and the persona dossier, and the Verifier passed
+them. The readiness profile is now `verified`, `MATURITY_LEVEL_NAMES` in `vocabulary.js` holds the
+three names, and the content was re-frozen (still dated 6 October). The report is cited by its DOI,
+as L2 F3 rule 3 requires; p. 9 was read in the WEF-hosted copy of the same publication, because the
+OECD page behind the DOI returns 403 to the agents. `node --test`: 125 pass, 0 fail, 12 skipped
+(the deferred interactive-F5 tests).

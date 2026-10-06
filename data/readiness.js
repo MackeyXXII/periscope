@@ -114,31 +114,124 @@ export default {
     "practices": [
       {
         "betweenLevels": null,
-        "explanation": null,
+        "explanation": {
+          "citation": {
+            "page": "9",
+            "publishedOn": "2025-11-19",
+            "publisher": "World Economic Forum and OECD",
+            "retrievedOn": "2026-10-06",
+            "title": "AI in Strategic Foresight: Reshaping Anticipatory Governance",
+            "url": "https://doi.org/10.1787/aa573076-en"
+          },
+          "text": {
+            "label": "ai-generated",
+            "text": "Tracewell's account of scanning places it at the level the report calls AI for analysis augmentation. Each week an AI assistant summarises new OpenTelemetry releases, vendor blog posts and EU regulatory news that the founders paste in, and the founders read the summaries and decide what to discuss. That fits the report's account of AI used for \"simpler tasks in the research phase\" (p. 9), such as initial scanning and synthesising data, with people deepening and contextualising the result, and of tools that are complementary but stand-alone: the routine is not connected to any other tool. The report also lists summarising signals at its second level, AI as creative sparring partner, but characterises that level by AI used as a sparring partner and idea generator; the assistant is not asked to challenge the founders' reading, so the account does not reach that level and is not between two levels. The report describes its levels for AI in foresight in general; assigning a level to each practice is the thesis's rule (D-1), applied here to a fictional account."
+          }
+        },
         "key": "scanning",
-        "levelName": "LEVEL_NAME_UNVERIFIED",
+        "levelName": "AI for analysis augmentation",
         "name": "Scanning",
-        "nextLevel": null
+        "nextLevel": {
+          "citation": {
+            "page": "9",
+            "publishedOn": "2025-11-19",
+            "publisher": "World Economic Forum and OECD",
+            "retrievedOn": "2026-10-06",
+            "title": "AI in Strategic Foresight: Reshaping Anticipatory Governance",
+            "url": "https://doi.org/10.1787/aa573076-en"
+          },
+          "description": {
+            "label": "ai-generated",
+            "text": "The report describes a second level, AI as creative sparring partner, as \"the next reported level of maturity\" (p. 9), in which practitioners use AI \"as a sparring partner and idea generator\" (p. 9). At this level AI wind-tunnels ideas and stress-tests content people have written; it also systematises and summarises signals, offers ideas for the structure of a study, suggests scenarios from uploaded data, compares collected signals with other factual data and speeds up the search for relevant information. Respondents reported efficiency and productivity gains, such as more scenarios developed, wider wind-tunnelling and outputs that scale further. The report's summary of the level lists support for horizon and environmental scanning, megatrend analysis and simulation, speculating about futures and preparing visualisations for leadership at short notice, and it treats AI as \"a complement to human expertise and experience, not as a substitute\" (p. 9)."
+          },
+          "levelName": "AI as creative sparring partner"
+        }
       },
       {
-        "betweenLevels": null,
-        "explanation": null,
+        "betweenLevels": {
+          "lowerLevelName": "AI as creative sparring partner",
+          "upperLevelName": "AI integrated and customized into workflow"
+        },
+        "explanation": {
+          "citation": {
+            "page": "9",
+            "publishedOn": "2025-11-19",
+            "publisher": "World Economic Forum and OECD",
+            "retrievedOn": "2026-10-06",
+            "title": "AI in Strategic Foresight: Reshaping Anticipatory Governance",
+            "url": "https://doi.org/10.1787/aa573076-en"
+          },
+          "text": {
+            "label": "ai-generated",
+            "text": "Tracewell's account of trend analysis places it at the level the report calls AI as creative sparring partner. Each month the founders group what they have read into themes and ask an AI assistant to argue against each grouping and propose alternatives. That is the use the report describes at this level: AI as \"a sparring partner and idea generator\" (p. 9) that stress-tests content people have written. The account also reaches towards the third level, AI integrated and customized into workflow, because the counter-arguments have started to go into the planning document. The step is manual, however, and depends on one person remembering it, whereas the report describes the third level as AI integrated into the whole foresight process, with parts of it, trends analysis among them, actively automated (p. 9). Because the account falls between the two levels, the lower level is assigned under the thesis rule (D-1). The report itself describes its levels for AI in foresight in general, not per practice."
+          }
+        },
         "key": "trend-analysis",
-        "levelName": "LEVEL_NAME_UNVERIFIED",
+        "levelName": "AI as creative sparring partner",
         "name": "Trend analysis",
-        "nextLevel": null
+        "nextLevel": {
+          "citation": {
+            "page": "9",
+            "publishedOn": "2025-11-19",
+            "publisher": "World Economic Forum and OECD",
+            "retrievedOn": "2026-10-06",
+            "title": "AI in Strategic Foresight: Reshaping Anticipatory Governance",
+            "url": "https://doi.org/10.1787/aa573076-en"
+          },
+          "description": {
+            "label": "ai-generated",
+            "text": "The report describes a third level, AI integrated and customized into workflow, and states that \"The third level is currently very rare\" (p. 9). It denotes the \"integration of AI into the entire strategic foresight process\" (p. 9). At this level fit-for-purpose tools are developed for horizon scanning, for options and combinations of methods, and for scoping, testing and communicating a research question, and more tailored tools are used, for example for complexity mapping and pattern detection. Practitioners experiment continuously with AI applications, including AI agents, and actively automate parts of the process: signal detection, trends analysis, scenario development, simulations and stress testing, and the visualisation of alternative futures and other outputs. The report's summary of the level presents AI as a significant component of the foresight process, with experiments enabling capabilities previously infeasible, such as automated document and signal collection and automatic analysis of documents as inputs to scenario development and other outputs."
+          },
+          "levelName": "AI integrated and customized into workflow"
+        }
       },
       {
-        "betweenLevels": null,
-        "explanation": null,
+        "betweenLevels": {
+          "lowerLevelName": "AI for analysis augmentation",
+          "upperLevelName": "AI as creative sparring partner"
+        },
+        "explanation": {
+          "citation": {
+            "page": "9",
+            "publishedOn": "2025-11-19",
+            "publisher": "World Economic Forum and OECD",
+            "retrievedOn": "2026-10-06",
+            "title": "AI in Strategic Foresight: Reshaping Anticipatory Governance",
+            "url": "https://doi.org/10.1787/aa573076-en"
+          },
+          "text": {
+            "label": "ai-generated",
+            "text": "Tracewell's account of scenario work places it at the level the report calls AI for analysis augmentation. The founders sketched three futures on a whiteboard in January 2026 and used an AI assistant beforehand to summarise background reading, which is the research-phase synthesis the report places at its first level, where \"AI tools are purely supplemental\" (p. 9). Once, they asked the assistant what they had missed. That is a move towards the second level, AI as creative sparring partner, where the report describes AI stress-testing content people have written and suggesting scenarios (p. 9). They did not use its answer, and the futures themselves were drawn without the assistant. Because the account falls between the two levels, the lower level is assigned under the thesis rule (D-1). The report itself describes its levels for AI in foresight in general, not per practice."
+          }
+        },
         "key": "scenario-work",
-        "levelName": "LEVEL_NAME_UNVERIFIED",
+        "levelName": "AI for analysis augmentation",
         "name": "Scenario work",
-        "nextLevel": null
+        "nextLevel": {
+          "citation": {
+            "page": "9",
+            "publishedOn": "2025-11-19",
+            "publisher": "World Economic Forum and OECD",
+            "retrievedOn": "2026-10-06",
+            "title": "AI in Strategic Foresight: Reshaping Anticipatory Governance",
+            "url": "https://doi.org/10.1787/aa573076-en"
+          },
+          "description": {
+            "label": "ai-generated",
+            "text": "The report describes a second level, AI as creative sparring partner, as \"the next reported level of maturity\" (p. 9), in which practitioners use AI \"as a sparring partner and idea generator\" (p. 9). At this level AI wind-tunnels ideas and stress-tests content people have written; it also systematises and summarises signals, offers ideas for the structure of a study, suggests scenarios from uploaded data, compares collected signals with other factual data and speeds up the search for relevant information. Respondents reported efficiency and productivity gains, such as more scenarios developed, wider wind-tunnelling and outputs that scale further. The report's summary of the level lists support for horizon and environmental scanning, megatrend analysis and simulation, speculating about futures and preparing visualisations for leadership at short notice, and it treats AI as \"a complement to human expertise and experience, not as a substitute\" (p. 9)."
+          },
+          "levelName": "AI as creative sparring partner"
+        }
       }
     ],
-    "report": null,
-    "status": "unverified"
+    "report": {
+      "publishedOn": "2025-11-19",
+      "publisher": "World Economic Forum and OECD",
+      "retrievedOn": "2026-10-06",
+      "title": "AI in Strategic Foresight: Reshaping Anticipatory Governance",
+      "url": "https://doi.org/10.1787/aa573076-en"
+    },
+    "status": "verified"
   },
   "provenance": {
     "frozenOn": "2026-10-06",
