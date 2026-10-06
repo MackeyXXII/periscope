@@ -281,7 +281,27 @@ the lists below say which cause to expect, so that an open dependency is never m
 defect and a real defect is never mistaken for an open dependency. A test registration not listed
 here passes at G2 or is skipped with a named reason.
 
+### Under `node --test` after M5 to M8 (run on 6 October 2026, later)
+
+This is the current record. Later on 6 October 2026, with the M5 weekly brief screen, the M6 state
+modules (`assets/js/state/session.js`, `assets/js/state/lens-order.js`) and screens, the M7
+readiness and governance screens and the M8 decision log screen committed, the suite was run under
+`node --test` from the repository root with Node v24.21.0: 137 test registrations, **88 pass,
+0 fail, 49 skipped** (37 "needs data/ (G3)", 12 "Deferred (F5 static, decision of 5 Oct 2026)").
+
+Before this run M10-U9 failed, exactly as designed: the new files under `assets/js/state/` and
+`assets/js/screens/` were on disk but not in `SHIPPED_FILES`. `tests/lib/files.mjs` now lists the
+twenty files under `assets/` plus `index.html`, matched against the directory listing, and M10-U9
+passes. No test was changed to obtain this result; only the inventory was brought up to date. The
+14 failures of the earlier 6 October run below all now pass, because the modules they named exist.
+
+The 49 skipped registrations are not passes. The 37 "needs data/ (G3)" tests run against the
+frozen content once it lands at G3, and the browser-only tests (`*.browser.mjs`) are not counted
+by `node --test` at all; they must be run in `tests/run.html` before G4.
+
 ### Under `node --test` after M1, M9 and M10 (run on 6 October 2026)
+
+This is an earlier record and is kept as it was; the current state is the later run above.
 
 On 6 October 2026, with M1 (contracts and freeze), M9 (honesty and provenance) and the M10 shell
 committed and the Cowork briefs delivered, the suite was run under `node --test` from the
@@ -394,3 +414,9 @@ On 6 October 2026, after M1, M9 and the M10 shell were committed, the suite was 
 those in the 6 October table above, all caused by the M5, M6 and M8 modules not yet built
 (`screens/brief.js`, `state/session.js`, `state/lens-order.js`, `screens/log.js`). M10-U9 passes
 after `SHIPPED_FILES` was updated to the files then on disk.
+
+Later on 6 October 2026, after the M5 to M8 screens and the M6 state modules were committed,
+M10-U9 failed on the files under `assets/js/state/` and `assets/js/screens/` missing from
+`SHIPPED_FILES`, as it was designed to. With the inventory updated, the suite was run again under
+`node --test`: 137 registrations, 88 passed, 0 failed, 49 skipped (37 needing data/, 12 deferred
+F5 tests).

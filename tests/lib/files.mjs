@@ -17,9 +17,18 @@ export const SHIPPED_FILES = Object.freeze([
   'assets/js/honesty/sources.js',
   'assets/js/honesty/statement.js',
   'assets/js/main.js',
+  'assets/js/screens/brief.js',
+  'assets/js/screens/governance.js',
+  'assets/js/screens/log.js',
+  'assets/js/screens/readiness.js',
+  'assets/js/screens/scenario.js',
+  'assets/js/screens/trend-index.js',
+  'assets/js/screens/trend.js',
   'assets/js/shell/nav.js',
   'assets/js/shell/router.js',
   'assets/js/shell/routes.js',
+  'assets/js/state/lens-order.js',
+  'assets/js/state/session.js',
 ]);
 
 export const SCHEMA_FILES = Object.freeze([
