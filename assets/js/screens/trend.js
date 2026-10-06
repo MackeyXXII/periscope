@@ -20,13 +20,14 @@
 // no <form>, so no keyboard submit and no form submission can bypass the handlers, and nothing the
 // viewer types can reach the URL.
 //
-// Labels (C-5): trend, intuition prompt, readings and questions are ai-generated; signals are real;
+// Labels (C-5): the fictional-premise line under the trend heading is fictional (L2 F1, B-1); it
+// is shown at every stage, states no reading and needs no reveal bundle. Trend, intuition prompt, readings and questions are ai-generated; signals are real;
 // every field the viewer types into and every echo of it is yours. Headings, buttons, captions,
 // notes and notices are interface copy and carry no label.
 
 import { checkTrend } from '../contracts/validate.js';
 import { ID_PATTERNS } from '../contracts/vocabulary.js';
-import { renderLabel } from '../honesty/labels.js';
+import { renderLabel, renderPremise } from '../honesty/labels.js';
 import { renderSource } from '../honesty/sources.js';
 import {
   lensOrderFor,
@@ -420,7 +421,7 @@ export async function renderTrend(root, ctx, trendId) {
   async function paint() {
     const lensOrder = lensOrderFor(session, id);
     const records = recordsOf(session, id);
-    root.replaceChildren(trendHead(doc, trend), signalsSection(doc, signals));
+    root.replaceChildren(trendHead(doc, trend), renderPremise(doc), signalsSection(doc, signals));
 
     if (records.stage === 'awaiting-intuition') {
       paintAwaiting(lensOrder);
@@ -433,7 +434,7 @@ export async function renderTrend(root, ctx, trendId) {
         if (rootWasConnected && !root.isConnected) return null;
       }
       const { section, heading } = committedSection(doc, ctx, id, records.judgement, questionText);
-      root.replaceChildren(trendHead(doc, trend), signalsSection(doc, signals), section);
+      root.replaceChildren(trendHead(doc, trend), renderPremise(doc), signalsSection(doc, signals), section);
       return heading;
     }
 

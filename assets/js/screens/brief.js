@@ -14,17 +14,19 @@
 // so in place of its links (F1-E0 in F2).
 //
 // Labels (C-5): the brief header is the one `frozen` element of the demo (the assembled
-// container), with the freeze date; each signal is `real`; its summary and relevance note each carry
-// their own `ai-generated` label, as does each trend title used as a link. Headings, the ordering
-// note and notices are interface copy and carry no label.
+// container), with the freeze date; the premise line under it is `fictional` (L2 F1, B-1); each
+// signal is `real`; its summary and relevance note each carry their own `ai-generated` label, as
+// does each trend title used as a link. Headings, the how-to line, the ordering note and notices
+// are interface copy and carry no label.
 
 import { checkTrend } from '../contracts/validate.js';
-import { renderLabel } from '../honesty/labels.js';
+import { renderLabel, renderPremise } from '../honesty/labels.js';
 import { renderSource, renderQuote, formatDate } from '../honesty/sources.js';
 
 const TEXT = Object.freeze({
   heading: 'Weekly brief',
   period: (start, end, frozen) => `Brief period: ${start} to ${end}. Frozen on ${frozen}.`,
+  howTo: 'Open a trend card, record your gut reading, then compare three rival readings and commit your own judgement with a reason.',
   orderNote: 'Listed by publication date. The order says nothing about importance.',
   empty: 'This brief contains no signals.',
   invalid: 'The weekly brief could not be shown because its content failed validation.',
@@ -181,6 +183,8 @@ export async function renderBrief(root, ctx) {
   }
 
   root.appendChild(briefHeader(doc, brief.value));
+  // The fictional premise (L2 F1, B-1) and one line on how to use the demo (interface copy).
+  root.append(renderPremise(doc), el(doc, 'p', 'note how-to', TEXT.howTo));
 
   if (brief.value.signalIds.length === 0) {
     root.appendChild(el(doc, 'p', 'notice', TEXT.empty));

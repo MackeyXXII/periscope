@@ -26,3 +26,25 @@ export function renderLabel(value) {
   badge.textContent = LABEL_DISPLAY[value];
   return badge;
 }
+
+/**
+ * The fictional premise of the demo (L2 F1, "Tracewell's name, wherever it appears as content:
+ * fictional"; docs/03-architecture.md, section 8). One sentence, kept here so the brief and every
+ * trend card show the same words. It is not a peer of signals or readings and states no reading.
+ */
+export const FICTIONAL_PREMISE =
+  'Tracewell is a fictional four-person observability start-up in Linz, the founding team this demo is written for. The signals and their sources are real.';
+
+/**
+ * The premise as one content element: <p class="premise" data-content data-label="fictional">
+ * with the fictional badge inside. `doc` is the document the screen renders into.
+ */
+export function renderPremise(doc = document) {
+  const p = doc.createElement('p');
+  p.className = 'premise';
+  p.setAttribute('data-content', '');
+  p.setAttribute('data-label', 'fictional');
+  p.textContent = FICTIONAL_PREMISE + ' ';
+  p.appendChild(renderLabel('fictional'));
+  return p;
+}

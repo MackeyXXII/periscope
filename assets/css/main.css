@@ -214,6 +214,12 @@ video {
   color: var(--muted);
 }
 
+/* The fictional-premise line (L2 F1) on the brief and the trend card: body text, held to the
+   reading measure, with its fictional badge at the end. */
+.premise {
+  max-width: var(--measure);
+}
+
 /* Peers (the three readings): one column on a phone, equal columns side by side on a wide
    screen. minmax(0, 1fr) keeps the columns equal whatever their content. */
 .peer-group {
