@@ -208,7 +208,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "An OpenTelemetry-native start-up named in the brief now prices on retained rather than ingested telemetry, tied to its own volume-reduction pipeline.",
+      "text": "An OpenTelemetry-native start-up Tracewell watches now bills a small ingestion fee plus storage for retained telemetry only, tied to its own volume-reduction pipeline.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -233,7 +233,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "Tracewell's industrial customers in Upper Austria fall under the NISG 2026, which sets the timetable for what they will ask of software suppliers.",
+      "text": "Whether Tracewell's pilot customers in Upper Austria fall under the NISG 2026 bears on what they may ask of their software suppliers, and this sets the dates.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -333,7 +333,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "Cisco, a principal competitor named in the brief, now offers observability of AI agents, one of the technology shifts the brief lists.",
+      "text": "Cisco, a competitor Tracewell watches, now offers observability of AI agents, one of the technology shifts Tracewell follows.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -358,7 +358,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "A vendor survey on how many tools teams run and whether they watch their AI agents speaks to the brief's question of how engineering teams choose observability.",
+      "text": "A vendor survey on how many tools teams run and whether they watch their AI agents bears on how engineering teams choose observability, a question Tracewell follows.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -383,7 +383,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "The brief names Prometheus and OpenTelemetry interoperability as a shift to watch, and this survey reports how teams combine the two in practice.",
+      "text": "Prometheus and OpenTelemetry interoperability is a shift Tracewell watches, and this survey reports how teams combine the two in practice.",
       "label": "ai-generated"
     },
     "label": "real",

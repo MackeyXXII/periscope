@@ -3,7 +3,7 @@
     "id": "reading-ai-agents-in-observability-noise",
     "trendId": "trend-ai-agents-in-observability",
     "lens": "noise",
-    "text": "These are announcements by large vendors about a part of the market Tracewell does not sell into. Tracewell's product is the pipeline: redaction before storage, volume cuts and EU hosting. The incident assistant is an add-on. Monitoring AI agents is a new product line for companies that buy their way in, as Dynatrace agreed to do in a deal it valued at 915 million US dollars, and the one sign of demand comes from a vendor's own survey. The signals do not show that mid-sized software suppliers in Upper Austria run AI agents or ask for them to be watched. For a four-person team with about nine months of runway, following this now spends attention on someone else's roadmap.",
+    "text": "These are announcements by large vendors about a part of the market Tracewell does not sell into. Tracewell's product is the pipeline: redaction before storage, volume cuts and EU hosting. The incident assistant is an add-on. Monitoring AI agents is a product line large vendors are extending by acquisition, as Dynatrace agreed to do in a deal it valued at 915 million US dollars, and the one sign of demand comes from a vendor's own survey. The signals do not show that mid-sized software suppliers in Upper Austria run AI agents or ask for them to be watched. For a four-person team, following this now spends attention on someone else's roadmap.",
     "evidence": [
       {
         "claim": "Dynatrace agreed to buy Arize, an AI observability and LLM evaluation company, in a deal it valued at 915 million US dollars, with closing expected late in its current fiscal quarter or early in the next and subject to regulatory review.",
@@ -137,7 +137,7 @@
     "id": "reading-ai-agents-in-observability-threat",
     "trendId": "trend-ai-agents-in-observability",
     "lens": "threat",
-    "text": "Tracewell's incident assistant now overlaps with features shipped by far larger vendors. In July Grafana Labs released AI-assisted root cause analysis alongside OpenTelemetry-native monitoring of AI systems, and in August Dynatrace agreed to acquire Arize, an AI observability company, in a deal it valued at 915 million US dollars. For a four-person team in Linz, the assistant stops being a reason for a customer to choose Tracewell, and the new market for watching AI agents is being claimed by firms that can buy whole companies to enter it. Against them, the assistant gets about a third of one engineer's time. The signals do not show whether Tracewell's own pilot customers have asked for these vendor features.",
+    "text": "Tracewell's incident assistant now overlaps with features shipped by far larger vendors. In July Grafana Labs released AI-assisted root cause analysis alongside OpenTelemetry-native monitoring of AI systems, and in August Dynatrace agreed to acquire Arize, an AI observability company, in a deal it valued at 915 million US dollars. For a four-person team in Linz, the assistant stops being a reason for a customer to choose Tracewell, and the new market for watching AI agents is being contested by firms that can buy whole companies to extend into it. Against them, the assistant gets about a third of one engineer's time. The signals do not show whether Tracewell's own pilot customers have asked for these vendor features.",
     "evidence": [
       {
         "claim": "Grafana Labs released Assistant Investigations for AI-assisted root cause analysis, together with Agent Observability, which it describes as OpenTelemetry-native monitoring of AI systems including token usage and cost. Both sit on the same ground as Tracewell's incident assistant.",
@@ -700,7 +700,7 @@
     ],
     "counterEvidence": [
       {
-        "claim": "SignalControl can run in Dash0's cloud or at the edge in a customer's own Kubernetes cluster, so a funded OpenTelemetry-native start-up already offers reduction inside the customer's environment.",
+        "claim": "SignalControl can run in Dash0's cloud or at the edge in a customer's own Kubernetes cluster, so an OpenTelemetry-native start-up already offers reduction inside the customer's environment.",
         "source": {
           "url": "https://www.dash0.com/changelog/signalcontrol-now-available",
           "publisher": "Dash0",
