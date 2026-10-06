@@ -191,3 +191,36 @@ threat, noise), and the brief is ordered by date. Nothing is ordered by importan
   reading-eu-austrian-data-and-security-dates-noise, reading-eu-austrian-data-and-security-dates-threat.
 - Pass: all 16 signals (the four edited ones now say only what their sources support), the other
   trends, readings and interrogations, and the brief.
+
+## Pass 3 (6 October 2026, final re-check)
+
+The third pass re-checked only the parts corrected in commits 460e5e8 and 1a8fed6, by comparing the
+files as they now stand with the corrections recorded above and in `verification-governance.md`.
+Every other verdict is carried over from pass 2 unchanged. No entity file was edited. The
+machine-readable record is `verification-final.json`.
+
+| Entity | Part | Verdict | Reason |
+|---|---|---|---|
+| trend-telemetry-reduction-before-storage | title | pass | "Telemetry volume is cut before storage, and one vendor prices on retained data" now limits the pricing to a single vendor. |
+| trend-telemetry-reduction-before-storage | intuition prompt | pass | The Orchestrator's wording, "one has moved to a small fee on intake with charges otherwise only for data it retains", says the same as Dash0's "small ingestion fee and storage prices apply only to what you keep". "Vendors now trim telemetry ahead of storage" covers both signals. It is lens-neutral: it names no lens, and it hints at no reading. |
+| trend-ai-agents-in-observability | summary, first sentence | pass | "Announced products or acquisitions" covers the Dynatrace agreement. |
+| reading-opentelemetry-default-collection-threat | ev 2 and text | pass | "Rather than a vendor distribution, while Tracewell packages its Collector as a vendor distribution" and "a vendor distribution is the kind of product Tracewell ships" are now true of Tracewell, as the dossier describes it. "Users on Prometheus-compatible backends" matches the signal summary. |
+| reading-ai-agents-in-observability-noise | text | pass | "As Dynatrace agreed to do in a deal it valued at" fits an agreement that has not yet closed. |
+| reading-eu-austrian-data-and-security-dates-noise | ce 1 | pass | "Enters into force on 1 October 2026" matches the source. |
+| reading-eu-austrian-data-and-security-dates-threat | text | pass | "Was set to enter into force on 1 October" says no more than the source can attest. |
+| interrogation-ai-agents-in-observability | provenance-one | pass | "All five signals were published by vendors" is true and matches the trend summary. It is still a question. |
+| readiness-tracewell | citation | pass | Springer Nature, 2020-12-22 and 2026-10-06 match the Springer page as opened in pass 2. |
+| governance | workplace-and-impact-assessment | removed as required | The WP249 sentence and its source are gone. What remains rests on EUR-Lex alone. |
+| governance | ai-act-conditions | pass | The two EUR-Lex sources are gone. Every sentence rests on the Commission page (3 Aug 2026). |
+
+EUR-Lex was tried once more on 6 October 2026 and still returned an empty body. As a result, the
+governance container is **pending-miguel**: it does not pass yet. At G3, Miguel must confirm against
+EUR-Lex the GDPR wording of Art. 4(1), 6(1), 25(1), 35(1) and 88(1)–(2), as well as the GDPR
+`publishedOn` 2016-05-04 (OJ L 119, 4.5.2016). If he confirms them (route A), all five paragraphs
+stand. If he does not (route B), `personal-data-condition`, `lawful-basis-and-design` and
+`workplace-and-impact-assessment` are deleted whole. `ai-act-conditions` and `pending-gdpr-amendment`
+then remain, and the screen ships as F3-S3. A minor point for route A: the source title in
+`personal-data-condition` cites "Article 4(1) and 4(5)", but the text uses only 4(1).
+
+Pass 3 result: every entity in signals, trends, readings, interrogations, brief and readiness
+passes. Governance is pending Miguel's EUR-Lex confirmation at G3.

@@ -1,0 +1,277 @@
+{
+  "entities": [
+    {
+      "type": "signal",
+      "id": "sig-2026-07-08-edpb-anonymisation-guidelines",
+      "hash": "17bfa0a323752bd6f19738b66b0b0b9462bbeaa975c253d8db48366edb4fb37d",
+      "verdict": "pass",
+      "note": "Carried over from pass 2 (summary re-checked against EDPB news item, 8 Jul 2026)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-07-27-commission-cra-guidance",
+      "hash": "d98968c0e2ac8b3093cc6aaffa53dc1f0e5be0ae07123d15da0c68eadfc8e89e",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-07-27-grafana-agentic-operations-tools",
+      "hash": "8cb94510a2b57b8f594028c38edd710c8a713cc40f6872762176dfbdb77eb577",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-04-grafana-adaptive-telemetry-profiles",
+      "hash": "7a99b542201d2e47cdbb264d5fdea06c38ad66c96faefd96afa7996afa70fd43",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-06-datadog-second-quarter-results",
+      "hash": "4b9118793f8c7ebdadfb6f23fca38361c42520a384f6859c77b8861107749622",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-13-austria-start-up-fund-of-funds",
+      "hash": "c0320412d17b432f0bcc5f6f4dc3f562cfea6939984a6aabdc041a0886ab019b",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-13-dynatrace-to-acquire-arize",
+      "hash": "b08992d4ac986a747ab1d7c1453d34408489b613fea6974e786a7dcaa57792bb",
+      "verdict": "pass",
+      "note": "Carried over from pass 2 (relevance note re-checked; neutral and fact-only)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-17-elastic-agent-otel-collector",
+      "hash": "a4c07f0a59d4cad3f7bdcdc060373a27b602003c21c5aebac4869fdadc3924bb",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-07-dash0-signalcontrol",
+      "hash": "ed81a3cce3ed67d7534a2accf9a10575b58760f61c6b893a816f55a3c0a3d3e5",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-08-austria-nis2-implementation-starts",
+      "hash": "93a2d2b7239be229244b35b88dc1bb41f76d359e9e9dd96e67a88a4cd2e7ed90",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2. Standing flag: the relevance note treats Tracewell's fictional customers as falling under the NISG 2026, a fictional premise, not a sourced fact."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-08-palo-alto-observability-arr",
+      "hash": "e5998a65e3ecf5009626da086fa7891ba78acad5863932fb1263d1dc2f41467a",
+      "verdict": "pass",
+      "note": "Carried over from pass 2 (relevance note re-checked against scanning brief)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-10-plug-and-play-linz-industrial-ai",
+      "hash": "ce5309c911b5b0ad106dc45303a41d56ebbbb967d1b3dae107f3b5e4b53aa231",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-16-otel-k8s-attributes-processor-v1",
+      "hash": "10863824bf7af9fc4007f334527a59fee4610f8faf7ea9d3b78628f1d2e6b8f0",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-18-splunk-agent-observability",
+      "hash": "2c74bd12521542a9eeeb0d31c6bd8282375b7b20d34845492497df074f33dd5f",
+      "verdict": "pass",
+      "note": "Carried over from pass 2 (summary re-checked against Splunk blog, 18 Sep 2026)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-22-new-relic-observability-forecast",
+      "hash": "ffa7fa7b78ac83c2d5dcd48256063e93d574a5c1cbb367246cab0367592dc28f",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-22-otel-prometheus-interoperability-survey",
+      "hash": "76793acda1b79a77ca5494562c45bb84b2f369a71c4e6f496fbfc0c6101e0210",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "trend",
+      "id": "trend-ai-agents-in-observability",
+      "hash": "213d187e5a27de78c771ca855c6e480b969e9024cbe438552043ee1d038b2168",
+      "verdict": "pass",
+      "note": "Pass 3: first summary sentence now reads 'announced products or acquisitions', which covers the Dynatrace agreement. Correction applied."
+    },
+    {
+      "type": "trend",
+      "id": "trend-eu-austrian-data-and-security-dates",
+      "hash": "672a68acbb6435eb533faa57b1159ae726da78a04cc00b1cfe2588bd639f8796",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "trend",
+      "id": "trend-opentelemetry-default-collection",
+      "hash": "839e57d10995c15131184f5ec9a4fb94d53ddf1ca6612ae66d80ee1ceae48473",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "trend",
+      "id": "trend-telemetry-reduction-before-storage",
+      "hash": "cc0bddb0e38a250326ae1aeee4e5f74940b3fc43721315ff1b3b7fac63c2e1a5",
+      "verdict": "pass",
+      "note": "Pass 3: title now confines retained-data pricing to one vendor. Reworded intuition prompt ('one has moved to a small fee on intake with charges otherwise only for data it retains') matches Dash0's 'small ingestion fee and storage prices apply only to what you keep'; it names no lens and hints at no reading."
+    },
+    {
+      "type": "reading",
+      "id": "reading-ai-agents-in-observability-noise",
+      "hash": "5bddade8b313c2b6b774868661ccb7f2839f891f6c3925508f63435ad01f3f6e",
+      "verdict": "pass",
+      "note": "Pass 3: text now says Dynatrace 'agreed to do' so 'in a deal it valued at', matching an agreement not yet closed. Correction applied."
+    },
+    {
+      "type": "reading",
+      "id": "reading-ai-agents-in-observability-opportunity",
+      "hash": "5896e1154eec12e8cdd563e7d72c658a8cffad1ad147e384bc97b40938e4353f",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-ai-agents-in-observability-threat",
+      "hash": "828ee5f403094d8a660790e6917a1479400cc20cd5bd70f9a4811d72bf0d06e4",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-eu-austrian-data-and-security-dates-noise",
+      "hash": "98326b895fb62e7f65d2da066f21142e83f5912086d93ab1b1f685a830b43940",
+      "verdict": "pass",
+      "note": "Pass 3: counterEvidence[0] now says the NISG 2026 'enters into force on 1 October 2026', as the USP page (8 Sep 2026) does. Correction applied."
+    },
+    {
+      "type": "reading",
+      "id": "reading-eu-austrian-data-and-security-dates-opportunity",
+      "hash": "a750045681611d13be783812a07f97d33a372d7e123b0a96e71a356a5c637fdc",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-eu-austrian-data-and-security-dates-threat",
+      "hash": "22437bc8aa25818f2d35fa5ed1d8f5040a7da8f6bf985a5a9381a07bf6fa5ffd",
+      "verdict": "pass",
+      "note": "Pass 3: text now says the NISG 2026 'was set to enter into force on 1 October', which claims no more than the source attests. Correction applied."
+    },
+    {
+      "type": "reading",
+      "id": "reading-opentelemetry-default-collection-noise",
+      "hash": "0dbc91e1f471dded9ad02a26c98d9ee0ff5b8515e6a8281be1f6fe421ed5e21d",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-opentelemetry-default-collection-opportunity",
+      "hash": "188df9622230dd9706271677879846e77742c7367822dd82c4802d134652de99",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-opentelemetry-default-collection-threat",
+      "hash": "7174cc16ac05b00e3af368482168fc5cc35436a36f94bef709f5a21aaba8c356",
+      "verdict": "pass",
+      "note": "Pass 3: evidence[1] now says 65 per cent run vanilla components 'rather than a vendor distribution, while Tracewell packages its Collector as a vendor distribution'; text says 'a vendor distribution is the kind of product Tracewell ships'. Both now true of Tracewell per the dossier. 'Users on Prometheus-compatible backends' matches the signal summary. Previously struck; now passes."
+    },
+    {
+      "type": "reading",
+      "id": "reading-telemetry-reduction-before-storage-noise",
+      "hash": "d48819e9c7476a2953e90b49a79fcfecda54a91bbad5f58786a604cd4bc17b6a",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-telemetry-reduction-before-storage-opportunity",
+      "hash": "c9c0cccb4e9615e6f30fbe663286f5a4410e7f3a7c8737d2b45de32b593cd836",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-telemetry-reduction-before-storage-threat",
+      "hash": "22f6f643b76ad1af7dced8c7f84e8e1845184bd5dfd37e5c92990d185b7708be",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-ai-agents-in-observability",
+      "hash": "81f2fc0092e96cf18d3a10d99027356c3eb6324b665466b3d2be21c67300ed00",
+      "verdict": "pass",
+      "note": "Pass 3: provenanceChecks[0] now says 'All five signals were published by vendors', which is true and matches the trend summary. Previously struck; now passes. Still a question, no advice, no lens hint."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-eu-austrian-data-and-security-dates",
+      "hash": "117b5c9ac2e84dcfdd327cf3b631374dc5a266c319c26ff87f952cae007f8ec2",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-opentelemetry-default-collection",
+      "hash": "4b2e2359499a75f88f0cb4db066b5c17e8fc31f3025e0894d4c301fc85c5e165",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-telemetry-reduction-before-storage",
+      "hash": "7e7a4cfc452626961491e0a9347c562e57754cf799941bb1538e510d08ef7115",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "brief",
+      "id": "brief-2026-09-30",
+      "hash": "7807938dca268bf479af3fbfd8f0ba2a33542153df79f92b3015048e291ae7bd",
+      "verdict": "pass",
+      "note": "Carried over from pass 2. Standing observation: the selection of five is the Brief Editor's own; the record should state its basis so it is not read as a ranking."
+    },
+    {
+      "type": "readiness",
+      "id": "readiness-tracewell",
+      "hash": "6833bf1dc973d6c05ff35dab534132014a6454edba53b560e43934c3c5c86f36",
+      "verdict": "pass",
+      "note": "Pass 3: framework citation now has publisher Springer Nature, publishedOn 2020-12-22 (published online, per the Springer page opened 6 Oct 2026), retrievedOn 2026-10-06. Previously struck; now passes. maturity.status unverified and all levelName LEVEL_NAME_UNVERIFIED, untouched."
+    },
+    {
+      "type": "governance",
+      "id": "governance",
+      "hash": "18c781f3e7dd4bc5419dda57bbddecea65d11b4dbbc95795f9ef627fd727b6eb",
+      "verdict": "struck",
+      "note": "Pass 3: WP249 sentence and source removed from workplace-and-impact-assessment; the two EUR-Lex sources removed from ai-act-conditions, which now rests only on the Commission page (3 Aug 2026) and passes; pending-gdpr-amendment passes. EUR-Lex still returned an empty body on 6 Oct 2026. Miguel must confirm at G3, against EUR-Lex, the GDPR wording of Art. 4(1), 6(1), 25(1), 35(1) and 88(1)-(2) and the GDPR publishedOn 2016-05-04 (OJ L 119, 4.5.2016). If confirmed (route A), personal-data-condition, lawful-basis-and-design and workplace-and-impact-assessment stand and the container passes with five paragraphs. If not (route B), delete those three paragraphs whole; two paragraphs remain and the screen ships as F3-S3, not F3-S3a."
+    }
+  ]
+}
