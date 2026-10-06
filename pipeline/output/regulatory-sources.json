@@ -1,0 +1,72 @@
+[
+  {
+    "title": "Regulation (EU) 2016/679 (General Data Protection Regulation), Article 4(1) and 4(5): definitions of personal data and pseudonymisation",
+    "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng",
+    "publishedOn": "2016-05-04",
+    "retrievedOn": "2026-10-06",
+    "note": "Article 4(1) defines personal data as \"any information relating to an identified or identifiable natural person\" and Article 4(5) defines pseudonymisation as processing so that data can no longer be attributed to a specific person without additional information kept separately, the Regulation applying from 25 May 2018 (Article 99)."
+  },
+  {
+    "title": "Regulation (EU) 2016/679 (General Data Protection Regulation), Articles 6, 25, 35 and 88",
+    "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng",
+    "publishedOn": "2016-05-04",
+    "retrievedOn": "2026-10-06",
+    "note": "Article 6(1) sets out the six lawful bases for processing, Article 25 requires data protection by design and by default and names pseudonymisation as an example measure, Article 35(1) requires an impact assessment before processing likely to result in a high risk to people's rights and freedoms, and Article 88 allows Member States to lay down more specific rules for processing in the employment context, including on monitoring systems at the workplace."
+  },
+  {
+    "title": "Guidelines 01/2025 on Pseudonymisation (EDPB news item on adoption)",
+    "url": "https://www.edpb.europa.eu/news/edpb-adopts-pseudonymisation-guidelines-and-paves-the-way-to-improve-cooperation-with_en",
+    "publishedOn": "2025-01-17",
+    "retrievedOn": "2026-10-06",
+    "note": "The EDPB states that pseudonymised data which could be attributed to an individual by the use of additional information remains personal data, and that pseudonymisation can help a controller rely on legitimate interests and meet its data protection by design and security obligations."
+  },
+  {
+    "title": "Opinion 2/2017 on data processing at work (WP249), Article 29 Data Protection Working Party",
+    "url": "https://ec.europa.eu/newsroom/article29/items/610169",
+    "publishedOn": "2017-06-23",
+    "retrievedOn": "2026-10-06",
+    "note": "The Article 29 Working Party, the EDPB's predecessor, set out its view on processing employees' data with new technologies, including monitoring of ICT use, and held that consent is unlikely to be a valid legal basis at work given the imbalance of power between employer and employee."
+  },
+  {
+    "title": "Regulation (EU) 2024/1689 (Artificial Intelligence Act)",
+    "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng",
+    "publishedOn": "2024-07-12",
+    "retrievedOn": "2026-10-06",
+    "note": "Regulation (EU) 2024/1689 of 13 June 2024 lays down harmonised rules on artificial intelligence and entered into force on 1 August 2024."
+  },
+  {
+    "title": "AI Act: regulatory framework for AI (European Commission policy page)",
+    "url": "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai",
+    "publishedOn": "2026-08-03",
+    "retrievedOn": "2026-10-06",
+    "note": "The Commission states that the AI Act became applicable on 2 August 2026, that its prohibitions (including emotion recognition in workplaces) have applied since February 2025, that AI tools for employment and management of workers are high-risk, and that, after the Digital Omnibus on AI, high-risk obligations start on 2 December 2027 for the listed areas and 2 August 2028 for AI embedded in products."
+  },
+  {
+    "title": "Regulation (EU) 2026/1744 (Digital Omnibus on AI), amending Regulation (EU) 2024/1689",
+    "url": "https://eur-lex.europa.eu/eli/reg/2026/1744/oj/eng",
+    "publishedOn": "2026-07-24",
+    "retrievedOn": "2026-10-06",
+    "note": "Regulation (EU) 2026/1744 of 8 July 2026, published in the Official Journal on 24 July 2026 and in force from 27 July 2026, amends the AI Act, including the dates from which its high-risk rules apply."
+  },
+  {
+    "title": "Digital Omnibus: EDPB and EDPS support simplification and competitiveness while raising key concerns",
+    "url": "https://www.edpb.europa.eu/news/news/2026/digital-omnibus-edpb-and-edps-support-simplification-and-competitiveness-while_en",
+    "publishedOn": "2026-02-11",
+    "retrievedOn": "2026-10-06",
+    "note": "The EDPB and the EDPS, in a joint opinion on the Commission's Digital Omnibus proposal, supported several GDPR simplifications such as a higher threshold and longer deadline for breach notification but opposed the proposed change to the definition of personal data as significantly narrowing it."
+  },
+  {
+    "title": "The Digital Omnibus Regulation Proposal, 2025/0360(COD) (European Parliament Legislative Train)",
+    "url": "https://www.europarl.europa.eu/legislative-train/theme-a-new-plan-for-europe-s-sustainable-prosperity-and-competitiveness/file-digital-package",
+    "publishedOn": "2026-09-20",
+    "retrievedOn": "2026-10-06",
+    "note": "As of its update of 20 September 2026, the Parliament lists the Commission's Digital Omnibus proposal COM(2025) 837 of 19 November 2025, which would amend the GDPR including its definition of personal data, as tabled and not adopted."
+  },
+  {
+    "title": "Data Act, Regulation (EU) 2023/2854 (European Commission policy page)",
+    "url": "https://digital-strategy.ec.europa.eu/en/policies/data-act",
+    "publishedOn": "2026-07-02",
+    "retrievedOn": "2026-10-06",
+    "note": "The Commission states that the Data Act, Regulation (EU) 2023/2854, entered into force on 11 January 2024 and applies from 12 September 2025, setting rules on fair access to and use of data, particularly data generated by connected products."
+  }
+]
