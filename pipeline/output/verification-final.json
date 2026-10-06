@@ -52,7 +52,7 @@
       "type": "signal",
       "id": "sig-2026-09-07-dash0-signalcontrol",
       "verdict": "pass",
-      "note": "Pass 4: relevance note. The billing fact matches the Dash0 changelog (7 Sep 2026, opened 6 Oct 2026: 'signals pay a small ingestion fee and storage prices apply only to what you keep'). Struck for the fictional premise 'Tracewell watches': the dossier does not establish that Tracewell watches Dash0 (it names Dash0 only in the real environment). No lens or C-6 word. Survives with the replacement given in verification-pass2.md, Pass 4. Pass 4: the Verifier's own replacement wording was applied verbatim by the Orchestrator (commit after e427a6b)."
+      "note": "Pass 4: relevance note. The billing fact matches the Dash0 changelog (7 Sep 2026, opened 6 Oct 2026: 'signals pay a small ingestion fee and storage prices apply only to what you keep'). Struck for the fictional premise 'Tracewell watches': the dossier does not establish that Tracewell watches Dash0 (it names Dash0 only in the real environment). No lens or C-6 word. Survives with the replacement given in verification-pass2.md, Pass 4. Pass 4: the Verifier's own replacement wording was applied verbatim by the Orchestrator (commit after e427a6b). Red-team RC-2: closing clause deleted."
     },
     {
       "type": "signal",
@@ -82,7 +82,7 @@
       "type": "signal",
       "id": "sig-2026-09-18-splunk-agent-observability",
       "verdict": "pass",
-      "note": "Pass 4: relevance note. Facts match the Splunk blog (18 Sep 2026, opened 6 Oct 2026: Agent Observability for AI agents, built on Cisco's Galileo acquisition). Struck for two fictional premises the dossier does not establish: Cisco as 'a competitor Tracewell watches' (the dossier names Cisco only as a principal competitor of Dynatrace) and agent observability as 'one of the technology shifts Tracewell follows'. No lens or C-6 word. Survives with the replacement given in verification-pass2.md, Pass 4. Pass 4: the Verifier's own replacement wording was applied verbatim by the Orchestrator (commit after e427a6b)."
+      "note": "Pass 4: relevance note. Facts match the Splunk blog (18 Sep 2026, opened 6 Oct 2026: Agent Observability for AI agents, built on Cisco's Galileo acquisition). Struck for two fictional premises the dossier does not establish: Cisco as 'a competitor Tracewell watches' (the dossier names Cisco only as a principal competitor of Dynatrace) and agent observability as 'one of the technology shifts Tracewell follows'. No lens or C-6 word. Survives with the replacement given in verification-pass2.md, Pass 4. Pass 4: the Verifier's own replacement wording was applied verbatim by the Orchestrator (commit after e427a6b). Red-team RC-1: the unsourced Dynatrace annual-report clause was struck by deletion."
     },
     {
       "type": "signal",

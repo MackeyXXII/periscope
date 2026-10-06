@@ -60,7 +60,8 @@ finding a friendlier source, and the third pass confirmed each. The records are
 `verification-pass1.md`, `verification-pass2.md` (with pass 3 at the end) and
 `verification-governance.md`; `verification.json` holds the hashes the freeze checks.
 
-**Red-team verdict.** See section 4. It reviewed the content and the code on the evening of 6 Oct.
+**Red-team verdict: sign-off with conditions** (section 4), after a block on the evening of 6 Oct
+whose three findings were fixed the same evening.
 
 ## 2. What you decide
 
@@ -163,6 +164,14 @@ no network call or storage. It re-ran the tests on the frozen copy: 123 pass, 0 
 Also applied: N-1 (brief notes no longer cite the internal scanning brief), N-2 (the runway figure
 dropped from a reading set in autumn 2026), N-10 ("funded" dropped). The Verifier re-checked every
 changed entity (pass 4, at the end of `verification-pass2.md`).
+
+**Re-check, late on 6 October: sign-off with conditions.** The reviewer confirmed B-1, B-2 and
+B-3 resolved with no new invariant problem. Its one new condition (RC-1: the Splunk note claimed,
+without a link, that Dynatrace's annual report names Cisco as a competitor) was met by deleting
+the clause, and the closing clause of the Dash0 note was deleted as it suggested (RC-2). Its last
+condition (RC-3) is the freeze itself: `data/` must be regenerated from `pipeline/output/` so that
+the hashes match what ships, which is step 2 of section 3. Both governance routes were frozen in
+throwaway copies with the real verification record: `node --test` 123 pass, 0 fail, 14 skipped.
 
 **Non-blocking points for you:**
 - **N-4.** The entry screen is headed "Weekly brief" but covers July to September 2026. "Weekly"

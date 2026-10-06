@@ -208,7 +208,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "Dash0, an OpenTelemetry-native start-up, now bills a small ingestion fee plus storage for retained telemetry only, tied to a pipeline that cuts volume before storage, as Tracewell's own pipeline does.",
+      "text": "Dash0, an OpenTelemetry-native start-up, now bills a small ingestion fee plus storage for retained telemetry only, tied to a pipeline that cuts volume before storage.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -333,7 +333,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "Cisco, one of the principal competitors Dynatrace names in its annual report, now offers observability of AI agents through Splunk, with OpenTelemetry-based tracing, the format Tracewell's pipeline takes in.",
+      "text": "Cisco now offers observability of AI agents through Splunk, with OpenTelemetry-based tracing, the format Tracewell's pipeline takes in.",
       "label": "ai-generated"
     },
     "label": "real",
