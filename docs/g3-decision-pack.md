@@ -1,156 +1,180 @@
-# G3 decision pack — for Miguel (draft, being filled in during the G3 run)
+# G3 decision pack — for Miguel, 7 October 2026
 
-**Status:** in progress, re-planned on 6 October 2026. The Orchestrator started this on the
-evening of 5 October 2026. The 3 am run scheduled for 6 October did not do its work overnight: the
-session was opened at 03:00 but did nothing until about 12:30. That afternoon Miguel decided to
-correct course. The work then in flight (M9, the M10 shell and the Scout stage) was finished and
-committed. Miguel then set the target of a presentable demo live by midday on 7 October, and the
-run continues in the windows listed in the re-plan below. The "Progress log" section says where work stands. When the run is finished,
-this line will say so.
+This is everything you need to decide Gate G3, the content freeze. Reading this page and answering
+the four decisions in section 2 should take about twenty minutes; the freeze and the push in
+section 3 take another fifteen. The target you set on 6 October is a presentable demo live on
+GitHub Pages by **midday on 7 October**, focused on the weekly brief and the core loop.
 
-## Progress log
+Gates are decided by you. Answer in claude.ai chat or here in Claude Code, and the Orchestrator
+records the outcome in `gates.md`.
 
-| Step | State |
-|---|---|
-| G2 approved; N6 option (b) applied to L2–L4, the schema and the tests | Done, 5 Oct |
-| Runtime agents' instructions updated (F-1 to F-4, F-8, K-7, B5, D-1) | Done, 5 Oct |
-| Briefs: persona dossier, scanning brief, replay candidates | Done, 5 Oct (M2 tests pass) |
-| M1 contracts and freeze | Done, 5 Oct (all runnable M1 tests pass) |
-| M9 honesty and M10 shell | Done, 6 Oct afternoon (`efeaeca`, `ea304ba`). `node --test`: 137 tests, 73 pass, 15 fail, 49 skipped. The failures are M10-U9 (`SHIPPED_FILES` in `tests/lib/files.mjs` lacks the M1, M9 and M10 files, a Test Engineer task) and 14 tests of the screen modules M5, M6 and M8, which are not built yet. The browser tests of M9 and M10 cannot run until the screens exist. |
-| Pipeline stage 1, Scout | Done, 6 Oct afternoon (`bc44866`, `069609b`). 16 signals in the window, each date taken from the page itself; 10 regulatory sources (F-8); replay signals for R1 to R5, 7 of 8 confirmed (the CNBC article for R4 returned 403 and was left out). Schema and lexical checks pass. Nothing is verified yet: that is the Verifier's work |
-| Pipeline stages 2 onwards: Trend Analyst → Rival Readers → Interrogator → replay judgements → Verifier outcomes → Trend Analyst second pass → Architect governance draft → Brief Editor → Verifier final pass | Started 6 Oct afternoon |
-| `tests/lib/files.mjs` update (M10-U9) and `docs/traceability.md` entries for M9 and M10 | Started 6 Oct afternoon |
-| Red-team review of content and code | Started 6 Oct afternoon |
+## 1. Where things stand
 
-## Items for Miguel collected so far
+**How the run went.** The 3 am run of 6 October started but did no work overnight: it waited on a
+permission prompt until you returned at about 12:30. In the afternoon you set the midday target,
+then narrowed the focus to the brief and the core loop and set the decision log aside. The work
+then ran through the afternoon and evening windows, with one stop to save usage.
 
-1. **Scanning window (scope).** No document set it. The brief researcher proposed
-   `2026-07-01 to 2026-09-30`, the quarter before the freeze, so that it does not overlap the replay
-   window of 1 Jan to 31 Mar 2026. The Scout scans against it. Confirm it or change it.
-2. **Dynatrace's headquarters.** The Orchestrator's own brief to the researcher said Dynatrace is
-   "headquartered in Linz". That is wrong. Dynatrace's 10-K of 20 May 2026 gives Boston as its
-   headquarters and Linz as its primary R&D site. The dossier states it correctly. No other
-   repository file made the claim.
-3. **Maturity levels in the dossier**, assigned by the thesis rule against the unverified D-1
-   descriptions:
-   - scanning: level 1;
-   - trend analysis: level 2, between 2 and 3;
-   - scenario work: level 1, between 1 and 2.
+**What is built.** Every module of the demo exists and is committed: M1 contracts and freeze, M5
+weekly brief, M6 trend card and session (F1) and the static scenario screen (F5-ST), M7 readiness
+and governance, M8 decision log, M9 labels and sources, M10 shell. The readiness, governance and
+log screens were built to their specifications, but with proportionate effort, as you asked.
 
-   If p. 9 of the report differs, they are redone, not adjusted.
-4. **The "Kind" vocabulary in the Named entities tables** has no value for funders, incubators or
-   universities (aws, tech2b, JKU, IT:U, EY Austria). These are listed as `publication`. It is a
-   minor stretch, so either confirm it or ask for a new kind.
-5. **"High-risk".** The AI Act's legal term appears in replay candidate R1 and in the scanning
-   brief. It contains the C-6 word "high", and lexical tests may flag it. It is a quoted legal
-   term, not a ranking.
-6. **The freeze driver deletes stale files.** After a successful freeze, `pipeline/freeze.mjs`
-   deletes any file in `data/` that the new manifest does not list, and prints what it removed.
-   This keeps `data/` truthful. It is a destructive choice, and the Implementer offered to make it
-   refuse instead.
-7. **K-7 hygiene.** `pipeline/briefs/replay-candidates.md` contains the outcomes, so any agent
-   with file access could read them. The Rival Readers and the Interrogator are instructed to work
-   only from `pipeline/output/replay-signals.json`, which has no outcomes, and not to open the
-   candidates file. The replay statement says honestly that outcomes were withheld from the
-   agents' *inputs*.
+**Tests.**
 
-8. **The Scout kept replay outcomes out of the main signals.** Five in-window sources already
-   named in the briefs are `Outcome:` URLs of replay candidates (Regulation 2026/1744 on EUR-Lex,
-   the Parliament's Legislative Train page, ENISA's reporting platform, Dynatrace's Q1 FY27 release,
-   EY's H1 2026 barometer). They are not in `signals.json`, so the Rival Readers cannot see them.
-   Six signals that were kept sit near replay topics without being outcomes: the CRA guidance (R3),
-   Datadog Q2, Grafana's tools and the Palo Alto Networks transcript (R4), the EDPB anonymisation
-   item (R2) and the Austrian fund-of-funds report (R5). So the replay judges must work only from
-   `replay-signals.json`, never from `signals.json` or `regulatory-sources.json` (entries 6, 7 and
-   9 of the latter are in effect the outcomes of R1 and R2).
-9. **R4 without CNBC.** The CNBC article of 6 Feb 2026 could not be opened (403). R4 now rests on
-   the Dynatrace and Datadog releases only, so the "software stocks fell" half of its heading has no
-   signal behind it. Options: add the ABC News article of 5 Feb 2026 on the same sell-off as a
-   substitute original, have the Verifier reach CNBC, or reword the heading.
-10. **Sources the fetch tool could not open.** EUR-Lex returned empty pages for every view, so the
-    GDPR, AI Act and Regulation 2026/1744 entries were confirmed through secondary listings. The
-    Council press release of 13 Mar 2026 (R1) returned 403 and was confirmed through a dated
-    browser print hosted elsewhere. Two OpenTelemetry blog dates come from the posts' source files
-    on GitHub, because the pages show none. The Verifier must re-check all of these, and you may
-    prefer to open the EUR-Lex pages yourself.
-11. **Publishers missing from the briefs' Named entities tables** (M2-U2 will fail at G3 without
-    them): ORF, the Unternehmensserviceportal (USP), The Motley Fool and Splunk. Adding them is a
-    brief edit.
-12. **Small choices in the M10 shell to review.** The demo-wide statement sits in a footer on every
-    screen, not the header, so that the replay statement stays on the first screen at 360 × 640
-    (M10-U8); on long pages the footer needs scrolling. The Implementer also wrote four short texts
-    Level 2 does not fix: "Open the weekly brief" on the not-found screen; a fallback "This screen
-    could not be shown in this build."; "Source" as link text when a reference has no title; and
-    the publisher in brackets after a quote.
+| Run | Tests | Pass | Fail | Skipped |
+|---|---|---|---|---|
+| `node --test`, repository as committed | 137 | 88 | 0 | 49 (37 wait for `data/`, 12 deferred F5) |
+| `node --test`, a throwaway copy frozen with the real driver and `CONTENT_FROZEN` on | 137 | 123 | 0 | 14 |
+| Browser runner `tests/run.html`, headless Chrome (Implementer, 6 Oct) | 205 | 127 | 0 | 78 (data, deferred F5, needs Node) |
 
-## Re-plan, 6 October 2026: presentable by midday on 7 October
+The 37 tests that wait for `data/` all pass against the frozen copy, so the freeze in section 3
+should leave no failure. The browser runner has been run headless only; a run in your own browser
+after the push is worth two minutes.
 
-Miguel set the target on the afternoon of 6 October: as much as possible of a presentable demo,
-live by **midday on Wednesday 7 October**. Work runs in the windows he gave. Content and build run
-in parallel, and the core loop (F2 brief into F1 trend card) comes first.
+**The core loop, walked by hand** in the frozen copy (6 Oct, evening): the brief lists five real
+signals with their labels and links; a trend card shows its signals and the intuition prompt, and
+no reading exists in the page, nor is the reveal file requested, until the gut reading is
+recorded; the three readings then appear as peers in random order with the questions; "Commit
+judgement" stays disabled until a reading is chosen and a rationale written; the committed view
+shows gut call, chosen reading and rationale, each labelled `yours`. Every route renders at
+360 × 640 without sideways scrolling.
 
-| Window | Content path | Build path |
+**The content.** Produced on 6 October by the runtime agents, all on Opus 5.5, and all in
+`pipeline/output/`:
+
+| Item | Count | Verifier |
 |---|---|---|
-| 6 Oct, now to 15:40 | Trend Analyst (trends); then Rival Readers and Interrogator (readings, interrogation, intuition prompts, replay judgements from `replay-signals.json` only) | M6 state and screens (F1, F5-ST), then M5 (F2); `files.mjs` and test-plan counts |
-| 6 Oct, from 15:40 to the usage limit | Verifier: replay outcomes, p. 9 level names, first pass on signals, readings and regulatory sources. Trend Analyst second pass; Architect governance draft; Brief Editor | M7 (readiness and governance), M8 (log) |
-| 6 Oct, from about 21:00 | Verifier final pass and `verification.json`; Red-team review of content and code; fixes by the owning agents | Browser test run (`tests/run.html` on a local server) |
-| Overnight | This pack completed; `CONTENT_FROZEN` prepared but **not** set; everything committed | System checks at the four Q-7 viewports; fixes |
-| 7 Oct, morning | **Miguel decides G3**; freeze into `data/`; final Red-team check on the frozen data | **Miguel pushes `main`** by about 11:00 and checks GitHub Pages |
+| Signals, 1 July to 30 September 2026 | 16 | All pass after strikes |
+| Trends | 4 | All pass after corrections |
+| Readings, three peers per trend, 2 evidence and 2 counter-evidence each | 12 | All pass after corrections |
+| Interrogations (2 provenance checks, 2 assumption probes, 2 pre-mortem questions each) | 4 | All pass after one correction |
+| Weekly brief: 5 of the 16 signals, every trend reachable | 1 | Pass |
+| Readiness profile, unverified | 1 | Pass (citation corrected) |
+| Governance container | 1 | **Pending your check (decision 2)** |
+| Decision log | empty | Not worked on, by your decision |
 
-**What can be live by midday, in order of confidence:**
+The Verifier ran three passes. It struck seven claims in the first pass and four entities in the
+second; every strike was applied by deletion or by the Verifier's own corrected wording, never by
+finding a friendlier source, and the third pass confirmed each. The records are
+`verification-pass1.md`, `verification-pass2.md` (with pass 3 at the end) and
+`verification-governance.md`; `verification.json` holds the hashes the freeze checks.
 
-1. **Very likely:** the weekly brief (F2) and the full core loop (F1): gut reading first, the three
-   readings in random order, interrogation, commit with a rationale. Verified real signals, honest
-   labels on every element, the demo-wide statement, no network calls. F5 is the static `F5-ST`.
-2. **Likely:** the readiness screen in its honest unverified state `F3-S2` (level names withheld
-   behind `LEVEL_NAME_UNVERIFIED`) and the governance screen with both lists. It ships with the
-   argument paragraphs that pass, or as `F3-S3a`. `F3-S2v` needs the p. 9 match and Miguel's
-   `verified` at G3. If both happen, it is possible.
-3. **At risk:** the decision log (F4), which needs every replay outcome found, verified and dated,
-   at least one judgement that did not hold, and calibration notes. If it falls short it ships as
-   the honest `F4-S0`, or the static fallback.
-4. **Not by midday:** the full system-test matrix in Chromium and Firefox and the G5 rehearsal
-   with outside viewers. A spot-check at the four viewports is planned overnight instead.
+**Red-team verdict.** See section 4. It reviewed the content and the code on the evening of 6 Oct.
 
-The critical dependency is Miguel's own time on the morning of 7 October: the G3 decision (about
-30 minutes with this pack) and the push. Agents may do neither. If the usage windows end early, the
-order above is the order in which things are cut, and F3 or F4 fall back to static screens.
+## 2. What you decide
 
-## Stop at the usage limit, 6 October 2026, afternoon
+### Decision 1 — The governance argument: route A or route B
 
-Miguel stopped the agents to save usage. Committed and schema-checked: signals (16), trends (4,
-with intuition prompts), readings (12), interrogations (4), the brief selection (5 signals, every
-trend reachable), the readiness transcription (unverified), the clean replay readings and the
-replay judgements (R1 to R5), and the Verifier's first pass (`verification-pass1.md`).
+The argument has five paragraphs, all labelled `ai-generated`, drafted by the Architect from the
+Scout's regulatory source list only. Two pass outright: `ai-act-conditions` (on the Commission's
+AI Act page, updated 3 Aug 2026) and `pending-gdpr-amendment` (on the Parliament's Legislative Train
+and the EDPB–EDPS joint opinion). The other three rest on GDPR articles that only EUR-Lex states,
+and EUR-Lex serves no automated tool (it answers with a bot challenge). The WP249 sentence was
+struck because its source could not be read.
 
-**Focus from here (Miguel, 6 Oct): the weekly brief and the core loop only.** The decision log is
-not worked on; `log.json` will ship as an empty array (`F4-S0`), and M8 is built only as far as the
-app needs to load.
+- **Route A (proposed if you can spare ten minutes):** open the GDPR on EUR-Lex
+  (https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng) and compare Art. 4(1), 6(1), 25(1), 35(1)
+  and 88(1)–(2), and the publication date 4 May 2016, with the wording quoted in
+  `pipeline/output/verification-governance.md`. If they match, all five paragraphs ship. Your check
+  counts as the opened source, and it is recorded here with the date.
+- **Route B:** the three GDPR paragraphs are dropped whole (`governance-route-b.json` is ready).
+  Two paragraphs ship, and the screen is the ordinary `F3-S3`, not the withheld state.
 
-**Next steps, in order:**
-1. Apply the Verifier's strikes to the core-loop content by deletion only: the EDPB summary
-   ("Guidelines 02/2026", "replacing the 2014 Article 29 Working Party opinion"), the Dynatrace
-   relevance note ("with its main R&D site in Linz"), the Palo Alto relevance note ("first reported
-   figure"), the Splunk summary (token and cost tracking presented as available now); and the
-   same EDPB facts where they recur, in the summary of `trend-eu-austrian-data-and-security-dates`
-   and in two reading claims (`readings.json`, lines 221 and 355).
-2. The Implementer resumes M6 (`state/session.js`, `lens-order.js`, `screens/trend-index.js`,
-   `trend.js`, `scenario.js`), then M5 (`screens/brief.js`). `state/session.js` and `lens-order.js` were
-   staged by the Implementer and went into commit `006d341` under a pipeline message; check them
-   against the M6 tests. The stopped run also left uncommitted, unfinished files in
-   `assets/js/screens/`; check them against the tests before keeping any.
-3. Minimal M7 and M8 screens so that the router's imports resolve (readiness unverified `F3-S2`;
-   governance with both lists and `F3-S3a` if no argument is verified; log `F4-S0`).
-4. The Verifier's final pass and hashes over every input of the freeze; then G3 and the freeze.
+Either way, say for each paragraph whether you accept it and why; the reason is recorded in
+`gates.md`, as the Q-5 outcome requires.
 
-**Verifier first pass, in short:** p. 9 matched all three level names word for word (read in the
-WEF PDF, https://www3.weforum.org/docs/WEF_AI_in_Strategic_Foresight_2025.pdf, because the DOI's
-OECD page returned 403). 37 items checked: 24 pass, 7 struck, 6 not opened by the tool (EUR-Lex
-and CNBC). R1 lost both its signals, so it cannot ship. The Jöhnk et al. citation in
-`readiness.json` carries 2026-10-05 as its publication date, which is a retrieval date: it must be
-corrected before the freeze.
+### Decision 2 — The maturity level names
 
-## Decisions for G3 (completed when the pipeline has run)
+The Verifier opened the WEF/OECD report on 6 Oct and found the three names on p. 9 word for word:
+"AI for analysis augmentation", "AI as creative sparring partner", "AI integrated and customized
+into workflow". (It read the WEF PDF, because the OECD page behind the DOI returned 403; the title,
+date and authorship match the DOI's record.)
 
-To follow: each governance paragraph to accept or strike, with a reason; the D-1 level names set to
-`verified` if p. 9 matched; struck content; and the Red-team verdict.
+- **Proposed: keep the readiness screen unverified for this release (`F3-S2`).** The verified
+  state also needs the Trend Analyst's maturity explanations and next-level descriptions, which
+  were not written because you narrowed the focus. `F3-S2` is complete and honest under Level 2;
+  it shows `LEVEL_NAME_UNVERIFIED` where the names would go.
+- **Alternative:** record the D-1 names as verified now (the p. 9 check is done), and have the
+  explanations written and verified in a later pass before the status changes in the data.
+
+### Decision 3 — Small content points (accept or change)
+
+1. **Scanning window** 1 July to 30 September 2026, proposed by the brief researcher so it does
+   not overlap the replay window. Every signal sits inside it.
+2. **The brief's five signals** were chosen by coverage, not significance: the latest signal of
+   each trend, then the next latest of those left. The brief says "Listed by publication date. The
+   order says nothing about importance." The AI-agents trend has two of the five places because of
+   dates. If you prefer one per trend, the brief can ship four signals.
+3. **Fictional premises in content.** Readings and one relevance note mention Tracewell's
+   fictional pilots, assistant and Collector distribution; the Verifier accepted these as story
+   premises, never as sourced claims. The NIS2 relevance note assumes Tracewell's customers fall
+   under the NISG 2026.
+4. **Dynatrace** appears in two signals and in readings, described from its own press release and
+   neutrally. Its headquarters is Boston and its main R&D site Linz (10-K of 20 May 2026); the
+   relevance note that said so was struck because the press release does not say it.
+5. **Freeze dates.** The pipeline entities record 6 October as their freeze date, and the brief
+   header shows "Frozen on 6 October 2026"; the data modules are written on 7 October. Proposed:
+   freeze with `--frozen-on 2026-10-07` and accept that the brief header shows the content's own
+   date, or freeze with `2026-10-06`, the day the text was fixed and verified.
+6. **Kind "publication"** is used for funders, universities and publishers in the entity tables.
+   Seven publishers cited by the pipeline were added to the scanning brief's table on 6 October.
+7. **The freeze driver deletes stale files** in `data/` that the new manifest does not list.
+8. **The Implementer's wording choices** for interface copy that Level 2 does not fix are listed
+   in the commit messages of d911c83, 24750f9 and 02f331c; the demo-wide statement sits in a footer.
+
+### Decision 4 — Approve G3
+
+- **Approve:** the freeze runs as in section 3 and the push follows.
+- **Approve with conditions:** name them.
+- **Reject:** name what must change; the static fallback for F3 then applies.
+
+## 3. The freeze and the push (about 15 minutes)
+
+Once you have decided, the Orchestrator can do steps 1 to 4 in a few minutes if you say
+"G3 approved, route A" (or B). Only you push.
+
+1. Governance: for route A, set the governance verdict to `pass` in
+   `pipeline/output/verification-final.json` with a note recording your EUR-Lex check; for route B,
+   copy `governance-route-b.json` over `governance.json` and set its verdict to `pass`.
+2. Rebuild the record and freeze:
+   `node pipeline/verification-record.mjs pipeline/output/verification-final.json`, then
+   `node pipeline/freeze.mjs --frozen-on 2026-10-07 --pipeline-run-on 2026-10-06`.
+3. Set `CONTENT_FROZEN = true` in `tests/lib/stage.mjs` and run `node --test`: expected 0 fail.
+4. Commit as the G3 freeze, and record G3 in `gates.md`.
+5. **You:** `git push origin main`; in the repository's Settings → Pages, check that Pages serves
+   `main` from the root; open https://mackeyxxii.github.io/periscope/ once it has built (a minute
+   or two) and walk brief → trend card → commit on your phone.
+
+## 4. Red-team review
+
+To be filled in from the Red-team Reviewer's report of 6 October, evening.
+
+## 5. What is not in this release
+
+- **The decision log (F4)** ships empty (`F4-S0`): your decision of 6 October. The replay material
+  stays in `pipeline/output/` for a later release: clean replay readings and judgements for R1 to
+  R5, written from the replay signals alone after the first set was discarded for contamination.
+  R1 lost both its signals to the Verifier, and no outcomes have been attached.
+- **Verified maturity (F3-S2v)**, unless you choose the alternative in decision 2.
+- **Interactive F5** (decided 5 Oct), the role-aware model (R7) and own-data ingestion, as the
+  governance screen states.
+- **System tests in Firefox** and the G5 rehearsal with outside viewers.
+
+## 6. Record of the run, 6 October 2026
+
+- **Scout:** 16 signals, each date read from the page itself; 10 regulatory sources; 7 of 8 replay
+  signals (CNBC unreachable). Five in-window sources were left out because they are replay outcomes.
+- **Trend Analyst:** 4 trends; three signals cluster with none and appear only if a later pass
+  adds them (Austrian fund of funds, Plug and Play Linz, Palo Alto Networks).
+- **Rival Readers:** one agent per lens, so no reader saw another lens. Their first replay readings
+  were discarded because they had read later signals first; fresh agents rewrote them from the
+  replay signals alone.
+- **Interrogator:** intuition prompts (one reworded on 6 Oct to avoid a six-word overlap with its
+  readings) and 24 questions.
+- **Brief Editor:** selection only, before the Verifier's final pass (F-2).
+- **Architect:** the governance container and its source map.
+- **Verifier:** three passes plus the governance check; p. 9 matched.
+- **Orchestrator:** applied strikes by deletion and corrections in the Verifier's wording; added
+  seven publishers to the scanning brief; a commit of 6 Oct (`006d341`) carried the M6 state files
+  under a pipeline message by mistake.
