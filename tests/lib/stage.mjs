@@ -6,4 +6,4 @@
 // part that asserts on data/ is skipped with "needs data/ (G3)". Once true, those parts run, and a
 // missing or wrong data/ fails. No other file may hold this switch.
 
-export const CONTENT_FROZEN = false;
+export const CONTENT_FROZEN = true;

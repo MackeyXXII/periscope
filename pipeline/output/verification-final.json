@@ -231,8 +231,8 @@
     {
       "type": "governance",
       "id": "governance",
-      "verdict": "pending-miguel",
-      "note": "Pass 3: WP249 sentence and source removed from workplace-and-impact-assessment; the two EUR-Lex sources removed from ai-act-conditions, which now rests only on the Commission page (3 Aug 2026) and passes; pending-gdpr-amendment passes. EUR-Lex still returned an empty body on 6 Oct 2026. Miguel must confirm at G3, against EUR-Lex, the GDPR wording of Art. 4(1), 6(1), 25(1), 35(1) and 88(1)-(2) and the GDPR publishedOn 2016-05-04 (OJ L 119, 4.5.2016). If confirmed (route A), personal-data-condition, lawful-basis-and-design and workplace-and-impact-assessment stand and the container passes with five paragraphs. If not (route B), delete those three paragraphs whole; two paragraphs remain and the screen ships as F3-S3, not F3-S3a."
+      "verdict": "pass",
+      "note": "Route B, decided by Miguel at G3 on 6 Oct 2026: the three paragraphs resting on GDPR articles that only EUR-Lex states (personal-data-condition, lawful-basis-and-design, workplace-and-impact-assessment) are dropped whole; ai-act-conditions and pending-gdpr-amendment pass on opened, dated Commission, Parliament and EDPB sources (verification-governance.md); both lists pass."
     }
   ]
 }

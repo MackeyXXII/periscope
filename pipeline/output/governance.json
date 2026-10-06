@@ -67,55 +67,6 @@
   ],
   "argument": [
     {
-      "id": "personal-data-condition",
-      "text": "In this build, nothing a team owns enters the demo: there are no accounts, nothing the viewer types is stored or sent, and every screen reads only content frozen before release. Ingesting a team's own data would change that, because it would bring an authenticated workspace and judgements kept across sessions and tied to named members of the team, none of which this build implements. The General Data Protection Regulation defines personal data as any information relating to an identified or identifiable natural person (Article 4(1)). A judgement tied to a named member of a four-person team would meet that definition, so the Regulation's conditions would apply before such a feature could be built.",
-      "sources": [
-        {
-          "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng",
-          "publisher": "Publications Office of the European Union (EUR-Lex)",
-          "title": "Regulation (EU) 2016/679 (General Data Protection Regulation), Article 4(1) and 4(5): definitions of personal data and pseudonymisation",
-          "publishedOn": "2016-05-04",
-          "retrievedOn": "2026-10-06"
-        }
-      ],
-      "label": "ai-generated"
-    },
-    {
-      "id": "lawful-basis-and-design",
-      "text": "Before any processing began, the GDPR would require one of the six lawful bases it sets out in Article 6(1). It also requires data protection by design and by default, and names pseudonymisation as one example of such a measure (Article 25). The European Data Protection Board states that pseudonymised data which could be attributed to a person by using additional information remains personal data, and that pseudonymisation can help a controller rely on legitimate interests and meet its data protection by design and security obligations. Pseudonymising a team's judgements would therefore not take them outside the Regulation, though it would bear on the lawful basis and on the design conditions above.",
-      "sources": [
-        {
-          "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng",
-          "publisher": "Publications Office of the European Union (EUR-Lex)",
-          "title": "Regulation (EU) 2016/679 (General Data Protection Regulation), Articles 6, 25, 35 and 88",
-          "publishedOn": "2016-05-04",
-          "retrievedOn": "2026-10-06"
-        },
-        {
-          "url": "https://www.edpb.europa.eu/news/edpb-adopts-pseudonymisation-guidelines-and-paves-the-way-to-improve-cooperation-with_en",
-          "publisher": "European Data Protection Board",
-          "title": "Guidelines 01/2025 on Pseudonymisation (EDPB news item on adoption)",
-          "publishedOn": "2025-01-17",
-          "retrievedOn": "2026-10-06"
-        }
-      ],
-      "label": "ai-generated"
-    },
-    {
-      "id": "workplace-and-impact-assessment",
-      "text": "Where processing is likely to result in a high risk to people's rights and freedoms, Article 35(1) of the GDPR requires a data protection impact assessment before it starts. Article 88 allows Member States to lay down more specific rules for processing in the employment context, including on monitoring systems at the workplace, so the conditions could differ with the country in which team members are employed.",
-      "sources": [
-        {
-          "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng",
-          "publisher": "Publications Office of the European Union (EUR-Lex)",
-          "title": "Regulation (EU) 2016/679 (General Data Protection Regulation), Articles 6, 25, 35 and 88",
-          "publishedOn": "2016-05-04",
-          "retrievedOn": "2026-10-06"
-        }
-      ],
-      "label": "ai-generated"
-    },
-    {
       "id": "ai-act-conditions",
       "text": "If own-data ingestion used AI to analyse the team, Regulation (EU) 2024/1689, the AI Act, would also bear on it. The European Commission states that the Act became applicable on 2 August 2026, that its prohibitions, including emotion recognition in workplaces, have applied since February 2025, and that AI tools for employment and the management of workers are high-risk. Regulation (EU) 2026/1744, the Digital Omnibus on AI, is adopted law: it entered into force on 27 July 2026 and amends the AI Act, including the dates from which its high-risk rules apply. According to the Commission, those obligations start on 2 December 2027 for the listed areas and on 2 August 2028 for AI embedded in products. Whether a feature that reads a founding team's judgements falls within the employment category is a condition to settle before it is built, and this demo does not settle it.",
       "sources": [
