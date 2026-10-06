@@ -1,0 +1,81 @@
+{
+  "entities": [
+    {
+      "type": "governance",
+      "id": "governance",
+      "verdict": "struck",
+      "note": "Not pass as written (6 Oct 2026): one sentence struck, seven EUR-Lex claims await Miguel. Route A (Miguel confirms GDPR Art. 4(1), 6(1), 25(1), 35(1), 88(1)-(2) and publishedOn 2016-05-04 at G3): delete sentence 3 of workplace-and-impact-assessment and its WP249 source entry; delete the EUR-Lex 2024/1689 and 2026/1744 source entries in ai-act-conditions unless Miguel confirms publishedOn 2024-07-12 and 2026-07-24. The container then passes. Route B (no confirmation): delete paragraphs personal-data-condition, lawful-basis-and-design and workplace-and-impact-assessment whole, and the two EUR-Lex source entries in ai-act-conditions. ai-act-conditions and pending-gdpr-amendment remain and pass; the screen ships as F3-S3. Lists and labels pass in both routes."
+    }
+  ],
+  "paragraphs": [
+    {
+      "id": "personal-data-condition",
+      "verdict": "miguel-to-confirm",
+      "struckSentences": [],
+      "note": "S1 and S2 are build statements and pass (governance lists; architecture section 11). S3 rests only on EUR-Lex, not opened by tool, so Miguel confirms at G3 against GDPR Art. 4(1): \"'personal data' means any information relating to an identified or identifiable natural person ('data subject')\", and publishedOn 2016-05-04. S4 applies S3 and stands or falls with it. The undated EDPB SME guide and Commission 'Data protection explained' pages state the definition in substance but carry no date, so neither can carry a pass."
+    },
+    {
+      "id": "lawful-basis-and-design",
+      "verdict": "miguel-to-confirm",
+      "struckSentences": [],
+      "note": "S1 is EUR-Lex only, so Miguel confirms Art. 6(1), \"Processing shall be lawful only if and to the extent that at least one of the following applies:\", points (a)-(f), six in all; 'before any processing began' is the drafter's reading. In S2, 'requires data protection by design and by default' passes on the EDPB pseudonymisation item (17 Jan 2025, 'data protection by design and default (Art. 25 GDPR)'), while 'names pseudonymisation as one example' is EUR-Lex only: compare Art. 25(1), 'appropriate technical and organisational measures, such as pseudonymisation'. S3 passes on the EDPB item (17 Jan 2025). S4 passes as the application of S3, but refers back to S1 and S2: if they cannot be confirmed, strike the paragraph whole rather than reword it."
+    },
+    {
+      "id": "workplace-and-impact-assessment",
+      "verdict": "miguel-to-confirm",
+      "struckSentences": [
+        "Where team members are employees, the Article 29 Working Party, the European Data Protection Board's predecessor, held in its 2017 opinion on data processing at work that consent is unlikely to be a valid legal basis, given the imbalance of power between employer and employee."
+      ],
+      "note": "S3 struck: the WP249 opinion (PDF, document 45631) returned unreadable compressed binary in both passes; only the item page and its date (23/06/2017) were opened. Not EUR-Lex, so the Miguel-to-confirm route does not apply. Delete the WP249 entry from sources too. S1 is EUR-Lex only; Miguel compares Art. 35(1): 'is likely to result in a high risk to the rights and freedoms of natural persons, the controller shall, prior to the processing, carry out an assessment of the impact'. S2 is EUR-Lex only; Miguel compares Art. 88(1), 'Member States may, by law or by collective agreements, provide for more specific rules ... in the employment context', and Art. 88(2), '... and monitoring systems at the work place'."
+    },
+    {
+      "id": "ai-act-conditions",
+      "verdict": "pass",
+      "struckSentences": [],
+      "note": "Every sentence passes on the opened Commission AI Act page (last updated 3 Aug 2026): Regulation (EU) 2024/1689 is named; applicable from 2 Aug 2026 ('with some exceptions', which S3-S4 cure); prohibitions from 2 Feb 2025, including emotion recognition in workplaces; employment and management of workers listed as high-risk; AI Omnibus in force 27 Jul 2026 (OJ:L_202601744 = 2026/1744); 2 Dec 2027 and 2 Aug 2028. S5 states a condition and gives no advice. Condition: the EUR-Lex source entries for 2024/1689 (publishedOn 2024-07-12) and 2026/1744 (publishedOn 2026-07-24) were never opened. Delete both, or Miguel confirms both dates."
+    },
+    {
+      "id": "pending-gdpr-amendment",
+      "verdict": "pass",
+      "struckSentences": [],
+      "note": "S2 passes on the EP Legislative Train (last updated 20/09/2026): COM(2025) 837 of 19 Nov 2025, status 'Tabled', GDPR amendment including 'Redefining personal data'. 'Not law' is supported. S3 passes on the EDPB news item (11 Feb 2026): 'Joint Opinion'; 'strongly urge the co-legislators not to adopt the proposed changes to the definition of personal data'; 'significantly narrowing the concept of personal data'. S1 and S4 are a link and a consequence. The Data Omnibus status (proposal) and the AI Omnibus status (in force) are stated accurately and kept distinct."
+    }
+  ],
+  "lists": [
+    {
+      "id": "open-web-sources-frozen",
+      "verdict": "pass",
+      "note": "M3-U1 (T, G3), M1-U16 (G3), M1-U13 (I, G3) and AUDIT-4 are real and not deferred, and back the dated link, the verification and the byte-for-byte regeneration. 'Public' and 'offline' (outside any viewer session) are backed by process and the Verifier's fetches, not by a test. Noted for Red-team."
+    },
+    {
+      "id": "no-viewer-data-stored-or-sent",
+      "verdict": "pass",
+      "note": "M10-U2 (T), M6-U9 (I), M6-U14 (I) and M10-U1 (T) back no storage, no cookie, no typed text in the URL (the trend screen is the only one with text fields; F5 is static) and no network."
+    },
+    {
+      "id": "no-live-ai",
+      "verdict": "pass",
+      "note": "M10-U1 (T), M10-U4 (I) and AUDIT-6 back no network code or remote reference, and content loaded only through contracts/load.js."
+    },
+    {
+      "id": "no-accounts-cookies-analytics",
+      "verdict": "pass",
+      "note": "M10-U1 backs no remote script, font or image and no request API; M10-U2 backs no cookie. 'No accounts' follows from the absence of any network call; no test names accounts directly."
+    },
+    {
+      "id": "own-data-ingestion",
+      "verdict": "pass",
+      "note": "M10-U1, M10-U4 and M10-U2 back the statement. 'It is argued below' holds only while at least one argument paragraph ships. If the argument freezes empty (F3-S3a), that phrase must be deleted."
+    },
+    {
+      "id": "cross-session-persistence",
+      "verdict": "pass",
+      "note": "M10-U2 (T) and M6-U9 (I) back it."
+    },
+    {
+      "id": "role-aware-model",
+      "verdict": "pass",
+      "note": "M8-U8 (T, I, G3) checks that no LogEntry has a role (the only shipped content whose schema admits one; pastJudgement is closed) and that no page code except contracts/validate.js reads .role. validate.js is exempted from the test; it validates the field and renders nothing from it. Architecture section 11 confirms 'designed for and not built'."
+    }
+  ]
+}
