@@ -48,7 +48,8 @@ than working around it.**
 | L5 | Implementation | Started 5 Oct 2026, tests first, alongside the G3 content run |
 
 **Re-planned 4 Oct 2026. Hard deadline: demo live on GitHub Pages by the morning of 7 Oct 2026.**
-**Next gate: G3** content freeze, 6 Oct morning; G4 system pass and deploy, 6 Oct evening. Decisions and the
+**Re-planned again 6 Oct 2026** (the overnight run did not run): the remaining G3 content run is overnight from 03:00 on 7 Oct; a new deadline of the morning of 8 Oct is proposed and awaits Miguel.
+**Next gate: G3** content freeze, 7 Oct morning; G4 system pass and deploy, 7 Oct. Decisions and the
 proposed defaults are in `docs/gates.md`; the day-by-day plan is in `docs/00-operating-manual.md`.
 
 Gate rule: no level starts before the level above it is approved by Miguel. Gates are decided by

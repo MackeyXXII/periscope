@@ -64,7 +64,8 @@ schedule (G2 on 19 Sept, build from 22 Sept) slipped while G2 waited for decisio
 | 4 Oct | Miguel decides the G2 items. Requirements Engineer and Architect apply them (F5 added, level names in). Test Engineer finishes the test plan and writes every unit test. Governance-author debate (Q-5). Red-team review | G2 |
 | 5 Oct | Persona dossier, scanning brief and replay candidates written in Claude Code. Runtime pipeline runs once: Scout, Trend Analyst, Rival Readers, Interrogator, Verifier, Brief Editor. Red-team review of the content. In parallel, M1, M9 and the M10 shell are built | G3 content freeze |
 | 6 Oct | Remaining modules built, tests first: M5, M6, M7, M8 and F5. Integration test, then system test at the four Q-7 viewports. Red-team audit. Deploy to GitHub Pages | G4 |
-| 7 Oct, morning | Rehearsal review as a hiring manager; fixes; final deploy. Demo shown at the Wels career fair on 7 and 8 Oct | G5 starts |
+| 6–7 Oct (re-plan of 6 Oct) | The 3 am run of 6 Oct did not work overnight. On 6 Oct the Scout stage, M9 and the M10 shell were finished; the rest of the pipeline and the Red-team review run overnight from 03:00 on 7 Oct; G3 on 7 Oct morning; M5 to M8, tests and G4 on 7 Oct; proposed: live by the morning of 8 Oct, pending Miguel | G3, G4 |
+| 7 Oct, morning (superseded by the line above) | Rehearsal review as a hiring manager; fixes; final deploy. Demo shown at the Wels career fair on 7 and 8 Oct | G5 starts |
 | After thesis interviews | Anonymised insights, under the consent clause, feed a second pass starting again at Level 1 | New G1 |
 
 If the build is behind at midday on 6 Oct, F3, F4 and F5 ship as static screens and F1 and F2
