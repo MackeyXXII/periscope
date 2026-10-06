@@ -12,9 +12,18 @@
       "sig-2026-09-22-new-relic-observability-forecast"
     ],
     "readings": [
-      { "lens": "opportunity", "readingId": "reading-ai-agents-in-observability-opportunity" },
-      { "lens": "threat", "readingId": "reading-ai-agents-in-observability-threat" },
-      { "lens": "noise", "readingId": "reading-ai-agents-in-observability-noise" }
+      {
+        "lens": "opportunity",
+        "readingId": "reading-ai-agents-in-observability-opportunity"
+      },
+      {
+        "lens": "threat",
+        "readingId": "reading-ai-agents-in-observability-threat"
+      },
+      {
+        "lens": "noise",
+        "readingId": "reading-ai-agents-in-observability-noise"
+      }
     ],
     "label": "ai-generated",
     "provenance": {
@@ -22,7 +31,10 @@
       "publisher": null,
       "publishedOn": null,
       "retrievedOn": null,
-      "producedBy": ["trend-analyst", "interrogator"],
+      "producedBy": [
+        "trend-analyst",
+        "interrogator"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -30,7 +42,7 @@
   {
     "id": "trend-eu-austrian-data-and-security-dates",
     "title": "EU and Austrian rules on data and security reach set dates",
-    "summary": "Between July and September 2026, three regulatory signals set or restated dates for rules on personal data and cybersecurity. On 8 July the European Data Protection Board adopted Guidelines 02/2026 on Anonymisation, under which data counts as anonymous only if it allows no isolation of records, no linkage and no inference; public consultation runs until 30 October 2026. On 27 July the European Commission published non-binding guidance on the Cyber Resilience Act, covering remote data processing solutions, free and open-source software and support periods, and restated that reporting obligations apply from 11 September 2026 and the main obligations from 11 December 2027. On 8 September the Austrian business service portal announced that the NISG 2026 enters into force on 1 October 2026, with initial registration of affected entities due by 1 January 2027 and incident reporting applying from entry into force. The movement spans about two months of publication and rests on three signals, all from public authorities; the dates they name run from September 2026 to December 2027.",
+    "summary": "Between July and September 2026, three regulatory signals set or restated dates for rules on personal data and cybersecurity. On 8 July the European Data Protection Board adopted guidelines on anonymisation, under which data counts as anonymous only if it allows no isolation of records, no linkage and no inference; public consultation runs until 30 October 2026. On 27 July the European Commission published non-binding guidance on the Cyber Resilience Act, covering remote data processing solutions, free and open-source software and support periods, and restated that reporting obligations apply from 11 September 2026 and the main obligations from 11 December 2027. On 8 September the Austrian business service portal announced that the NISG 2026 enters into force on 1 October 2026, with initial registration of affected entities due by 1 January 2027 and incident reporting applying from entry into force. The movement spans about two months of publication and rests on three signals, all from public authorities; the dates they name run from September 2026 to December 2027.",
     "intuitionPrompt": "EU and Austrian rules on data and security now carry fixed dates. Before you see any reading, what is your gut call on what this means for Tracewell, and why, in one line?",
     "signalIds": [
       "sig-2026-07-08-edpb-anonymisation-guidelines",
@@ -38,9 +50,18 @@
       "sig-2026-09-08-austria-nis2-implementation-starts"
     ],
     "readings": [
-      { "lens": "opportunity", "readingId": "reading-eu-austrian-data-and-security-dates-opportunity" },
-      { "lens": "threat", "readingId": "reading-eu-austrian-data-and-security-dates-threat" },
-      { "lens": "noise", "readingId": "reading-eu-austrian-data-and-security-dates-noise" }
+      {
+        "lens": "opportunity",
+        "readingId": "reading-eu-austrian-data-and-security-dates-opportunity"
+      },
+      {
+        "lens": "threat",
+        "readingId": "reading-eu-austrian-data-and-security-dates-threat"
+      },
+      {
+        "lens": "noise",
+        "readingId": "reading-eu-austrian-data-and-security-dates-noise"
+      }
     ],
     "label": "ai-generated",
     "provenance": {
@@ -48,7 +69,10 @@
       "publisher": null,
       "publishedOn": null,
       "retrievedOn": null,
-      "producedBy": ["trend-analyst", "interrogator"],
+      "producedBy": [
+        "trend-analyst",
+        "interrogator"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -64,9 +88,18 @@
       "sig-2026-09-22-otel-prometheus-interoperability-survey"
     ],
     "readings": [
-      { "lens": "opportunity", "readingId": "reading-opentelemetry-default-collection-opportunity" },
-      { "lens": "threat", "readingId": "reading-opentelemetry-default-collection-threat" },
-      { "lens": "noise", "readingId": "reading-opentelemetry-default-collection-noise" }
+      {
+        "lens": "opportunity",
+        "readingId": "reading-opentelemetry-default-collection-opportunity"
+      },
+      {
+        "lens": "threat",
+        "readingId": "reading-opentelemetry-default-collection-threat"
+      },
+      {
+        "lens": "noise",
+        "readingId": "reading-opentelemetry-default-collection-noise"
+      }
     ],
     "label": "ai-generated",
     "provenance": {
@@ -74,7 +107,10 @@
       "publisher": null,
       "publishedOn": null,
       "retrievedOn": null,
-      "producedBy": ["trend-analyst", "interrogator"],
+      "producedBy": [
+        "trend-analyst",
+        "interrogator"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -89,9 +125,18 @@
       "sig-2026-09-07-dash0-signalcontrol"
     ],
     "readings": [
-      { "lens": "opportunity", "readingId": "reading-telemetry-reduction-before-storage-opportunity" },
-      { "lens": "threat", "readingId": "reading-telemetry-reduction-before-storage-threat" },
-      { "lens": "noise", "readingId": "reading-telemetry-reduction-before-storage-noise" }
+      {
+        "lens": "opportunity",
+        "readingId": "reading-telemetry-reduction-before-storage-opportunity"
+      },
+      {
+        "lens": "threat",
+        "readingId": "reading-telemetry-reduction-before-storage-threat"
+      },
+      {
+        "lens": "noise",
+        "readingId": "reading-telemetry-reduction-before-storage-noise"
+      }
     ],
     "label": "ai-generated",
     "provenance": {
@@ -99,7 +144,10 @@
       "publisher": null,
       "publishedOn": null,
       "retrievedOn": null,
-      "producedBy": ["trend-analyst", "interrogator"],
+      "producedBy": [
+        "trend-analyst",
+        "interrogator"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }

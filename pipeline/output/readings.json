@@ -218,7 +218,7 @@
         "signalId": "sig-2026-07-27-commission-cra-guidance"
       },
       {
-        "claim": "The EDPB's Guidelines 02/2026 on Anonymisation are open for public consultation until 30 October 2026; the signals do not show what the text will say once the consultation ends.",
+        "claim": "The EDPB's guidelines on anonymisation are open for public consultation until 30 October 2026; the signals do not show what the text will say once the consultation ends.",
         "source": {
           "url": "https://www.edpb.europa.eu/news/edpb-sheds-light-on-anonymisation-and-web-scraping-for-generative-ai-and-adopts-final-version_en",
           "publisher": "EDPB",
@@ -352,7 +352,7 @@
         "signalId": "sig-2026-07-27-commission-cra-guidance"
       },
       {
-        "claim": "The EDPB's Guidelines 02/2026 on Anonymisation treat data as anonymous only if it allows no isolation of records, no linkage and no inference, and replace the 2014 Article 29 Working Party opinion.",
+        "claim": "The EDPB's guidelines on anonymisation treat data as anonymous only if it allows no isolation of records, no linkage and no inference.",
         "source": {
           "url": "https://www.edpb.europa.eu/news/edpb-sheds-light-on-anonymisation-and-web-scraping-for-generative-ai-and-adopts-final-version_en",
           "publisher": "EDPB",

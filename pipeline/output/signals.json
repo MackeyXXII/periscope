@@ -4,7 +4,7 @@
     "title": "EDPB sheds light on anonymisation and web scraping for generative AI and adopts final version of guidelines on blockchain",
     "sourceLanguage": "en",
     "summary": {
-      "text": "At its July 2026 plenary the European Data Protection Board adopted Guidelines 02/2026 on Anonymisation, replacing the 2014 Article 29 Working Party opinion. Data counts as anonymous only if it passes three criteria: no record isolation, no linkage and no inference, assessed through either a contextual or a simplified approach. The guidelines are open for public consultation until 30 October 2026.",
+      "text": "At its July 2026 plenary the European Data Protection Board adopted guidelines on anonymisation. Data counts as anonymous only if it passes three criteria: no record isolation, no linkage and no inference, assessed through either a contextual or a simplified approach. The guidelines are open for public consultation until 30 October 2026.",
       "label": "ai-generated"
     },
     "relevanceNote": {
@@ -17,7 +17,9 @@
       "publisher": "EDPB",
       "publishedOn": "2026-07-08",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -40,7 +42,9 @@
       "publisher": "European Commission",
       "publishedOn": "2026-07-27",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -63,7 +67,9 @@
       "publisher": "Grafana Labs",
       "publishedOn": "2026-07-27",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -86,7 +92,9 @@
       "publisher": "Grafana Labs",
       "publishedOn": "2026-08-04",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -109,7 +117,9 @@
       "publisher": "Datadog",
       "publishedOn": "2026-08-06",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -132,7 +142,9 @@
       "publisher": "ORF",
       "publishedOn": "2026-08-13",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -146,7 +158,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "The incumbent with its main R&D site in Linz is buying into observability of AI systems, one of the technology shifts the brief asks the Scout to watch.",
+      "text": "Dynatrace is buying into observability of AI systems, one of the technology shifts the brief asks the Scout to watch.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -155,7 +167,9 @@
       "publisher": "Dynatrace",
       "publishedOn": "2026-08-13",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -178,7 +192,9 @@
       "publisher": "Elastic",
       "publishedOn": "2026-08-17",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -201,7 +217,9 @@
       "publisher": "Dash0",
       "publishedOn": "2026-09-07",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -224,7 +242,9 @@
       "publisher": "Unternehmensserviceportal (USP)",
       "publishedOn": "2026-09-08",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -238,7 +258,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "This is the first reported figure on Chronosphere inside Palo Alto Networks, the consolidation the brief asks the Scout to follow.",
+      "text": "The figure concerns Chronosphere inside Palo Alto Networks, the consolidation the brief asks the Scout to follow.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -247,7 +267,9 @@
       "publisher": "The Motley Fool",
       "publishedOn": "2026-09-08",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -270,7 +292,9 @@
       "publisher": "tech2b",
       "publishedOn": "2026-09-10",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -293,7 +317,9 @@
       "publisher": "OpenTelemetry",
       "publishedOn": "2026-09-16",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -303,7 +329,7 @@
     "title": "Observe, Evaluate, and Guardrail Your AI Agents With Agent Observability",
     "sourceLanguage": "en",
     "summary": {
-      "text": "Splunk, part of Cisco, described Agent Observability, a product for evaluating, tracing and guarding AI agents, with token and cost tracking across coding agents and LLM providers and support for OpenTelemetry-based tracing. It builds on Cisco's acquisition of Galileo earlier in 2026 and is offered on premises, in Splunk Observability Cloud and through Cisco Cloud Control.",
+      "text": "Splunk, part of Cisco, described Agent Observability, a product for evaluating, tracing and guarding AI agents, with support for OpenTelemetry-based tracing. It builds on Cisco's acquisition of Galileo earlier in 2026 and is offered on premises, in Splunk Observability Cloud and through Cisco Cloud Control.",
       "label": "ai-generated"
     },
     "relevanceNote": {
@@ -316,7 +342,9 @@
       "publisher": "Splunk",
       "publishedOn": "2026-09-18",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -339,7 +367,9 @@
       "publisher": "New Relic",
       "publishedOn": "2026-09-22",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -362,7 +392,9 @@
       "publisher": "OpenTelemetry",
       "publishedOn": "2026-09-22",
       "retrievedOn": "2026-10-06",
-      "producedBy": ["scout"],
+      "producedBy": [
+        "scout"
+      ],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
