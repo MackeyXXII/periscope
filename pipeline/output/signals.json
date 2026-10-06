@@ -208,7 +208,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "An OpenTelemetry-native start-up Tracewell watches now bills a small ingestion fee plus storage for retained telemetry only, tied to its own volume-reduction pipeline.",
+      "text": "Dash0, an OpenTelemetry-native start-up, now bills a small ingestion fee plus storage for retained telemetry only, tied to a pipeline that cuts volume before storage, as Tracewell's own pipeline does.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -233,7 +233,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "Whether Tracewell's pilot customers in Upper Austria fall under the NISG 2026 bears on what they may ask of their software suppliers, and this sets the dates.",
+      "text": "Whether Tracewell's pilot customers in Upper Austria fall under the NISG 2026 bears on what they may ask of their software suppliers, and this sets out the dates.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -333,7 +333,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "Cisco, a competitor Tracewell watches, now offers observability of AI agents, one of the technology shifts Tracewell follows.",
+      "text": "Cisco, one of the principal competitors Dynatrace names in its annual report, now offers observability of AI agents through Splunk, with OpenTelemetry-based tracing, the format Tracewell's pipeline takes in.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -358,7 +358,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "A vendor survey on how many tools teams run and whether they watch their AI agents bears on how engineering teams choose observability, a question Tracewell follows.",
+      "text": "A vendor survey on how many observability tools teams run and whether they monitor their AI agents bears on how software teams, the buyers Tracewell sells to, choose observability.",
       "label": "ai-generated"
     },
     "label": "real",
@@ -383,7 +383,7 @@
       "label": "ai-generated"
     },
     "relevanceNote": {
-      "text": "Prometheus and OpenTelemetry interoperability is a shift Tracewell watches, and this survey reports how teams combine the two in practice.",
+      "text": "Tracewell's pipeline takes in telemetry that customers emit through OpenTelemetry, and this survey reports how teams combine OpenTelemetry with Prometheus in practice.",
       "label": "ai-generated"
     },
     "label": "real",

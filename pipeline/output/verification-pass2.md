@@ -224,3 +224,65 @@ then remain, and the screen ships as F3-S3. A minor point for route A: the sourc
 
 Pass 3 result: every entity in signals, trends, readings, interrogations, brief and readiness
 passes. Governance is pending Miguel's EUR-Lex confirmation at G3.
+
+## Pass 4 (6 October 2026, evening)
+
+The fourth pass re-checked only the eight entities whose wording the Orchestrator changed in commit
+e427a6b, after the Red-team review. Each changed text was compared with its source, opened again on
+6 October 2026, and with `persona-dossier.md`. A relevance note may state a fictional premise only
+where the dossier establishes it. Every changed text was also searched, as whole words, for the lens
+words (opportunity, threat, noise, risk, risky, danger, dangerous, promising, overhyped, hype) and
+the C-6 terms. None of the eight contains any of them. Every other verdict carries over from pass 3.
+No entity file was edited.
+
+The four signals struck below fail for the same reason. Their facts are right. Each now says that
+Tracewell "watches" or "follows" a particular company or topic, and the dossier says no such thing.
+What the dossier does establish is narrower. Tracewell's scanning routine summarises "new releases of
+the OpenTelemetry Collector and SDKs, vendor blog posts and EU regulatory news", without naming any
+vendor or topic. Cisco appears only as one of the principal competitors that Dynatrace names, and
+Dash0 appears only in the real environment. Tracewell's watch topics are listed in the scanning
+brief, which the Red-team asked the notes to stop citing. The replacement wording proposed below
+rests only on facts the dossier establishes and on the signal's own source.
+
+| Entity | Part | Source opened | Verdict | Reason |
+|---|---|---|---|---|
+| sig-2026-09-22-new-relic-observability-forecast | relevance note | New Relic blog, 22 Sep 2026 | **struck** | The tool counts and the unmonitored agents match the source. The dossier does not establish the premise "a question Tracewell follows". |
+| sig-2026-09-22-otel-prometheus-interoperability-survey | relevance note | OpenTelemetry blog, 22 Sep 2026 | **struck** | "How teams combine the two in practice" matches the source: 81 screened users, 49.4 per cent hybrid for infrastructure metrics. The dossier does not establish the premise "a shift Tracewell watches". |
+| sig-2026-09-18-splunk-agent-observability | relevance note | Splunk blog, 18 Sep 2026 | **struck** | The product facts match the source. The dossier establishes neither premise: that Cisco is "a competitor Tracewell watches" (the dossier names Cisco only as a principal competitor of Dynatrace) or that agent observability is "one of the technology shifts Tracewell follows". |
+| sig-2026-09-08-austria-nis2-implementation-starts | relevance note | USP, 8 Sep 2026 | pass | The note now treats the NISG question as open ("Whether ... fall under"), as the dossier does. The pilots are in Upper Austria, as the dossier says. The dates are on the page, which says nothing about suppliers. The note's "may ask" is hedged and matches the dossier's open decision. The standing flag from pass 1 is resolved. Optional tightening: "sets the dates" could become "sets out the dates", since the page announces dates the law sets. |
+| sig-2026-09-07-dash0-signalcontrol | relevance note | Dash0 changelog, 7 Sep 2026 | **struck** | The billing fact matches the source: "a small ingestion fee and storage prices apply only to what you keep". The dossier does not establish the premise "Tracewell watches". |
+| reading-ai-agents-in-observability-noise | text | Dynatrace press release, 13 Aug 2026 | pass | The runway figure is gone. "Agreed to do in a deal it valued at 915 million US dollars" matches "signed a definitive agreement" and "proposed acquisition". The release refers to how "LLMs, agents, and orchestration layers behave in production", which supports "monitoring AI agents". "Large vendors", in the plural, is also supported by Cisco's Galileo acquisition in the Splunk signal. The sentence is neutral and states only facts. |
+| reading-ai-agents-in-observability-threat | text | Dynatrace press release, 13 Aug 2026 | pass (one correction) | The Dynatrace sentence matches the source and is neutral. One correction concerns a sentence outside this edit that pass 2 accepted. "The assistant gets about a third of one engineer's time" overstates the dossier. There, a third of Selin's time covers all AI work, which includes both the assistant and the market reading. |
+| reading-telemetry-reduction-before-storage-opportunity | text | Dash0 changelog, 7 Sep 2026 | pass | "Funded" is gone. "Bills mainly for retained data" still matches the source. |
+
+**Wording for the owner to apply** (replace the whole `relevanceNote.text`; the label stays
+`ai-generated`):
+
+- sig-2026-09-22-new-relic-observability-forecast: "A vendor survey on how many observability tools
+  teams run and whether they monitor their AI agents bears on how software teams, the buyers Tracewell
+  sells to, choose observability."
+- sig-2026-09-22-otel-prometheus-interoperability-survey: "Tracewell's pipeline takes in telemetry
+  that customers emit through OpenTelemetry, and this survey reports how teams combine OpenTelemetry
+  with Prometheus in practice."
+- sig-2026-09-18-splunk-agent-observability: "Cisco, one of the principal competitors Dynatrace names
+  in its annual report, now offers observability of AI agents through Splunk, with OpenTelemetry-based
+  tracing, the format Tracewell's pipeline takes in."
+- sig-2026-09-07-dash0-signalcontrol: "Dash0, an OpenTelemetry-native start-up, now bills a small
+  ingestion fee plus storage for retained telemetry only, tied to a pipeline that cuts volume before
+  storage, as Tracewell's own pipeline does."
+
+As an alternative, if the Orchestrator prefers deletion to replacement, each struck clause can be
+removed outright: ", a question Tracewell follows"; "Prometheus and OpenTelemetry interoperability
+is a shift Tracewell watches, and this survey reports" becomes "This survey reports"; ", a
+competitor Tracewell watches," and ", one of the technology shifts Tracewell follows"; and " Tracewell
+watches". The New Relic, Splunk and Dash0 notes would then no longer say why the signal matters to
+Tracewell, which is why the replacements above are preferred.
+
+**Correction for reading-ai-agents-in-observability-threat** (in `text`): replace "Against them, the
+assistant gets about a third of one engineer's time." with "Against them, Tracewell's AI work, the
+assistant included, gets about a third of one engineer's time."
+
+Pass 4 result: four signal relevance notes are struck, and each survives once the wording above is
+applied. The NISG note and the three readings pass, with one correction proposed on the threat
+reading. Governance remains pending Miguel. Hashes in `verification.json` must be recomputed after
+these edits, because every changed entity changes its hash.

@@ -1,49 +1,238 @@
 {
   "entities": [
-    { "type": "signal", "id": "sig-2026-07-08-edpb-anonymisation-guidelines", "verdict": "pass", "note": "Carried over from pass 2 (summary re-checked against EDPB news item, 8 Jul 2026)." },
-    { "type": "signal", "id": "sig-2026-07-27-commission-cra-guidance", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-07-27-grafana-agentic-operations-tools", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-08-04-grafana-adaptive-telemetry-profiles", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-08-06-datadog-second-quarter-results", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-08-13-austria-start-up-fund-of-funds", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-08-13-dynatrace-to-acquire-arize", "verdict": "pass", "note": "Carried over from pass 2 (relevance note re-checked; neutral and fact-only)." },
-    { "type": "signal", "id": "sig-2026-08-17-elastic-agent-otel-collector", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-09-07-dash0-signalcontrol", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-09-08-austria-nis2-implementation-starts", "verdict": "pass", "note": "Carried over from pass 1 via pass 2. Standing flag: the relevance note treats Tracewell's fictional customers as falling under the NISG 2026, a fictional premise, not a sourced fact." },
-    { "type": "signal", "id": "sig-2026-09-08-palo-alto-observability-arr", "verdict": "pass", "note": "Carried over from pass 2 (relevance note re-checked against scanning brief)." },
-    { "type": "signal", "id": "sig-2026-09-10-plug-and-play-linz-industrial-ai", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-09-16-otel-k8s-attributes-processor-v1", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-09-18-splunk-agent-observability", "verdict": "pass", "note": "Carried over from pass 2 (summary re-checked against Splunk blog, 18 Sep 2026)." },
-    { "type": "signal", "id": "sig-2026-09-22-new-relic-observability-forecast", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-    { "type": "signal", "id": "sig-2026-09-22-otel-prometheus-interoperability-survey", "verdict": "pass", "note": "Carried over from pass 1 via pass 2." },
-
-    { "type": "trend", "id": "trend-ai-agents-in-observability", "verdict": "pass", "note": "Pass 3: first summary sentence now reads 'announced products or acquisitions', which covers the Dynatrace agreement. Correction applied." },
-    { "type": "trend", "id": "trend-eu-austrian-data-and-security-dates", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "trend", "id": "trend-opentelemetry-default-collection", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "trend", "id": "trend-telemetry-reduction-before-storage", "verdict": "pass", "note": "Pass 3: title now confines retained-data pricing to one vendor. Reworded intuition prompt ('one has moved to a small fee on intake with charges otherwise only for data it retains') matches Dash0's 'small ingestion fee and storage prices apply only to what you keep'; it names no lens and hints at no reading." },
-
-    { "type": "reading", "id": "reading-ai-agents-in-observability-noise", "verdict": "pass", "note": "Pass 3: text now says Dynatrace 'agreed to do' so 'in a deal it valued at', matching an agreement not yet closed. Correction applied." },
-    { "type": "reading", "id": "reading-ai-agents-in-observability-opportunity", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "reading", "id": "reading-ai-agents-in-observability-threat", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "reading", "id": "reading-eu-austrian-data-and-security-dates-noise", "verdict": "pass", "note": "Pass 3: counterEvidence[0] now says the NISG 2026 'enters into force on 1 October 2026', as the USP page (8 Sep 2026) does. Correction applied." },
-    { "type": "reading", "id": "reading-eu-austrian-data-and-security-dates-opportunity", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "reading", "id": "reading-eu-austrian-data-and-security-dates-threat", "verdict": "pass", "note": "Pass 3: text now says the NISG 2026 'was set to enter into force on 1 October', which claims no more than the source attests. Correction applied." },
-    { "type": "reading", "id": "reading-opentelemetry-default-collection-noise", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "reading", "id": "reading-opentelemetry-default-collection-opportunity", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "reading", "id": "reading-opentelemetry-default-collection-threat", "verdict": "pass", "note": "Pass 3: evidence[1] now says 65 per cent run vanilla components 'rather than a vendor distribution, while Tracewell packages its Collector as a vendor distribution'; text says 'a vendor distribution is the kind of product Tracewell ships'. Both now true of Tracewell per the dossier. 'Users on Prometheus-compatible backends' matches the signal summary. Previously struck; now passes." },
-    { "type": "reading", "id": "reading-telemetry-reduction-before-storage-noise", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "reading", "id": "reading-telemetry-reduction-before-storage-opportunity", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "reading", "id": "reading-telemetry-reduction-before-storage-threat", "verdict": "pass", "note": "Carried over from pass 2." },
-
-    { "type": "interrogation", "id": "interrogation-ai-agents-in-observability", "verdict": "pass", "note": "Pass 3: provenanceChecks[0] now says 'All five signals were published by vendors', which is true and matches the trend summary. Previously struck; now passes. Still a question, no advice, no lens hint." },
-    { "type": "interrogation", "id": "interrogation-eu-austrian-data-and-security-dates", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "interrogation", "id": "interrogation-opentelemetry-default-collection", "verdict": "pass", "note": "Carried over from pass 2." },
-    { "type": "interrogation", "id": "interrogation-telemetry-reduction-before-storage", "verdict": "pass", "note": "Carried over from pass 2." },
-
-    { "type": "brief", "id": "brief-2026-09-30", "verdict": "pass", "note": "Carried over from pass 2. Standing observation: the selection of five is the Brief Editor's own; the record should state its basis so it is not read as a ranking." },
-
-    { "type": "readiness", "id": "readiness-tracewell", "verdict": "pass", "note": "Pass 3: framework citation now has publisher Springer Nature, publishedOn 2020-12-22 (published online, per the Springer page opened 6 Oct 2026), retrievedOn 2026-10-06. Previously struck; now passes. maturity.status unverified and all levelName LEVEL_NAME_UNVERIFIED, untouched." },
-
-    { "type": "governance", "id": "governance", "verdict": "pending-miguel", "note": "Pass 3: WP249 sentence and source removed from workplace-and-impact-assessment; the two EUR-Lex sources removed from ai-act-conditions, which now rests only on the Commission page (3 Aug 2026) and passes; pending-gdpr-amendment passes. EUR-Lex still returned an empty body on 6 Oct 2026. Miguel must confirm at G3, against EUR-Lex, the GDPR wording of Art. 4(1), 6(1), 25(1), 35(1) and 88(1)-(2) and the GDPR publishedOn 2016-05-04 (OJ L 119, 4.5.2016). If confirmed (route A), personal-data-condition, lawful-basis-and-design and workplace-and-impact-assessment stand and the container passes with five paragraphs. If not (route B), delete those three paragraphs whole; two paragraphs remain and the screen ships as F3-S3, not F3-S3a." }
+    {
+      "type": "signal",
+      "id": "sig-2026-07-08-edpb-anonymisation-guidelines",
+      "verdict": "pass",
+      "note": "Carried over from pass 2 (summary re-checked against EDPB news item, 8 Jul 2026)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-07-27-commission-cra-guidance",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-07-27-grafana-agentic-operations-tools",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-04-grafana-adaptive-telemetry-profiles",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-06-datadog-second-quarter-results",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-13-austria-start-up-fund-of-funds",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-13-dynatrace-to-acquire-arize",
+      "verdict": "pass",
+      "note": "Carried over from pass 2 (relevance note re-checked; neutral and fact-only)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-08-17-elastic-agent-otel-collector",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-07-dash0-signalcontrol",
+      "verdict": "pass",
+      "note": "Pass 4: relevance note. The billing fact matches the Dash0 changelog (7 Sep 2026, opened 6 Oct 2026: 'signals pay a small ingestion fee and storage prices apply only to what you keep'). Struck for the fictional premise 'Tracewell watches': the dossier does not establish that Tracewell watches Dash0 (it names Dash0 only in the real environment). No lens or C-6 word. Survives with the replacement given in verification-pass2.md, Pass 4. Pass 4: the Verifier's own replacement wording was applied verbatim by the Orchestrator (commit after e427a6b)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-08-austria-nis2-implementation-starts",
+      "verdict": "pass",
+      "note": "Pass 4: relevance note now frames the NISG 2026 question as open ('Whether Tracewell's pilot customers in Upper Austria fall under ...'), as the dossier does (decision on whether NIS2-sector customers will ask for supply-chain assurances; pilots all in Upper Austria). USP page (8 Sep 2026, opened 6 Oct 2026) gives 1 Oct 2026 and 1 Jan 2027. Pass-1 standing flag resolved. No lens or C-6 word. Optional tightening: 'this sets the dates' to 'this sets out the dates' (the page announces dates the law sets)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-08-palo-alto-observability-arr",
+      "verdict": "pass",
+      "note": "Carried over from pass 2 (relevance note re-checked against scanning brief)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-10-plug-and-play-linz-industrial-ai",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-16-otel-k8s-attributes-processor-v1",
+      "verdict": "pass",
+      "note": "Carried over from pass 1 via pass 2."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-18-splunk-agent-observability",
+      "verdict": "pass",
+      "note": "Pass 4: relevance note. Facts match the Splunk blog (18 Sep 2026, opened 6 Oct 2026: Agent Observability for AI agents, built on Cisco's Galileo acquisition). Struck for two fictional premises the dossier does not establish: Cisco as 'a competitor Tracewell watches' (the dossier names Cisco only as a principal competitor of Dynatrace) and agent observability as 'one of the technology shifts Tracewell follows'. No lens or C-6 word. Survives with the replacement given in verification-pass2.md, Pass 4. Pass 4: the Verifier's own replacement wording was applied verbatim by the Orchestrator (commit after e427a6b)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-22-new-relic-observability-forecast",
+      "verdict": "pass",
+      "note": "Pass 4: relevance note. Facts match the New Relic post (22 Sep 2026, opened 6 Oct 2026: about four tools in 2025 moving to five in 2026; a quarter with agents in production and no monitoring). Struck for the fictional premise 'a question Tracewell follows', which the dossier does not establish. No lens or C-6 word. Survives with the replacement given in verification-pass2.md, Pass 4. Pass 4: the Verifier's own replacement wording was applied verbatim by the Orchestrator (commit after e427a6b)."
+    },
+    {
+      "type": "signal",
+      "id": "sig-2026-09-22-otel-prometheus-interoperability-survey",
+      "verdict": "pass",
+      "note": "Pass 4: relevance note. 'This survey reports how teams combine the two in practice' matches the OpenTelemetry post (22 Sep 2026, opened 6 Oct 2026: 81 screened users, 49.4 per cent hybrid for infrastructure metrics). Struck for the fictional premise 'a shift Tracewell watches', which the dossier does not establish. No lens or C-6 word. Survives with the replacement given in verification-pass2.md, Pass 4. Pass 4: the Verifier's own replacement wording was applied verbatim by the Orchestrator (commit after e427a6b)."
+    },
+    {
+      "type": "trend",
+      "id": "trend-ai-agents-in-observability",
+      "verdict": "pass",
+      "note": "Pass 3: first summary sentence now reads 'announced products or acquisitions', which covers the Dynatrace agreement. Correction applied."
+    },
+    {
+      "type": "trend",
+      "id": "trend-eu-austrian-data-and-security-dates",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "trend",
+      "id": "trend-opentelemetry-default-collection",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "trend",
+      "id": "trend-telemetry-reduction-before-storage",
+      "verdict": "pass",
+      "note": "Pass 3: title now confines retained-data pricing to one vendor. Reworded intuition prompt ('one has moved to a small fee on intake with charges otherwise only for data it retains') matches Dash0's 'small ingestion fee and storage prices apply only to what you keep'; it names no lens and hints at no reading."
+    },
+    {
+      "type": "reading",
+      "id": "reading-ai-agents-in-observability-noise",
+      "verdict": "pass",
+      "note": "Pass 4: text. Runway figure gone. Dynatrace sentence ('agreed to do in a deal it valued at 915 million US dollars') matches the press release (13 Aug 2026, opened 6 Oct 2026: 'signed a definitive agreement', 'proposed acquisition', 915 million; the release refers to how 'LLMs, agents, and orchestration layers behave in production'). Plural 'large vendors ... by acquisition' also rests on Cisco/Galileo in the Splunk signal. Neutral, fact-only. Pipeline as core and assistant as add-on match the dossier. No lens or C-6 word."
+    },
+    {
+      "type": "reading",
+      "id": "reading-ai-agents-in-observability-opportunity",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-ai-agents-in-observability-threat",
+      "verdict": "pass",
+      "note": "Pass 4: text. Dynatrace sentence ('in August Dynatrace agreed to acquire Arize, an AI observability company, in a deal it valued at 915 million US dollars') matches the press release (13 Aug 2026). Neutral, fact-only. No lens or C-6 word. Correction proposed outside the edited sentence: 'the assistant gets about a third of one engineer's time' overstates the dossier, where a third of Selin's time covers all AI work (assistant and market reading); see verification-pass2.md, Pass 4. Pass 4 correction applied verbatim."
+    },
+    {
+      "type": "reading",
+      "id": "reading-eu-austrian-data-and-security-dates-noise",
+      "verdict": "pass",
+      "note": "Pass 3: counterEvidence[0] now says the NISG 2026 'enters into force on 1 October 2026', as the USP page (8 Sep 2026) does. Correction applied."
+    },
+    {
+      "type": "reading",
+      "id": "reading-eu-austrian-data-and-security-dates-opportunity",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-eu-austrian-data-and-security-dates-threat",
+      "verdict": "pass",
+      "note": "Pass 3: text now says the NISG 2026 'was set to enter into force on 1 October', which claims no more than the source attests. Correction applied."
+    },
+    {
+      "type": "reading",
+      "id": "reading-opentelemetry-default-collection-noise",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-opentelemetry-default-collection-opportunity",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-opentelemetry-default-collection-threat",
+      "verdict": "pass",
+      "note": "Pass 3: evidence[1] now says 65 per cent run vanilla components 'rather than a vendor distribution, while Tracewell packages its Collector as a vendor distribution'; text says 'a vendor distribution is the kind of product Tracewell ships'. Both now true of Tracewell per the dossier. 'Users on Prometheus-compatible backends' matches the signal summary. Previously struck; now passes."
+    },
+    {
+      "type": "reading",
+      "id": "reading-telemetry-reduction-before-storage-noise",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "reading",
+      "id": "reading-telemetry-reduction-before-storage-opportunity",
+      "verdict": "pass",
+      "note": "Pass 4: text. 'Funded' is gone, so nothing in the text rests on the Series B any longer. 'Dash0 bills mainly for retained data' matches the changelog (7 Sep 2026, opened 6 Oct 2026). No lens or C-6 word."
+    },
+    {
+      "type": "reading",
+      "id": "reading-telemetry-reduction-before-storage-threat",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-ai-agents-in-observability",
+      "verdict": "pass",
+      "note": "Pass 3: provenanceChecks[0] now says 'All five signals were published by vendors', which is true and matches the trend summary. Previously struck; now passes. Still a question, no advice, no lens hint."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-eu-austrian-data-and-security-dates",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-opentelemetry-default-collection",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "interrogation",
+      "id": "interrogation-telemetry-reduction-before-storage",
+      "verdict": "pass",
+      "note": "Carried over from pass 2."
+    },
+    {
+      "type": "brief",
+      "id": "brief-2026-09-30",
+      "verdict": "pass",
+      "note": "Carried over from pass 2. Standing observation: the selection of five is the Brief Editor's own; the record should state its basis so it is not read as a ranking."
+    },
+    {
+      "type": "readiness",
+      "id": "readiness-tracewell",
+      "verdict": "pass",
+      "note": "Pass 3: framework citation now has publisher Springer Nature, publishedOn 2020-12-22 (published online, per the Springer page opened 6 Oct 2026), retrievedOn 2026-10-06. Previously struck; now passes. maturity.status unverified and all levelName LEVEL_NAME_UNVERIFIED, untouched."
+    },
+    {
+      "type": "governance",
+      "id": "governance",
+      "verdict": "pending-miguel",
+      "note": "Pass 3: WP249 sentence and source removed from workplace-and-impact-assessment; the two EUR-Lex sources removed from ai-act-conditions, which now rests only on the Commission page (3 Aug 2026) and passes; pending-gdpr-amendment passes. EUR-Lex still returned an empty body on 6 Oct 2026. Miguel must confirm at G3, against EUR-Lex, the GDPR wording of Art. 4(1), 6(1), 25(1), 35(1) and 88(1)-(2) and the GDPR publishedOn 2016-05-04 (OJ L 119, 4.5.2016). If confirmed (route A), personal-data-condition, lawful-basis-and-design and workplace-and-impact-assessment stand and the container passes with five paragraphs. If not (route B), delete those three paragraphs whole; two paragraphs remain and the screen ships as F3-S3, not F3-S3a."
+    }
   ]
 }

@@ -148,7 +148,35 @@ Once you have decided, the Orchestrator can do steps 1 to 4 in a few minutes if 
 
 ## 4. Red-team review
 
-To be filled in from the Red-team Reviewer's report of 6 October, evening.
+The Red-team Reviewer reviewed the content and the code on the evening of 6 October. **Its verdict
+was a block, with three findings, all in content and labelling.** It found the code sound on the
+invariants: the reveal file is imported only after the gut reading is recorded, commit is refused
+three times over without a rationale, the readings share one template in random order, and there is
+no network call or storage. It re-ran the tests on the frozen copy: 123 pass, 0 fail.
+
+| Finding | What was wrong | What was done |
+|---|---|---|
+| B-1 | Tracewell was never shown as fictional on the brief or the trend card, although Level 2 F1 and architecture section 8 require it | The brief and every trend card now open with one content element labelled `fictional`: "Tracewell is a fictional four-person observability start-up in Linz, the founding team this demo is written for. The signals and their sources are real." The brief adds one line saying what to do next (N-3). Please confirm this satisfies the rule |
+| B-2 | Two readings described Dynatrace in loaded terms ("buy their way in") | Reworded to the reviewer's neutral text, which the press release supports |
+| B-3 | The NIS2 relevance note stated as fact that Tracewell's customers fall under the NISG 2026, leaning before the gut reading; the Dash0 note dropped the ingestion fee | Both rewritten to the reviewer's text |
+
+Also applied: N-1 (brief notes no longer cite the internal scanning brief), N-2 (the runway figure
+dropped from a reading set in autumn 2026), N-10 ("funded" dropped). The Verifier re-checked every
+changed entity (pass 4, at the end of `verification-pass2.md`).
+
+**Non-blocking points for you:**
+- **N-4.** The entry screen is headed "Weekly brief" but covers July to September 2026. "Weekly"
+  is Level 2's name for the screen; changing it is your call.
+- **N-5.** The brief header shows the content's freeze date and the footer the freeze run's date
+  (decision 3, item 5).
+- **N-6.** The empty decision log still shows the full replay statement, including "some
+  judgements did not hold", above "This build contains no replay entries." Hiding the log from the
+  navigation, or a one-line statement, would be a Level 2 change. Proposed: hide the "Decision log"
+  item for this release if you agree, or accept the screen as it is.
+- **N-8.** The readiness screen shows the raw token `LEVEL_NAME_UNVERIFIED`. It is what CLAUDE.md
+  mandates, but it looks unfinished to a cold viewer; decision 2's alternative would remove it.
+- **N-11.** Ship `governance.json` only after your EUR-Lex check (route A); otherwise route B.
+
 
 ## 5. What is not in this release
 
