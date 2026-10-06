@@ -1,5 +1,415 @@
-/* Placeholder. Design system is authored at Level 4 (M10), after Gate G2.
-   Constraints: no external fonts, system font stack only, responsive on phone and laptop. */
-:root { color-scheme: light dark; }
-body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 2rem; line-height: 1.5; }
-main { max-width: 42rem; margin: 0 auto; }
+/* Periscope: the one stylesheet (M10, docs/04-module-design.md).
+
+   Constraints: system fonts only, nothing loaded from anywhere (no web font, no remote image, no
+   @import); legible on a phone in portrait (360 x 640, 390 x 844) and a laptop in landscape
+   (1280 x 800, 1440 x 900); body text never below 16px; no horizontal scrolling.
+
+   No ranking through emphasis (invariant 1, C-4): peers share one template, so nothing here styles
+   one item of a list differently from another. The DOM hooks (data-*) are behaviour-free; the only
+   one selected here is data-badge, for the honesty badges (C-5).
+
+   Classes the screen modules may use: .screen, .notice, .note, .peer-group / .peer, .card,
+   .card-list, .meta, .source, .quote, .field, .actions, .echo, .link-button. */
+
+/* ------------------------------------------------------------------ base */
+
+:root {
+  color-scheme: light dark;
+  --text: #1b1d21;
+  --muted: #4a4f57;
+  --bg: #fdfdfc;
+  --surface: #f3f3f1;
+  --line: #c9cbcf;
+  --accent: #1f5fa8;
+  --notice-bg: #fff6e0;
+  --notice-line: #b98a1e;
+  --focus: #1f5fa8;
+  --measure: 46rem;
+  --page: 72rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e8e9eb;
+    --muted: #b4b8bf;
+    --bg: #15171a;
+    --surface: #1f2226;
+    --line: #3b4048;
+    --accent: #8cb8ee;
+    --notice-bg: #2c2618;
+    --notice-line: #a88534;
+    --focus: #8cb8ee;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  overflow-wrap: anywhere;
+}
+
+p,
+li,
+dd,
+dt,
+td,
+th,
+label,
+legend,
+blockquote {
+  font-size: 1rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  margin: 1.5rem 0 0.75rem;
+  overflow-wrap: break-word;
+}
+
+h1 { font-size: 1.625rem; margin-top: 0.5rem; }
+h2 { font-size: 1.3125rem; }
+h3 { font-size: 1.125rem; }
+h4 { font-size: 1rem; }
+
+p { margin: 0 0 1rem; }
+
+a { color: var(--accent); text-underline-offset: 0.15em; }
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ start-up failure (G-E1)
+   Visible by default; the shell removes the element after a successful start. Never hidden here. */
+
+#startup-failure {
+  margin: 1rem;
+  padding: 1rem;
+  border: 2px solid var(--notice-line);
+  background: var(--notice-bg);
+  max-width: var(--measure);
+}
+
+/* ------------------------------------------------------------------ shell */
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.5rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.main-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.main-nav li {
+  margin: 0;
+}
+
+.main-nav a {
+  display: inline-block;
+  padding: 0.375rem 0;
+  text-decoration: none;
+  color: var(--text);
+  border-bottom: 2px solid transparent;
+}
+
+.main-nav a:hover {
+  border-bottom-color: var(--line);
+}
+
+/* The screen being shown: navigation state, not emphasis of any content item. */
+.main-nav a[aria-current="page"] {
+  border-bottom-color: var(--accent);
+}
+
+.screen-host {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 1rem;
+  color: var(--muted);
+}
+
+.demo-statement {
+  max-width: var(--measure);
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------------------ screen building blocks */
+
+.screen > p,
+.screen > ul,
+.screen > ol,
+.screen > section > p {
+  max-width: var(--measure);
+}
+
+/* Error and withheld notices (C-3) and the not-found screen (G-E2). */
+.notice {
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--notice-line);
+  background: var(--notice-bg);
+  max-width: var(--measure);
+}
+
+/* Ordering notes (C-4) and other short interface lines. Same size as body text. */
+.note {
+  color: var(--muted);
+}
+
+.meta {
+  color: var(--muted);
+}
+
+/* Peers (the three readings): one column on a phone, equal columns side by side on a wide
+   screen. minmax(0, 1fr) keeps the columns equal whatever their content. */
+.peer-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 60rem) {
+  .peer-group {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.peer,
+.card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.card-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+  max-width: var(--measure);
+}
+
+.source,
+.quote {
+  color: var(--muted);
+}
+
+.quote q {
+  color: var(--text);
+  font-style: italic;
+}
+
+.echo {
+  white-space: pre-wrap;
+}
+
+/* ------------------------------------------------------------------ forms */
+
+fieldset {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-width: 0;
+}
+
+legend {
+  padding: 0 0.25rem;
+  font-weight: 600;
+}
+
+.field {
+  display: block;
+  margin: 0 0 1rem;
+  max-width: var(--measure);
+}
+
+.field > label {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+  font-size: 1rem;
+  max-width: 100%;
+}
+
+textarea,
+input[type="text"] {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+input[type="radio"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0 0.5rem 0 0;
+  vertical-align: -0.15em;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0 0 1rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--bg);
+  background: var(--accent);
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* A secondary action drawn as plain text (for example, skipping optional questions): transparent,
+   borderless, and no larger or heavier than the text around it. */
+.link-button {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: 400;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* ------------------------------------------------------------------ honesty badges (M9, C-5)
+   One shape for every value; the hue tells the origins apart and all hues share one lightness and
+   one weight, so no label looks more important than another. Peers carry identical badges. */
+
+.label-badge {
+  display: inline-block;
+  margin: 0 0.375rem;
+  padding: 0 0.4rem;
+  border: 1px solid hsl(var(--badge-hue, 220) 35% 45%);
+  border-radius: 3px;
+  color: hsl(var(--badge-hue, 220) 45% 28%);
+  background: hsl(var(--badge-hue, 220) 40% 95%);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  vertical-align: 0.1em;
+  white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .label-badge {
+    border-color: hsl(var(--badge-hue, 220) 30% 60%);
+    color: hsl(var(--badge-hue, 220) 45% 85%);
+    background: hsl(var(--badge-hue, 220) 25% 20%);
+  }
+}
+
+[data-badge="real"] { --badge-hue: 150; }
+[data-badge="ai-generated"] { --badge-hue: 270; }
+[data-badge="frozen"] { --badge-hue: 200; }
+[data-badge="fictional"] { --badge-hue: 30; }
+[data-badge="replay"] { --badge-hue: 330; }
+[data-badge="yours"] { --badge-hue: 90; }
+
+/* ------------------------------------------------------------------ wider screens */
+
+@media (min-width: 48rem) {
+  .site-header {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .screen-host {
+    padding: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
