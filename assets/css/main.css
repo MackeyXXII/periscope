@@ -498,6 +498,71 @@ button:disabled {
   margin-top: 0;
 }
 
+/* ------------------------------------------------------------------ readiness, governance, decision log (M7, M8)
+   No bars, gauges or colour scales (F3-S1); every log entry shares one template (F4-S1). The replay
+   statement is a plain paragraph so that it stays within the first screen on a phone (NF5). */
+
+.readiness-profile,
+.maturity,
+.governance-list,
+.governance-argument {
+  max-width: var(--measure);
+  margin-bottom: 2rem;
+}
+
+.answers {
+  margin: 0 0 0.75rem;
+}
+
+.answers dt {
+  font-style: italic;
+}
+
+.answers dd {
+  margin: 0 0 0.5rem;
+}
+
+.category h3,
+.practice h3,
+.next-level-item h4,
+.entry-heading {
+  margin-top: 0;
+}
+
+.placeholder {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.argument-paragraph {
+  margin-bottom: 1.25rem;
+}
+
+.replay-statement {
+  max-width: var(--measure);
+}
+
+.entry-heading {
+  font-size: 1.125rem;
+}
+
+.replay-signal-list {
+  margin: 0 0 0.5rem;
+  padding-left: 1.25rem;
+}
+
+.replay-signal > p,
+.past-judgement > p,
+.outcome > p,
+.calibration > p {
+  margin-bottom: 0.5rem;
+}
+
+.past-rationale {
+  white-space: pre-wrap;
+}
+
 /* ------------------------------------------------------------------ honesty badges (M9, C-5)
    One shape for every value; the hue tells the origins apart and all hues share one lightness and
    one weight, so no label looks more important than another. Peers carry identical badges. */
