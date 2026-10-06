@@ -1,0 +1,186 @@
+[
+  {
+    "id": "interrogation-ai-agents-in-observability",
+    "trendId": "trend-ai-agents-in-observability",
+    "provenanceChecks": [
+      {
+        "id": "q-ai-agents-in-observability-provenance-one",
+        "text": "All five signals come from vendors describing their own products. Which of them could you check against a source that does not sell observability, and where?"
+      },
+      {
+        "id": "q-ai-agents-in-observability-provenance-two",
+        "text": "Has the Dynatrace deal for Arize actually closed, and where would you confirm it, for example in Dynatrace's investor filings?"
+      }
+    ],
+    "assumptionProbes": [
+      {
+        "id": "q-ai-agents-in-observability-assumption-one",
+        "text": "Do your two pilot customers run AI agents today, and how do you know?"
+      },
+      {
+        "id": "q-ai-agents-in-observability-assumption-two",
+        "text": "Is the incident assistant part of why customers pay for Tracewell, or an extra they would not miss, and who told you so?"
+      }
+    ],
+    "preMortem": [
+      {
+        "id": "q-ai-agents-in-observability-premortem-one",
+        "text": "It is April 2027 and your judgement on this trend turned out to be wrong. What happened?"
+      },
+      {
+        "id": "q-ai-agents-in-observability-premortem-two",
+        "text": "What did a customer say or do in those six months that you had not expected?"
+      }
+    ],
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "interrogator"
+      ],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "interrogation-eu-austrian-data-and-security-dates",
+    "trendId": "trend-eu-austrian-data-and-security-dates",
+    "provenanceChecks": [
+      {
+        "id": "q-eu-austrian-data-and-security-dates-provenance-one",
+        "text": "Who could tell you whether Tracewell itself falls under the NISG 2026 or the Cyber Resilience Act, and have you asked them?"
+      },
+      {
+        "id": "q-eu-austrian-data-and-security-dates-provenance-two",
+        "text": "The EDPB anonymisation guidelines are open for comment until 30 October 2026. Where will you check what the final text says?"
+      }
+    ],
+    "assumptionProbes": [
+      {
+        "id": "q-eu-austrian-data-and-security-dates-assumption-one",
+        "text": "Do your pilot customers fall under the NISG 2026, and have they said so themselves?"
+      },
+      {
+        "id": "q-eu-austrian-data-and-security-dates-assumption-two",
+        "text": "Would Tracewell's redacted telemetry count as anonymous or only as pseudonymised, and who would decide that?"
+      }
+    ],
+    "preMortem": [
+      {
+        "id": "q-eu-austrian-data-and-security-dates-premortem-one",
+        "text": "It is April 2027 and your judgement on these rules turned out to be wrong. What happened?"
+      },
+      {
+        "id": "q-eu-austrian-data-and-security-dates-premortem-two",
+        "text": "What did a customer, a regulator or a lawyer tell you in those six months that you had not expected?"
+      }
+    ],
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "interrogator"
+      ],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "interrogation-opentelemetry-default-collection",
+    "trendId": "trend-opentelemetry-default-collection",
+    "provenanceChecks": [
+      {
+        "id": "q-opentelemetry-default-collection-provenance-one",
+        "text": "Who answered the OpenTelemetry survey of 81 users, and does the survey post say how they were found?"
+      },
+      {
+        "id": "q-opentelemetry-default-collection-provenance-two",
+        "text": "Has anyone on the team read the migration guide for the Kubernetes attributes processor, and what does it change in your distribution?"
+      }
+    ],
+    "assumptionProbes": [
+      {
+        "id": "q-opentelemetry-default-collection-assumption-one",
+        "text": "Why do your pilot customers use Tracewell's Collector distribution rather than the vanilla one, and have you asked them?"
+      },
+      {
+        "id": "q-opentelemetry-default-collection-assumption-two",
+        "text": "If customers can switch backends without re-instrumenting, which way do you expect them to move, and why?"
+      }
+    ],
+    "preMortem": [
+      {
+        "id": "q-opentelemetry-default-collection-premortem-one",
+        "text": "It is April 2027 and your judgement on this trend turned out to be wrong. What happened?"
+      },
+      {
+        "id": "q-opentelemetry-default-collection-premortem-two",
+        "text": "What did a competitor or the OpenTelemetry project ship in those six months that you had not expected?"
+      }
+    ],
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "interrogator"
+      ],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  },
+  {
+    "id": "interrogation-telemetry-reduction-before-storage",
+    "trendId": "trend-telemetry-reduction-before-storage",
+    "provenanceChecks": [
+      {
+        "id": "q-telemetry-reduction-before-storage-provenance-one",
+        "text": "The 30 to 50 per cent saving is Grafana Labs' own statement. Where could you find a figure that Grafana Labs did not publish?"
+      },
+      {
+        "id": "q-telemetry-reduction-before-storage-provenance-two",
+        "text": "What exactly does Dash0 now charge for ingestion and for storage, and where on its own pages is that stated?"
+      }
+    ],
+    "assumptionProbes": [
+      {
+        "id": "q-telemetry-reduction-before-storage-assumption-one",
+        "text": "Do your pilot customers know what their telemetry costs them today, and do they choose suppliers on that cost?"
+      },
+      {
+        "id": "q-telemetry-reduction-before-storage-assumption-two",
+        "text": "Do customers see cutting volume and removing personal data as one purchase or as two separate ones?"
+      }
+    ],
+    "preMortem": [
+      {
+        "id": "q-telemetry-reduction-before-storage-premortem-one",
+        "text": "It is April 2027 and your judgement on this trend turned out to be wrong. What happened?"
+      },
+      {
+        "id": "q-telemetry-reduction-before-storage-premortem-two",
+        "text": "What did a pilot customer or a prospect decide in those six months that you had not expected?"
+      }
+    ],
+    "label": "ai-generated",
+    "provenance": {
+      "sourceUrl": null,
+      "publisher": null,
+      "publishedOn": null,
+      "retrievedOn": null,
+      "producedBy": [
+        "interrogator"
+      ],
+      "producedOn": "2026-10-06",
+      "frozenOn": "2026-10-06"
+    }
+  }
+]

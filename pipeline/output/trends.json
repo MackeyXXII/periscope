@@ -3,7 +3,7 @@
     "id": "trend-ai-agents-in-observability",
     "title": "Observability vendors build products around AI agents",
     "summary": "Between late July and late September 2026, three observability vendors announced products for watching AI systems. Grafana Labs released Agent Observability, which it describes as OpenTelemetry-native monitoring of AI systems including token usage and cost (27 July). Dynatrace agreed to acquire Arize, an AI observability and LLM evaluation company, in a deal it valued at 915 million US dollars (13 August). Splunk, part of Cisco, described Agent Observability for evaluating, tracing and guarding AI agents, built on Cisco's acquisition of Galileo (18 September). In the same period two vendors shipped AI agents that investigate incidents themselves: Grafana Labs with Assistant Investigations (27 July), and Datadog with an autonomous Bits AI for incident detection, investigation and remediation, listed with its second-quarter results (6 August). New Relic's 2026 Observability Forecast, a vendor survey of 2,575 respondents, reports that a quarter of organisations have autonomous AI agents in production without monitoring (22 September). The movement spans about two months and rests on five signals, all published by vendors: the monitoring strand rests on four of them (Grafana Labs, Dynatrace, Splunk, New Relic) and the incident-investigation strand on two (Grafana Labs, Datadog).",
-    "intuitionPrompt": "PENDING-INTERROGATOR",
+    "intuitionPrompt": "Several vendors now sell products for monitoring AI agents. Before you see any reading, what is your gut call on what this means for Tracewell, and why, in one line?",
     "signalIds": [
       "sig-2026-07-27-grafana-agentic-operations-tools",
       "sig-2026-08-06-datadog-second-quarter-results",
@@ -22,7 +22,7 @@
       "publisher": null,
       "publishedOn": null,
       "retrievedOn": null,
-      "producedBy": ["trend-analyst"],
+      "producedBy": ["trend-analyst", "interrogator"],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -31,7 +31,7 @@
     "id": "trend-eu-austrian-data-and-security-dates",
     "title": "EU and Austrian rules on data and security reach set dates",
     "summary": "Between July and September 2026, three regulatory signals set or restated dates for rules on personal data and cybersecurity. On 8 July the European Data Protection Board adopted Guidelines 02/2026 on Anonymisation, under which data counts as anonymous only if it allows no isolation of records, no linkage and no inference; public consultation runs until 30 October 2026. On 27 July the European Commission published non-binding guidance on the Cyber Resilience Act, covering remote data processing solutions, free and open-source software and support periods, and restated that reporting obligations apply from 11 September 2026 and the main obligations from 11 December 2027. On 8 September the Austrian business service portal announced that the NISG 2026 enters into force on 1 October 2026, with initial registration of affected entities due by 1 January 2027 and incident reporting applying from entry into force. The movement spans about two months of publication and rests on three signals, all from public authorities; the dates they name run from September 2026 to December 2027.",
-    "intuitionPrompt": "PENDING-INTERROGATOR",
+    "intuitionPrompt": "EU and Austrian rules on data and security now carry fixed dates. Before you see any reading, what is your gut call on what this means for Tracewell, and why, in one line?",
     "signalIds": [
       "sig-2026-07-08-edpb-anonymisation-guidelines",
       "sig-2026-07-27-commission-cra-guidance",
@@ -48,7 +48,7 @@
       "publisher": null,
       "publishedOn": null,
       "retrievedOn": null,
-      "producedBy": ["trend-analyst"],
+      "producedBy": ["trend-analyst", "interrogator"],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -57,7 +57,7 @@
     "id": "trend-opentelemetry-default-collection",
     "title": "OpenTelemetry settles in as the default collection layer",
     "summary": "Between mid-August and late September 2026, three signals describe OpenTelemetry becoming the default and more stable layer for collecting telemetry. On 17 August Elastic explained that from version 9.3 its Elastic Agent is built on its own OpenTelemetry Collector distribution, runs existing inputs as receivers with unchanged configurations, and accepts OTLP data. On 16 September the OpenTelemetry project announced that the Collector's Kubernetes attributes processor reached version 1.0.0 and meets the project's stable criteria, following the Kubernetes semantic conventions becoming stable in June 2026; the update brings breaking configuration changes covered by a migration guide. On 22 September an OpenTelemetry survey of 81 users reported that the share finding Prometheus and OpenTelemetry hard to use together fell from 29 to 10 per cent, that 49 per cent mix both styles, and that 65 per cent run vanilla components without vendor distributions. The movement spans about five weeks and rests on three signals: one vendor post and two posts from the OpenTelemetry project, one of them a survey with 81 respondents.",
-    "intuitionPrompt": "PENDING-INTERROGATOR",
+    "intuitionPrompt": "OpenTelemetry is becoming the usual way to collect telemetry. Before you see any reading, what is your gut call on what this means for Tracewell, and why, in one line?",
     "signalIds": [
       "sig-2026-08-17-elastic-agent-otel-collector",
       "sig-2026-09-16-otel-k8s-attributes-processor-v1",
@@ -74,7 +74,7 @@
       "publisher": null,
       "publishedOn": null,
       "retrievedOn": null,
-      "producedBy": ["trend-analyst"],
+      "producedBy": ["trend-analyst", "interrogator"],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
@@ -83,7 +83,7 @@
     "id": "trend-telemetry-reduction-before-storage",
     "title": "Telemetry volume is cut before storage, and pricing follows retained data",
     "summary": "Over August and September 2026, two vendors extended automated reduction of telemetry volume before it is stored. On 4 August Grafana Labs made Adaptive Profiles generally available, so that its Adaptive Telemetry suite, which decides automatically which telemetry to keep and which to drop, now covers metrics, logs, traces and profiles; the company states that customers using several of its components report average reductions of 30 to 50 per cent in total telemetry costs. On 7 September Dash0 made SignalControl available in every account: a pipeline that filters, samples and aggregates telemetry before storage and can run in Dash0's cloud or in a customer's own Kubernetes cluster. With it Dash0 moved to billing a small ingestion fee plus storage for retained data only. The movement spans about five weeks and rests on two signals, both vendor announcements; the cost-reduction figures are the vendor's own statement.",
-    "intuitionPrompt": "PENDING-INTERROGATOR",
+    "intuitionPrompt": "Vendors now trim telemetry ahead of storage, and some bill only for the data they keep. Before you see any reading, what is your gut call on what this means for Tracewell, and why, in one line?",
     "signalIds": [
       "sig-2026-08-04-grafana-adaptive-telemetry-profiles",
       "sig-2026-09-07-dash0-signalcontrol"
@@ -99,7 +99,7 @@
       "publisher": null,
       "publishedOn": null,
       "retrievedOn": null,
-      "producedBy": ["trend-analyst"],
+      "producedBy": ["trend-analyst", "interrogator"],
       "producedOn": "2026-10-06",
       "frozenOn": "2026-10-06"
     }
