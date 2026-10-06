@@ -281,7 +281,30 @@ the lists below say which cause to expect, so that an open dependency is never m
 defect and a real defect is never mistaken for an open dependency. A test registration not listed
 here passes at G2 or is skipped with a named reason.
 
-### Under `node --test` (run on 5 October 2026, re-run after the N6 option (b) changes)
+### Under `node --test` after M1, M9 and M10 (run on 6 October 2026)
+
+On 6 October 2026, with M1 (contracts and freeze), M9 (honesty and provenance) and the M10 shell
+committed and the Cowork briefs delivered, the suite was run under `node --test` from the
+repository root with Node v24.21.0: 137 test registrations, **74 pass, 14 fail, 49 skipped**
+(37 "needs data/ (G3)", 12 "Deferred (F5 static, decision of 5 Oct 2026)"). Every one of the 14
+failures is listed here with the cause it reports; no other test fails. Each is an L5 module not
+yet built, reported by Node as `ERR_MODULE_NOT_FOUND` for the named file.
+
+| Test registration | Named cause |
+|---|---|
+| M5-U3 | `assets/js/screens/brief.js` not implemented (M5) |
+| M6-U3 (three registrations: `canCommit`, `whatIsMissing`, the B4 refusals), M6-U5 (two: the B4 refusals, the frozen record), M6-U6, M6-U8, M6-U13 | `assets/js/state/session.js` not implemented (M6) |
+| M6-U7 (four registrations) | `assets/js/state/lens-order.js` not implemented (M6) |
+| M8-U3 | `assets/js/screens/log.js` not implemented (M8) |
+
+M10-U9 passes on this run because `tests/lib/files.mjs` was brought up to date in the same change
+with the twelve files then under `assets/` plus `index.html`. It is designed to fail again the
+moment `assets/js/state/*.js` and `assets/js/screens/*.js` land, until whoever adds them adds them
+to `SHIPPED_FILES` in the same change.
+
+### Under `node --test` at G2 (run on 5 October 2026, re-run after the N6 option (b) changes)
+
+This is the G2 record and is kept as it was; the current state is the 6 October run above.
 
 137 test registrations: **50 pass, 38 fail, 49 skipped** (37 "needs data/ (G3)", 12 "Deferred (F5
 static, decision of 5 Oct 2026)"). Every one of the 38 failures is listed here with the cause it
@@ -365,3 +388,9 @@ After the N6 option (b) changes the suite was run again under `node --test`: 137
 with its listed cause. The M1-U6 schema side passes with the empty-argument sample accepted and the
 removed-`argument` mutant rejected. M7-U12 has not yet been run in the browser runner; it parses
 (`node --check`) and is expected to fail on the missing governance screen until L5.
+
+On 6 October 2026, after M1, M9 and the M10 shell were committed, the suite was run again under
+`node --test`: 137 registrations, 74 passed, 14 failed, 49 skipped. The 14 failures are exactly
+those in the 6 October table above, all caused by the M5, M6 and M8 modules not yet built
+(`screens/brief.js`, `state/session.js`, `state/lens-order.js`, `screens/log.js`). M10-U9 passes
+after `SHIPPED_FILES` was updated to the files then on disk.

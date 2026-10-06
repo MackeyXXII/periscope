@@ -9,7 +9,17 @@
 export const SHIPPED_FILES = Object.freeze([
   'index.html',
   'assets/css/main.css',
+  'assets/js/contracts/constants.js',
+  'assets/js/contracts/load.js',
+  'assets/js/contracts/validate.js',
+  'assets/js/contracts/vocabulary.js',
+  'assets/js/honesty/labels.js',
+  'assets/js/honesty/sources.js',
+  'assets/js/honesty/statement.js',
   'assets/js/main.js',
+  'assets/js/shell/nav.js',
+  'assets/js/shell/router.js',
+  'assets/js/shell/routes.js',
 ]);
 
 export const SCHEMA_FILES = Object.freeze([
