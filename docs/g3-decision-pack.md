@@ -116,6 +116,38 @@ The critical dependency is Miguel's own time on the morning of 7 October: the G3
 30 minutes with this pack) and the push. Agents may do neither. If the usage windows end early, the
 order above is the order in which things are cut, and F3 or F4 fall back to static screens.
 
+## Stop at the usage limit, 6 October 2026, afternoon
+
+Miguel stopped the agents to save usage. Committed and schema-checked: signals (16), trends (4,
+with intuition prompts), readings (12), interrogations (4), the brief selection (5 signals, every
+trend reachable), the readiness transcription (unverified), the clean replay readings and the
+replay judgements (R1 to R5), and the Verifier's first pass (`verification-pass1.md`).
+
+**Focus from here (Miguel, 6 Oct): the weekly brief and the core loop only.** The decision log is
+not worked on; `log.json` will ship as an empty array (`F4-S0`), and M8 is built only as far as the
+app needs to load.
+
+**Next steps, in order:**
+1. Apply the Verifier's strikes to the core-loop content by deletion only: the EDPB summary
+   ("Guidelines 02/2026", "replacing the 2014 Article 29 Working Party opinion"), the Dynatrace
+   relevance note ("with its main R&D site in Linz"), the Palo Alto relevance note ("first reported
+   figure"), the Splunk summary (token and cost tracking presented as available now); and the
+   same EDPB facts where they recur, in the summary of `trend-eu-austrian-data-and-security-dates`
+   and in two reading claims (`readings.json`, lines 221 and 355).
+2. The Implementer resumes M6 (`state/session.js`, `lens-order.js`, `screens/trend-index.js`,
+   `trend.js`, `scenario.js`), then M5 (`screens/brief.js`). The stopped run left uncommitted,
+   unfinished files in `assets/js/screens/`; check them against the tests before keeping any.
+3. Minimal M7 and M8 screens so that the router's imports resolve (readiness unverified `F3-S2`;
+   governance with both lists and `F3-S3a` if no argument is verified; log `F4-S0`).
+4. The Verifier's final pass and hashes over every input of the freeze; then G3 and the freeze.
+
+**Verifier first pass, in short:** p. 9 matched all three level names word for word (read in the
+WEF PDF, https://www3.weforum.org/docs/WEF_AI_in_Strategic_Foresight_2025.pdf, because the DOI's
+OECD page returned 403). 37 items checked: 24 pass, 7 struck, 6 not opened by the tool (EUR-Lex
+and CNBC). R1 lost both its signals, so it cannot ship. The Jöhnk et al. citation in
+`readiness.json` carries 2026-10-05 as its publication date, which is a retrieval date: it must be
+corrected before the freeze.
+
 ## Decisions for G3 (completed when the pipeline has run)
 
 To follow: each governance paragraph to accept or strike, with a reason; the D-1 level names set to

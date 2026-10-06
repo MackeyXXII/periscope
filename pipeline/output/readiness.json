@@ -1,0 +1,152 @@
+{
+  "id": "readiness-tracewell",
+  "subject": "Tracewell, a fictional four-person observability start-up in Linz, Austria, as it stands in early 2026",
+  "framework": {
+    "name": "The five categories of AI readiness, Jöhnk, Weißert and Wyrtki (2021)",
+    "citation": {
+      "url": "https://doi.org/10.1007/s12599-020-00676-7",
+      "publisher": "Business & Information Systems Engineering",
+      "title": "Ready or Not, AI Comes — An Interview Study of Organizational AI Readiness Factors",
+      "publishedOn": "2026-10-05",
+      "retrievedOn": "2026-10-05"
+    },
+    "label": "real"
+  },
+  "categories": [
+    {
+      "key": "strategic-alignment",
+      "name": "Strategic alignment",
+      "answers": [
+        {
+          "question": "What is AI for, in Tracewell's plan for 2026?",
+          "answer": "Two things. Inside the product, the incident assistant. Inside the company, help with reading the market: summarising release notes, regulation and competitor news."
+        },
+        {
+          "question": "Does the plan say what the team would stop doing if AI did not deliver?",
+          "answer": "No. Anna has a view, Jakob has a different one, and neither is written down."
+        },
+        {
+          "question": "Who decides when an AI feature ships?",
+          "answer": "Jakob and Selin together, without a written rule."
+        }
+      ],
+      "finding": "The founders agree that AI matters to the product and to how they read the market, but the reasons sit in conversations rather than in the plan. There is no written statement of what AI is meant to change, and so no way to tell later whether it did."
+    },
+    {
+      "key": "resources",
+      "name": "Resources",
+      "answers": [
+        {
+          "question": "What budget and people go to AI work?",
+          "answer": "About a third of Selin's time and a monthly spend on model APIs that the team does not track separately from cloud costs."
+        },
+        {
+          "question": "What compute and tooling do you have?",
+          "answer": "Hosted model APIs and the team's own EU cloud account. No dedicated hardware."
+        },
+        {
+          "question": "How long could you fund AI work if revenue stalled?",
+          "answer": "As long as the company itself, about nine months."
+        }
+      ],
+      "finding": "AI work depends on one person's part-time effort and on spending nobody separates from the rest of the cloud bill. The resources exist, but they are not visible as AI resources, which makes them hard to protect or to cut on purpose."
+    },
+    {
+      "key": "knowledge",
+      "name": "Knowledge",
+      "answers": [
+        {
+          "question": "Who on the team can build and evaluate AI features?",
+          "answer": "Selin can build them. Jakob can judge whether they help in an incident. Nobody has evaluated model output systematically."
+        },
+        {
+          "question": "Who understands how the regulations apply to you?",
+          "answer": "Anna has read summaries of the AI Act and the Cyber Resilience Act. Nobody has read the texts, and no lawyer has been asked."
+        },
+        {
+          "question": "Where does new knowledge come from?",
+          "answer": "OpenTelemetry community calls, vendor blogs, and former colleagues in Linz."
+        }
+      ],
+      "finding": "Building skill is present; evaluation skill and regulatory knowledge are thin and rest on summaries. What the team knows about the market comes mostly through personal networks, which are rich in Linz but narrow."
+    },
+    {
+      "key": "culture",
+      "name": "Culture",
+      "answers": [
+        {
+          "question": "How does the team treat a failed experiment?",
+          "answer": "It is discussed at the Friday retrospective and usually dropped without a note."
+        },
+        {
+          "question": "Do customers and founders trust AI output?",
+          "answer": "Jakob does not trust the assistant during a live incident. Two pilot customers use it after incidents, for write-ups."
+        },
+        {
+          "question": "Who challenges a founder's reading of the market?",
+          "answer": "Whoever disagrees, loudly, in the weekly meeting. Matthias often stays quiet."
+        }
+      ],
+      "finding": "The team is open to trying AI and argues freely, but experiments leave no trace and one voice, the one closest to customers, is heard least. Trust in AI output differs by setting: it is accepted for reflection after the fact and refused under time pressure."
+    },
+    {
+      "key": "data",
+      "name": "Data",
+      "answers": [
+        {
+          "question": "What data could AI features use?",
+          "answer": "Customer telemetry, after redaction, under each pilot contract; the team's own tickets and meeting notes."
+        },
+        {
+          "question": "What are you allowed to do with customer telemetry?",
+          "answer": "The pilot contracts allow processing to run the service. Using it to improve the assistant is not mentioned in them."
+        },
+        {
+          "question": "How good is your own data?",
+          "answer": "Tickets are tagged inconsistently and meeting notes are partial."
+        }
+      ],
+      "finding": "The data that matters most, customer telemetry, is available for running the service but not clearly for improving AI features, and the team's own records are too uneven to learn from. Data is present; the permission and the discipline to use it are not yet in place."
+    }
+  ],
+  "maturity": {
+    "status": "unverified",
+    "report": null,
+    "practices": [
+      {
+        "key": "scanning",
+        "name": "Scanning",
+        "levelName": "LEVEL_NAME_UNVERIFIED",
+        "betweenLevels": null,
+        "explanation": null,
+        "nextLevel": null
+      },
+      {
+        "key": "trend-analysis",
+        "name": "Trend analysis",
+        "levelName": "LEVEL_NAME_UNVERIFIED",
+        "betweenLevels": null,
+        "explanation": null,
+        "nextLevel": null
+      },
+      {
+        "key": "scenario-work",
+        "name": "Scenario work",
+        "levelName": "LEVEL_NAME_UNVERIFIED",
+        "betweenLevels": null,
+        "explanation": null,
+        "nextLevel": null
+      }
+    ]
+  },
+  "label": "fictional",
+  "provenance": {
+    "sourceUrl": null,
+    "publisher": null,
+    "publishedOn": null,
+    "retrievedOn": null,
+    "producedBy": ["persona-researcher", "trend-analyst"],
+    "producedOn": "2026-10-06",
+    "frozenOn": "2026-10-06"
+  }
+}

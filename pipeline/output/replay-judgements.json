@@ -1,0 +1,177 @@
+[
+  {
+    "candidate": "R1. The AI Act's application dates for high-risk systems were under negotiation",
+    "entryId": "replay-2026-02-12-ai-act-high-risk-dates",
+    "originalSignals": [
+      {
+        "title": "Digital Omnibus on AI [EU Legislation in Progress]",
+        "summary": {
+          "text": "A European Parliamentary Research Service briefing describes the Commission's proposal of 19 November 2025 to amend the AI Act, part of a wider digital package. The proposal responds to delays in designating national competent authorities and in publishing harmonised standards, and aims to ease implementation and reduce the regulatory burden of the AI Act, including by adjusting when the rules for high-risk AI systems start to apply. The briefing sets out the proposal and the state of the co-legislators' work on it.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://epthinktank.eu/2026/02/12/digital-omnibus-on-ai-eu-legislation-in-progress/",
+          "publisher": "European Parliamentary Research Service",
+          "title": "Digital Omnibus on AI [EU Legislation in Progress]",
+          "publishedOn": "2026-02-12",
+          "retrievedOn": "2026-10-06"
+        },
+        "label": "real"
+      },
+      {
+        "title": "Council agrees position to streamline rules on Artificial Intelligence",
+        "summary": {
+          "text": "The Council of the EU agreed its negotiating position on the Commission's proposal to streamline the AI Act. The Commission had proposed delaying the high-risk rules by up to 16 months, until it confirms that standards and support tools are available; the Council instead set fixed dates, 2 December 2027 for stand-alone high-risk systems and 2 August 2028 for high-risk systems embedded in products. The Council also added a prohibition on AI-generated non-consensual intimate content and child sexual abuse material, reinstated registration for providers who consider their systems exempt from high-risk classification, reinstated a strict-necessity standard for processing sensitive data for bias detection, and moved the deadline for national AI regulatory sandboxes to 2 December 2027. The presidency was to start negotiations with the European Parliament.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://www.consilium.europa.eu/en/press/press-releases/2026/03/13/council-agrees-position-to-streamline-rules-on-artificial-intelligence/",
+          "publisher": "Council of the European Union",
+          "title": "Council agrees position to streamline rules on Artificial Intelligence",
+          "publishedOn": "2026-03-13",
+          "retrievedOn": "2026-10-06"
+        },
+        "label": "real"
+      }
+    ],
+    "pastJudgement": {
+      "lens": "noise",
+      "rationale": "We took the noise reading. Our incident-question assistant answers engineers' questions about telemetry; nothing in the Commission proposal or the Council position suggests it counts as a high-risk system. The dates were still a Council negotiating position awaiting talks with Parliament. Following a moving draft would cost four people time without changing what Jakob builds. We will revisit if a customer asks about AI Act duties.",
+      "asOfDate": "2026-03-13",
+      "authoredOn": "2026-10-06",
+      "authoredBy": ["interrogator", "rival-reader"],
+      "label": "replay"
+    }
+  },
+  {
+    "candidate": "R2. The GDPR changes proposed in the Digital Omnibus met opposition from the data-protection authorities",
+    "entryId": "replay-2026-02-11-gdpr-omnibus-opposition",
+    "originalSignals": [
+      {
+        "title": "Digital Omnibus: EDPB and EDPS support simplification and competitiveness while raising key concerns",
+        "summary": {
+          "text": "The European Data Protection Board and the European Data Protection Supervisor published a joint opinion on the Commission's Digital Omnibus proposal, which would amend the GDPR. They supported a higher risk threshold and a longer deadline for notifying data breaches to authorities, common templates, and harmonisation of the notion of scientific research. They strongly opposed the proposed change to the definition of personal data, saying it went far beyond a technical amendment, departed from the case law of the Court of Justice and would significantly narrow the concept, and they objected to letting the Commission decide when pseudonymised data stops being personal data. They also recommended changes to the provisions on automated decision-making and on processing for AI systems.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://www.edpb.europa.eu/news/news/2026/digital-omnibus-edpb-and-edps-support-simplification-and-competitiveness-while_en",
+          "publisher": "European Data Protection Board",
+          "title": "Digital Omnibus: EDPB and EDPS support simplification and competitiveness while raising key concerns",
+          "publishedOn": "2026-02-11",
+          "retrievedOn": "2026-10-06"
+        },
+        "label": "real"
+      }
+    ],
+    "pastJudgement": {
+      "lens": "threat",
+      "rationale": "We took the threat reading. Our pitch rests on pseudonymised telemetry still counting as personal data. The Commission proposed narrowing that definition and letting itself decide when pseudonymised data stops being personal; the authorities' strong objection shows the point is contested, not settled. Until the co-legislators decide, Anna will keep sales material from leaning on the current definition alone, and Jakob keeps full removal as an option.",
+      "asOfDate": "2026-02-11",
+      "authoredOn": "2026-10-06",
+      "authoredBy": ["interrogator", "rival-reader"],
+      "label": "replay"
+    }
+  },
+  {
+    "candidate": "R3. The Cyber Resilience Act's reporting obligations had a fixed start date and draft guidance",
+    "entryId": "replay-2026-03-03-cra-reporting-start",
+    "originalSignals": [
+      {
+        "title": "Commission publishes for feedback draft guidance to assist companies in applying the Cyber Resilience Act",
+        "summary": {
+          "text": "The European Commission published draft guidance on the Cyber Resilience Act and invited feedback until 31 March 2026. The draft covers remote data processing solutions, free and open-source software, the concept of support periods and the interplay with other EU law, with attention to making compliance easier for micro, small and medium-sized enterprises. The Commission restated that the Act entered into force on 10 December 2024, that its reporting obligations apply from 11 September 2026 and that its main obligations apply from 11 December 2027.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://digital-strategy.ec.europa.eu/en/news/commission-publishes-feedback-draft-guidance-assist-companies-applying-cyber-resilience-act",
+          "publisher": "European Commission",
+          "title": "Commission publishes for feedback draft guidance to assist companies in applying the Cyber Resilience Act",
+          "publishedOn": "2026-03-03",
+          "retrievedOn": "2026-10-06"
+        },
+        "label": "real"
+      }
+    ],
+    "pastJudgement": {
+      "lens": "opportunity",
+      "rationale": "We took the opportunity reading. The reporting obligations start on 11 September 2026, a fixed date our customers supplying industry can plan against, and the draft guidance pays attention to small firms and remote data processing. Telemetry that helps a customer notice and document an incident is what we already collect. Anna answers the consultation before 31 March; Jakob checks whether our own hosted pipeline falls in scope.",
+      "asOfDate": "2026-03-03",
+      "authoredOn": "2026-10-06",
+      "authoredBy": ["interrogator", "rival-reader"],
+      "label": "replay"
+    }
+  },
+  {
+    "candidate": "R4. Software stocks fell on fears of AI agents while observability vendors reported growth",
+    "entryId": "replay-2026-02-09-observability-vendor-growth",
+    "originalSignals": [
+      {
+        "title": "Dynatrace Reports Third Quarter Fiscal Year 2026 Financial Results",
+        "summary": {
+          "text": "Dynatrace reported, for its third fiscal quarter of 2026, annual recurring revenue of about 1,972 million US dollars, up 20 per cent (16 per cent in constant currency), and total revenue of about 515 million US dollars, up 18 per cent. It raised its full-year guidance, with ARR now expected at 2,053 to 2,061 million US dollars. It also introduced Dynatrace Intelligence, which it described as an agentic AI-powered operations system combining deterministic and agentic AI.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://www.sec.gov/Archives/edgar/data/1773383/000177338326000006/q3fy26-earningsreleaseex99.htm",
+          "publisher": "Dynatrace, Inc. (exhibit 99.1, SEC EDGAR)",
+          "title": "Dynatrace Reports Third Quarter Fiscal Year 2026 Financial Results",
+          "publishedOn": "2026-02-09",
+          "retrievedOn": "2026-10-06"
+        },
+        "label": "real"
+      },
+      {
+        "title": "Datadog Announces Fourth Quarter and Fiscal Year 2025 Financial Results",
+        "summary": {
+          "text": "Datadog reported fiscal-2025 revenue of 3.43 billion US dollars, up 28 per cent year on year, and fourth-quarter revenue of 953 million US dollars, up 29 per cent. It guided fiscal-2026 revenue of 4.06 to 4.10 billion US dollars.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026006645/ex-991x20251231x8k.htm",
+          "publisher": "Datadog, Inc. (exhibit 99.1, SEC EDGAR)",
+          "title": "Datadog Announces Fourth Quarter and Fiscal Year 2025 Financial Results",
+          "publishedOn": "2026-02-10",
+          "retrievedOn": "2026-10-06"
+        },
+        "label": "real"
+      }
+    ],
+    "pastJudgement": {
+      "lens": "noise",
+      "rationale": "We took the noise reading. Two earnings reports from listed incumbents show the category growing worldwide, but they are company-wide figures and say nothing about mid-sized teams in Upper Austria or EU-hosted pipelines. Dynatrace Intelligence is a product announcement, not evidence that our customers want it. Earnings season recurs every quarter; it gives us no reason to change what we build or whom we sell to.",
+      "asOfDate": "2026-02-10",
+      "authoredOn": "2026-10-06",
+      "authoredBy": ["interrogator", "rival-reader"],
+      "label": "replay"
+    }
+  },
+  {
+    "candidate": "R5. Austrian start-up funding had fallen sharply in 2025",
+    "entryId": "replay-2026-03-25-austrian-startup-funding",
+    "originalSignals": [
+      {
+        "title": "EY European Start-up-Barometer für das Jahr 2025",
+        "summary": {
+          "text": "EY reported (in German) that start-ups in Austria raised 253 million euros in 2025, 56 per cent less than in 2024, across 148 financing rounds, with an average round of about 2 million euros, far below the averages in Germany and the United Kingdom; Austria fell from 15th to 20th place in Europe by volume. EY also reported that about 200 million euros had been invested in Austrian start-ups in the first two months of 2026, around 80 per cent of the 2025 total.",
+          "label": "ai-generated"
+        },
+        "source": {
+          "url": "https://www.ey.com/de_at/newsroom/2026/03/european-start-up-barometer-25",
+          "publisher": "EY Austria",
+          "title": "EY European Start-up-Barometer für das Jahr 2025",
+          "publishedOn": "2026-03-25",
+          "retrievedOn": "2026-10-06"
+        },
+        "label": "real"
+      }
+    ],
+    "pastJudgement": {
+      "lens": "threat",
+      "rationale": "We took the threat reading. Austrian start-ups raised far less in 2025, across 148 rounds averaging about 2 million euros, and Austria fell from 15th to 20th in Europe. The early-2026 total is encouraging, but the signal does not say how many rounds it covers or whether infrastructure software shared in it. Anna plans our next round assuming a thin home market and talks to investors beyond Austria.",
+      "asOfDate": "2026-03-25",
+      "authoredOn": "2026-10-06",
+      "authoredBy": ["interrogator", "rival-reader"],
+      "label": "replay"
+    }
+  }
+]
