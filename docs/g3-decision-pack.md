@@ -4,8 +4,8 @@
 evening of 5 October 2026. The 3 am run scheduled for 6 October did not do its work overnight: the
 session was opened at 03:00 but did nothing until about 12:30. That afternoon Miguel decided to
 correct course. The work then in flight (M9, the M10 shell and the Scout stage) was finished and
-committed, no further pipeline stage was started, and the rest of the run moves to the next
-overnight window. The "Progress log" section says where work stands. When the run is finished,
+committed. Miguel then set the target of a presentable demo live by midday on 7 October, and the
+run continues in the windows listed in the re-plan below. The "Progress log" section says where work stands. When the run is finished,
 this line will say so.
 
 ## Progress log
@@ -18,9 +18,9 @@ this line will say so.
 | M1 contracts and freeze | Done, 5 Oct (all runnable M1 tests pass) |
 | M9 honesty and M10 shell | Done, 6 Oct afternoon (`efeaeca`, `ea304ba`). `node --test`: 137 tests, 73 pass, 15 fail, 49 skipped. The failures are M10-U9 (`SHIPPED_FILES` in `tests/lib/files.mjs` lacks the M1, M9 and M10 files, a Test Engineer task) and 14 tests of the screen modules M5, M6 and M8, which are not built yet. The browser tests of M9 and M10 cannot run until the screens exist. |
 | Pipeline stage 1, Scout | Done, 6 Oct afternoon (`bc44866`, `069609b`). 16 signals in the window, each date taken from the page itself; 10 regulatory sources (F-8); replay signals for R1 to R5, 7 of 8 confirmed (the CNBC article for R4 returned 403 and was left out). Schema and lexical checks pass. Nothing is verified yet: that is the Verifier's work |
-| Pipeline stages 2 onwards: Trend Analyst → Rival Readers → Interrogator → replay judgements → Verifier outcomes → Trend Analyst second pass → Architect governance draft → Brief Editor → Verifier final pass | Not started; moved to the next overnight run |
-| `tests/lib/files.mjs` update (M10-U9) and `docs/traceability.md` entries for M9 and M10 | Not started; moved to the next overnight run |
-| Red-team review of content and code | Not started; moved to the next overnight run |
+| Pipeline stages 2 onwards: Trend Analyst → Rival Readers → Interrogator → replay judgements → Verifier outcomes → Trend Analyst second pass → Architect governance draft → Brief Editor → Verifier final pass | Started 6 Oct afternoon |
+| `tests/lib/files.mjs` update (M10-U9) and `docs/traceability.md` entries for M9 and M10 | Started 6 Oct afternoon |
+| Red-team review of content and code | Started 6 Oct afternoon |
 
 ## Items for Miguel collected so far
 
@@ -83,22 +83,38 @@ this line will say so.
     could not be shown in this build."; "Source" as link text when a reference has no title; and
     the publisher in brackets after a quote.
 
-## Re-plan, 6 October 2026 (proposed, Miguel to confirm)
+## Re-plan, 6 October 2026: presentable by midday on 7 October
 
-The remaining G3 content run moves to the next overnight window, **03:00 on 7 October 2026**. The
-scheduled task has been re-armed for that time, with its prompt updated to start from the state
-above. The 7 October morning deadline can no longer be met: the G3 content is produced overnight,
-and M5 to M8, the integration and system tests and the G4 push still follow it.
+Miguel set the target on the afternoon of 6 October: as much as possible of a presentable demo,
+live by **midday on Wednesday 7 October**. Work runs in the windows he gave. Content and build run
+in parallel, and the core loop (F2 brief into F1 trend card) comes first.
 
-| When | Work | Gate |
+| Window | Content path | Build path |
 |---|---|---|
-| 7 Oct, 03:00 | Pipeline stages 2 onwards, `files.mjs` and traceability updates, Red-team review, this pack completed | — |
-| 7 Oct, morning | Miguel decides G3 (governance paragraphs, D-1 level names, struck content); the freeze into `data/` | G3 |
-| 7 Oct, day | M5 to M8 built tests-first; integration and system tests at the four Q-7 viewports; Red-team audit; Miguel pushes `main` | G4 |
-| 8 Oct, morning | **Proposed new deadline:** demo live on GitHub Pages for the second day of the Wels fair | — |
+| 6 Oct, now to 15:40 | Trend Analyst (trends); then Rival Readers and Interrogator (readings, interrogation, intuition prompts, replay judgements from `replay-signals.json` only) | M6 state and screens (F1, F5-ST), then M5 (F2); `files.mjs` and test-plan counts |
+| 6 Oct, from 15:40 to the usage limit | Verifier: replay outcomes, p. 9 level names, first pass on signals, readings and regulatory sources. Trend Analyst second pass; Architect governance draft; Brief Editor | M7 (readiness and governance), M8 (log) |
+| 6 Oct, from about 21:00 | Verifier final pass and `verification.json`; Red-team review of content and code; fixes by the owning agents | Browser test run (`tests/run.html` on a local server) |
+| Overnight | This pack completed; `CONTENT_FROZEN` prepared but **not** set; everything committed | System checks at the four Q-7 viewports; fixes |
+| 7 Oct, morning | **Miguel decides G3**; freeze into `data/`; final Red-team check on the frozen data | **Miguel pushes `main`** by about 11:00 and checks GitHub Pages |
 
-If the build is behind at midday on 7 October, the static-screen fallback for F3 and F4 applies, as
-before. The new deadline is a proposal: only Miguel can set it.
+**What can be live by midday, in order of confidence:**
+
+1. **Very likely:** the weekly brief (F2) and the full core loop (F1): gut reading first, the three
+   readings in random order, interrogation, commit with a rationale. Verified real signals, honest
+   labels on every element, the demo-wide statement, no network calls. F5 is the static `F5-ST`.
+2. **Likely:** the readiness screen in its honest unverified state `F3-S2` (level names withheld
+   behind `LEVEL_NAME_UNVERIFIED`) and the governance screen with both lists. It ships with the
+   argument paragraphs that pass, or as `F3-S3a`. `F3-S2v` needs the p. 9 match and Miguel's
+   `verified` at G3. If both happen, it is possible.
+3. **At risk:** the decision log (F4), which needs every replay outcome found, verified and dated,
+   at least one judgement that did not hold, and calibration notes. If it falls short it ships as
+   the honest `F4-S0`, or the static fallback.
+4. **Not by midday:** the full system-test matrix in Chromium and Firefox and the G5 rehearsal
+   with outside viewers. A spot-check at the four viewports is planned overnight instead.
+
+The critical dependency is Miguel's own time on the morning of 7 October: the G3 decision (about
+30 minutes with this pack) and the push. Agents may do neither. If the usage windows end early, the
+order above is the order in which things are cut, and F3 or F4 fall back to static screens.
 
 ## Decisions for G3 (completed when the pipeline has run)
 
