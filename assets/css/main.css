@@ -359,6 +359,44 @@ button:disabled {
   text-underline-offset: 0.15em;
 }
 
+/* ------------------------------------------------------------------ weekly brief (M5)
+   Every signal element is built from one template; nothing below singles one out. */
+
+.brief-head {
+  max-width: var(--measure);
+  margin-bottom: 1rem;
+}
+
+.brief-head .meta {
+  margin-bottom: 0;
+}
+
+.signal-title {
+  font-size: 1.125rem;
+  margin: 0 0 0.25rem;
+}
+
+.signal-source {
+  margin-bottom: 0.75rem;
+}
+
+.signal-body > p {
+  margin-bottom: 0.75rem;
+}
+
+.signal-trends > p {
+  margin-bottom: 0.25rem;
+}
+
+.signal-trends > p:last-child {
+  margin-bottom: 0;
+}
+
+.trend-links {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
 /* ------------------------------------------------------------------ trend card and trend index (M6)
    Layout only. The three readings share .peer and every class inside it; nothing below selects one
    reading, signal or trend differently from its peers. */
