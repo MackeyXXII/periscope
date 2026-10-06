@@ -135,8 +135,10 @@ app needs to load.
    same EDPB facts where they recur, in the summary of `trend-eu-austrian-data-and-security-dates`
    and in two reading claims (`readings.json`, lines 221 and 355).
 2. The Implementer resumes M6 (`state/session.js`, `lens-order.js`, `screens/trend-index.js`,
-   `trend.js`, `scenario.js`), then M5 (`screens/brief.js`). The stopped run left uncommitted,
-   unfinished files in `assets/js/screens/`; check them against the tests before keeping any.
+   `trend.js`, `scenario.js`), then M5 (`screens/brief.js`). `state/session.js` and `lens-order.js` were
+   staged by the Implementer and went into commit `006d341` under a pipeline message; check them
+   against the M6 tests. The stopped run also left uncommitted, unfinished files in
+   `assets/js/screens/`; check them against the tests before keeping any.
 3. Minimal M7 and M8 screens so that the router's imports resolve (readiness unverified `F3-S2`;
    governance with both lists and `F3-S3a` if no argument is verified; log `F4-S0`).
 4. The Verifier's final pass and hashes over every input of the freeze; then G3 and the freeze.
