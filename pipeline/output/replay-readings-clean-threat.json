@@ -1,0 +1,37 @@
+[
+  {
+    "candidate": "R1. The AI Act's application dates for high-risk systems were under negotiation",
+    "lens": "threat",
+    "text": "By March 2026 the dates for high-risk AI rules were set two different ways: the Commission proposed a conditional delay of up to 16 months, the Council fixed 2 December 2027 and 2 August 2028, and talks with Parliament had not begun. For Tracewell, a compliance argument tied to those dates could age within months, and industrial customers may hold back spending while dates are open. The signals do not show whether the incident assistant falls under high-risk rules.",
+    "asOfDate": "2026-03-13",
+    "authoredOn": "2026-10-06"
+  },
+  {
+    "candidate": "R2. The GDPR changes proposed in the Digital Omnibus met opposition from the data-protection authorities",
+    "lens": "threat",
+    "text": "The Commission proposed changing the definition of personal data and letting itself decide when pseudonymised data stops being personal; on 11 February 2026 the EDPB and EDPS strongly opposed this as a significant narrowing. If the change passes, the pseudonymisation Tracewell sells could matter less to buyers, and a longer breach-notification deadline eases one pressure behind it. Either way, the rule Tracewell's pitch rests on stays unsettled while negotiations run. The signals do not show how customers or the co-legislators responded.",
+    "asOfDate": "2026-02-11",
+    "authoredOn": "2026-10-06"
+  },
+  {
+    "candidate": "R3. The Cyber Resilience Act's reporting obligations had a fixed start date and draft guidance",
+    "lens": "threat",
+    "text": "The Cyber Resilience Act's reporting obligations apply from 11 September 2026 and its main obligations from 11 December 2027, while guidance on remote data processing and open-source software was still a draft open for feedback until 31 March 2026. Tracewell's own pipeline and EU backend may fall in scope, which would put reporting and later product duties on a four-person team, with the rules on remote processing not yet settled. The signals do not show what the final guidance says.",
+    "asOfDate": "2026-03-03",
+    "authoredOn": "2026-10-06"
+  },
+  {
+    "candidate": "R4. Software stocks fell on fears of AI agents while observability vendors reported growth",
+    "lens": "threat",
+    "text": "Dynatrace reported ARR up 20 per cent, raised its guidance and introduced Dynatrace Intelligence, an agentic AI operations system; Datadog reported 2025 revenue up 28 per cent and guided above 4 billion US dollars for 2026. Incumbents with that growth can bundle AI incident features of the kind Tracewell sells as an add-on, and outspend a four-person team on sales. The signals do not show the stock-market fall named in this candidate.",
+    "asOfDate": "2026-02-10",
+    "authoredOn": "2026-10-06"
+  },
+  {
+    "candidate": "R5. Austrian start-up funding had fallen sharply in 2025",
+    "lens": "threat",
+    "text": "EY reported Austrian start-ups raised 253 million euros in 2025, 56 per cent less than in 2024, with an average round of about 2 million euros and Austria falling from 15th to 20th in Europe. For Anna, that means a thin home market for Tracewell's next round. EY also reported about 200 million euros invested in the first two months of 2026; the signals do not show how many rounds that covers or whether infrastructure software shared in it.",
+    "asOfDate": "2026-03-25",
+    "authoredOn": "2026-10-06"
+  }
+]

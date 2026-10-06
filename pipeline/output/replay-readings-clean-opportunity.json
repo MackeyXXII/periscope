@@ -1,0 +1,37 @@
+[
+  {
+    "candidate": "R1. The AI Act's application dates for high-risk systems were under negotiation",
+    "lens": "opportunity",
+    "text": "The negotiation buys Tracewell time and a clearer timetable. The Commission's proposal answered delays in standards and national authorities (EPRS, 12 Feb 2026); the Council's position set fixed dates, 2 December 2027 for stand-alone high-risk systems (Council, 13 Mar 2026). The small incident-question assistant can grow without a rushed compliance build, and Anna could help industrial suppliers map where telemetry meets the AI Act. Whether customers would pay for that help, the signals do not show this.",
+    "asOfDate": "2026-03-13",
+    "authoredOn": "2026-10-06"
+  },
+  {
+    "candidate": "R2. The GDPR changes proposed in the Digital Omnibus met opposition from the data-protection authorities",
+    "lens": "opportunity",
+    "text": "If the authorities' view holds, pseudonymised telemetry stays personal data, and the reason to strip or pseudonymise it before storage in an EU data centre stays intact. The EDPB and EDPS strongly opposed narrowing the definition of personal data and letting the Commission decide when pseudonymised data stops being personal (EDPB, 11 Feb 2026). That keeps Tracewell's pipeline relevant to customers' legal obligations. Whether the co-legislators would follow the authorities, the signals do not show this.",
+    "asOfDate": "2026-02-11",
+    "authoredOn": "2026-10-06"
+  },
+  {
+    "candidate": "R3. The Cyber Resilience Act's reporting obligations had a fixed start date and draft guidance",
+    "lens": "opportunity",
+    "text": "A fixed date gives Tracewell something concrete to sell against. CRA reporting obligations apply from 11 September 2026 and main obligations from 11 December 2027, and draft guidance covers remote data processing and attends to small firms (European Commission, 3 Mar 2026). Suppliers to Upper Austrian industry may want telemetry that helps them meet those duties, and Anna could answer the consultation by 31 March. What the reporting requires in detail, the signals do not show this.",
+    "asOfDate": "2026-03-03",
+    "authoredOn": "2026-10-06"
+  },
+  {
+    "candidate": "R4. Software stocks fell on fears of AI agents while observability vendors reported growth",
+    "lens": "opportunity",
+    "text": "Two incumbents report growth in observability. Dynatrace's ARR rose 20 per cent and it raised guidance (Dynatrace, 9 Feb 2026); Datadog's 2025 revenue rose 28 per cent (Datadog, 10 Feb 2026). Growing demand gives a small OpenTelemetry-native, EU-hosted entrant room to win mid-sized teams, and Dynatrace's agentic launch suggests vendors see demand for AI help in operations, which Tracewell's assistant also offers. The share-price fall the candidate names, the signals do not show this.",
+    "asOfDate": "2026-02-10",
+    "authoredOn": "2026-10-06"
+  },
+  {
+    "candidate": "R5. Austrian start-up funding had fallen sharply in 2025",
+    "lens": "opportunity",
+    "text": "The 2025 drop is real, but the early-2026 figures point to a reopening window. EY reports about 200 million euros invested in Austrian start-ups in January and February 2026, around 80 per cent of the 2025 total, after 253 million across 148 rounds in 2025 (EY Austria, 25 Mar 2026). Anna could plan a modest round now rather than wait for a recovery. Whether that money reached B2B infrastructure firms, the signals do not show this.",
+    "asOfDate": "2026-03-25",
+    "authoredOn": "2026-10-06"
+  }
+]
